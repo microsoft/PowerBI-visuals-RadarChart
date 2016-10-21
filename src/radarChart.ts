@@ -163,9 +163,9 @@ module powerbi.extensibility.visual {
         private viewport: IViewport;
         private viewportAvailable: IViewport;
 
-        private selectionIdBuilder: ISelectionIdBuilder;
         private interactivityService: IInteractivityService;
         private behavior: IInteractiveBehavior;
+        private visualHost: IVisualHost;
 
         // private animator: IGenericAnimator;
         private margin: powerbi.visuals.IMargin;
@@ -241,7 +241,7 @@ module powerbi.extensibility.visual {
         public static converter(
             dataView: DataView,
             colors: IColorPalette,
-            selectionIdBuilder: ISelectionIdBuilder,
+            visualHost: IVisualHost,
             interactivityService?: IInteractivityService): RadarChartData {
 
             if (!dataView ||
@@ -325,10 +325,9 @@ module powerbi.extensibility.visual {
                 });
 
                 for (let k = 0, kLen = values[i].values.length; k < kLen; k++) {
-                    let dataPointIdentity: ISelectionId = selectionIdBuilder
-                        // .withMeasure(queryName)
+                    let dataPointIdentity: ISelectionId = visualHost.createSelectionIdBuilder()
                         .withCategory(catDv.categories[0], k)
-                        // .withSeries(dataView.categorical.values, columnGroup)
+                        .withSeries(dataView.categorical.values, columnGroup)
                         .createSelectionId();
 
                     /*let tooltipInfo: TooltipDataItem[] = TooltipBuilder.createTooltipInfo(RadarChart.formatStringProp,
@@ -379,15 +378,6 @@ module powerbi.extensibility.visual {
             };
         }
 
-        private static clone(obj) {
-            if (null == obj || "object" != typeof obj) return obj;
-            var copy = obj.constructor();
-            for (var attr in obj) {
-                if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
-            }
-            return copy;
-        }
-
         constructor(options: VisualConstructorOptions) {
             const element: HTMLElement = options.element;
 
@@ -400,12 +390,12 @@ module powerbi.extensibility.visual {
             }
 
             if (!this.margin) {
-                this.margin = RadarChart.clone(RadarChart.DefaultMargin);//_.clone(RadarChart.DefaultMargin);
+                this.margin = _.clone(RadarChart.DefaultMargin);
             }
 
             this.svg.classed(RadarChart.VisualClassName, true);
 
-            this.selectionIdBuilder = options.host.createSelectionIdBuilder();
+            this.visualHost = options.host;
             this.interactivityService = createInteractivityService(options.host);
             this.behavior = new RadarChartWebBehavior();
             /*
@@ -448,7 +438,7 @@ module powerbi.extensibility.visual {
             this.radarChartData = RadarChart.converter(
                 dataView,
                 this.colors,
-                this.selectionIdBuilder,
+                this.visualHost,
                 this.interactivityService);
 
             let categories: any[] = [],

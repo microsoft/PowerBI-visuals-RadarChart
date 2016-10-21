@@ -21,14 +21,19 @@
     "@powerbi-visuals-utils/datacolorpalette": "git+https://github.com/vtkalek/powerbi-visuals-utils-datacolorpalette.git",
     "@powerbi-visuals-utils/displayunitsystem": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-displayunitsystem.git",
     "@powerbi-visuals-utils/displayunitsystemtype": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-displayunitsystemtype.git",
+    "@powerbi-visuals-utils/external-loader": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-external-loader.git",
     "@powerbi-visuals-utils/formattingservice": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-formattingservice.git",
     "@powerbi-visuals-utils/imargin": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-imargin.git",
+    "@powerbi-visuals-utils/interactivityservice": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-interactivityservice.git",
     "@powerbi-visuals-utils/pixelconverter": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-pixelconverter.git",
     "@powerbi-visuals-utils/shapes": "git+https://github.com/vtkalek/powerbi-visuals-utils-shapes.git",
     "@powerbi-visuals-utils/standaloneutility": "git+https://github.com/vtkalek/powerbi-visuals-utils-standaloneutility.git",
     "@powerbi-visuals-utils/stringextensions": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-stringextensions.git",
     "@powerbi-visuals-utils/valueformatter": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-valueformatter.git",
     "powerbi-visuals-tools": "git+https://github.com/Microsoft/PowerBI-visuals-tools.git",
-    "typings": "1.4.0"
+    "typings": "1.4.0",
+    "d3": "3.5.5",
+    "jquery": "3.1.1",
+    "lodash": "4.16.2"
   }
 }
