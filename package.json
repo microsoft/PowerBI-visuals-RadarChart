@@ -1,0 +1,22 @@
+{
+  "name": "RadarChart",
+  "devDependencies": {
+    "@powerbi-visuals-utils/cssconstants": "git+https://github.com/uve/powerbi-visuals-utils-cssconstants.git",
+    "@powerbi-visuals-utils/datacolorpalette": "git+https://github.com/vtkalek/powerbi-visuals-utils-datacolorpalette.git",
+    "@powerbi-visuals-utils/displayunitsystem": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-displayunitsystem.git",
+    "@powerbi-visuals-utils/displayunitsystemtype": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-displayunitsystemtype.git",
+    "@powerbi-visuals-utils/formattingservice": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-formattingservice.git",
+    "@powerbi-visuals-utils/imargin": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-imargin.git",
+    "@powerbi-visuals-utils/pixelconverter": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-pixelconverter.git",
+    "@powerbi-visuals-utils/standaloneutility": "git+https://github.com/vtkalek/powerbi-visuals-utils-standaloneutility.git",
+    "@powerbi-visuals-utils/stringextensions": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-stringextensions.git",
+    "@powerbi-visuals-utils/valueformatter": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-valueformatter.git",
+    "powerbi-visuals-tools": "^1.1.0",
+    "typescript": "^1.8.10",
+    "typings": "^1.4.0"
+  },
+  "dependencies": {
+    "@powerbi-visuals-utils/legend": "git+https://github.com/vtkalek/powerbi-visuals-utils-legend.git",
+    "typings": "^1.4.0"
+  }
+}

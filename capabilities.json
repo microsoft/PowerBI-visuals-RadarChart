@@ -1,0 +1,54 @@
+{
+    "dataRoles": [
+        {
+            "displayName": "Category Data",
+            "name": "Сategory",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Y Axis",
+            "name": "Y",
+            "kind": "Measure"
+        }
+    ],
+    "dataViewMappings": [
+        {
+            "categorical": {
+                "categories": {
+                    "for": {
+                        "in": "Сategory"
+                    },
+                    "dataReductionAlgorithm": {
+                        "top": {}
+                    }
+                },
+                "values": {
+                    "select": [
+                        {
+                            "bind": {
+                                "to": "Y"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "objects": {
+        "dataPoint": {
+            "displayName": "Data colors",
+            "properties": {
+                "fill": {
+                    "displayName": "Fill",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
