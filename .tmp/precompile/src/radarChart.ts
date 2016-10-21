@@ -63,7 +63,7 @@ module powerbi.extensibility.visual.RadarChart1446119667547  {
     }
 
     export interface RadarChartData {
-       // legendData: LegendData;
+        legendData: powerbi.visuals.LegendData;
         labels: RadarChartLabelsData;
         series: RadarChartSeries[];
         settings: RadarChartSettings;
@@ -1031,27 +1031,27 @@ module powerbi.extensibility.visual.RadarChart1446119667547  {
 
         private updateViewport(): void {
             let legendMargins: IViewport = null,//this.legend.getMargins(),
-                legendPosition: LegendPosition;
+                legendPosition: powerbi.visuals.LegendPosition;
 
             legendMargins = {
                 width: 50,
                 height: 50
             };
 
-            legendPosition = LegendPosition.Top;//LegendPosition[<string>this.legendObjectProperties[legendProps.position]];
+            legendPosition = powerbi.visuals.LegendPosition.Top;//LegendPosition[<string>this.legendObjectProperties[legendProps.position]];
 
             switch (legendPosition) {
-                case LegendPosition.Top:
-                case LegendPosition.TopCenter:
-                case LegendPosition.Bottom:
-                case LegendPosition.BottomCenter:
+                case powerbi.visuals.LegendPosition.Top:
+                case powerbi.visuals.LegendPosition.TopCenter:
+                case powerbi.visuals.LegendPosition.Bottom:
+                case powerbi.visuals.LegendPosition.BottomCenter:
                     this.viewport.height = Math.max(this.viewport.height - legendMargins.height, 0);
                     break;
 
-                case LegendPosition.Left:
-                case LegendPosition.LeftCenter:
-                case LegendPosition.Right:
-                case LegendPosition.RightCenter:
+                case powerbi.visuals.LegendPosition.Left:
+                case powerbi.visuals.LegendPosition.LeftCenter:
+                case powerbi.visuals.LegendPosition.Right:
+                case powerbi.visuals.LegendPosition.RightCenter:
                     this.viewport.width = Math.max(this.viewport.width - legendMargins.width, 0);
                     break;
             }

@@ -3,6 +3,7 @@
     "d3": "registry:npm/d3#3.0.0+20160723033700"
   },
   "globalDependencies": {
-    "d3": "github:DefinitelyTyped/DefinitelyTyped/d3/d3.d.ts#1c05872e7811235f43780b8b596bfd26fe8e7760"
+    "d3": "github:DefinitelyTyped/DefinitelyTyped/d3/d3.d.ts#1c05872e7811235f43780b8b596bfd26fe8e7760",
+    "jquery": "registry:dt/jquery#1.10.0+20160929162922"
   }
 }
