@@ -41,6 +41,8 @@ module powerbi.extensibility.visual {
     import createInteractivityService = powerbi.visuals.createInteractivityService;
     import ColorHelper = powerbi.visuals.ColorHelper;
     import IVisualSelectionId = powerbi.visuals.ISelectionId;
+    import valueFormatter = powerbi.visuals.valueFormatter;
+    import IValueFormatter = powerbi.visuals.IValueFormatter;
 
     export interface RadarChartDatapoint extends SelectableDataPoint {
         x: number;
@@ -208,24 +210,29 @@ module powerbi.extensibility.visual {
         public static AxesLabelsFontFamily: string = "sans-serif";
 
         private static getLabelsData(dataView: DataView): RadarChartLabelsData {
-            if (!dataView ||
-                !dataView.metadata ||
-                !dataView.metadata.columns ||
-                !dataView.metadata.columns[0] ||
-                !dataView.categorical ||
-                !dataView.categorical.categories ||
-                !dataView.categorical.categories[0] ||
-                !dataView.categorical.categories[0].values) {
+            if (!dataView
+                || !dataView.metadata
+                || !dataView.metadata.columns
+                || !dataView.metadata.columns[0]
+                || !dataView.categorical
+                || !dataView.categorical.categories
+                || !dataView.categorical.categories[0]
+                || !dataView.categorical.categories[0].values) {
                 return null;
             }
-            let categoryValues = dataView.categorical.categories[0].values;
-            /*let formatter = valueFormatter.create({
-                format: valueFormatter.getFormatString(dataView.metadata.columns[0], RadarChart.formatStringProp, true),
-            });*/
+
+            let categoryValues = dataView.categorical.categories[0].values,
+                formatter: IValueFormatter;
+
+            formatter = valueFormatter.create({
+                format: valueFormatter.getFormatStringByColumn(
+                    dataView.metadata.columns[0],
+                    true),
+            });
 
             let labelsData: RadarChartLabelsData = {
                 labelPoints: [],
-                formatter: null//formatter,
+                formatter: formatter,
             };
 
             for (let i: number = 0, iLen: number = categoryValues.length; i < iLen; i++) {
@@ -346,7 +353,7 @@ module powerbi.extensibility.visual {
                         null,
                         i);*/
 
-                    let labelFormatString = "";//valueFormatter.getFormatString(catDv.values[i].source, RadarChart.formatStringProp);
+                    let labelFormatString = valueFormatter.getFormatStringByColumn(catDv.values[i].source);
                     let fontSizeInPx = PixelConverter.fromPoint(settings.labels.fontSize);
 
                     dataPoints.push({
@@ -1013,28 +1020,28 @@ module powerbi.extensibility.visual {
          */
 
         //  private enumerateDataPoint(enumeration: ObjectEnumerationBuilder): void {
-         private enumerateDataPoint(enumeration: any): void {
-             if (!this.radarChartData || !this.radarChartData.series) {
-                 return;
-             }
- 
-             let series: RadarChartSeries[] = this.radarChartData.series;
- 
-             for (let i: number = 0; i < series.length; i++) {
-                 let serie = series[i];
- 
-                 enumeration.pushInstance({
-                     objectName: "dataPoint",
-                     displayName: serie.name,
-                     selector: ColorHelper.normalizeSelector(
-                         (serie.identity as IVisualSelectionId).getSelector(),
-                         false),
-                     properties: {
-                         fill: { solid: { color: serie.fill } }
-                     }
-                 });
-             }
-         }
+        private enumerateDataPoint(enumeration: any): void {
+            if (!this.radarChartData || !this.radarChartData.series) {
+                return;
+            }
+
+            let series: RadarChartSeries[] = this.radarChartData.series;
+
+            for (let i: number = 0; i < series.length; i++) {
+                let serie = series[i];
+
+                enumeration.pushInstance({
+                    objectName: "dataPoint",
+                    displayName: serie.name,
+                    selector: ColorHelper.normalizeSelector(
+                        (serie.identity as IVisualSelectionId).getSelector(),
+                        false),
+                    properties: {
+                        fill: { solid: { color: serie.fill } }
+                    }
+                });
+            }
+        }
 
         private updateViewport(): void {
             // let legendMargins: IViewport = null,//this.legend.getMargins(),
