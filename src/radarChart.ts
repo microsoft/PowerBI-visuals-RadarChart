@@ -917,7 +917,7 @@ module powerbi.extensibility.visual {
                 return;
             }
 
-            //this.legendObjectProperties = DataViewObjects.getObject(dataView.metadata.objects, "legend", {});
+            this.legendObjectProperties = DataViewObjects.getObject(dataView.metadata.objects, "legend", {});
         }
 
         private static parseSettings(dataView: DataView, colorPalette: IColorPalette): RadarChartSettings {
@@ -930,9 +930,9 @@ module powerbi.extensibility.visual {
             }
 
             return {
-                showLegend: true,//DataViewObjects.getValue(objects, RadarChart.Properties.legend.show, true),
-                line: true,//DataViewObjects.getValue(objects, RadarChart.Properties.line.show, false),
-                lineWidth: 5,//DataViewObjects.getValue(objects, RadarChart.Properties.line.lineWidth, RadarChart.DefaultLineWidth),
+                showLegend: DataViewObjects.getValue(objects, RadarChart.Properties.legend.show, true),
+                line: DataViewObjects.getValue(objects, RadarChart.Properties.line.show, false),
+                lineWidth: DataViewObjects.getValue(objects, RadarChart.Properties.line.lineWidth, RadarChart.DefaultLineWidth),
                 labels: this.parseLabelSettings(objects, colorPalette),
             };
         }
@@ -941,8 +941,8 @@ module powerbi.extensibility.visual {
             let settings: RadarChartLabelSettings = <RadarChartLabelSettings>{},
                 defaultSettings: RadarChartLabelSettings = RadarChart.DefaultLabelSettings;
 
-            settings.show = true;//DataViewObjects.getValue(objects, RadarChart.Properties.labels.show, defaultSettings.show);
-            settings.fontSize = 5;//DataViewObjects.getValue(objects, RadarChart.Properties.labels.fontSize, defaultSettings.fontSize);
+            settings.show = DataViewObjects.getValue(objects, RadarChart.Properties.labels.show, defaultSettings.show);
+            settings.fontSize = DataViewObjects.getValue(objects, RadarChart.Properties.labels.fontSize, defaultSettings.fontSize);
 
             let colorHelper = new ColorHelper(
                 colorPalette,
@@ -953,12 +953,12 @@ module powerbi.extensibility.visual {
 
             return settings;
         }
-        /*
+        
          // This function returns the values to be displayed in the property pane for each object.
          // Usually it is a bind pass of what the property pane gave you, but sometimes you may want to do
          // validation and return other values/defaults
-         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
-             let enumeration = new ObjectEnumerationBuilder();
+        public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
+             let enumeration: VisualObjectInstanceEnumeration;
              let settings: RadarChartSettings;
  
              if (!this.radarChartData || !this.radarChartData.settings) {
@@ -969,25 +969,21 @@ module powerbi.extensibility.visual {
  
              switch (options.objectName) {
                  case "legend":
-                     enumeration.pushInstance(this.enumerateLegend(settings));
-                     break;
+                     return this.enumerateLegend(settings);
                  case "dataPoint":
-                     this.enumerateDataPoint(enumeration);
-                     break;
+                     return this.enumerateDataPoint(enumeration);
                  case "line":
-                     enumeration.pushInstance(this.enumerateLine(settings));
-                     break;
+                     return this.enumerateLine(settings);
                  case 'labels':
-                     enumeration.pushInstance(this.enumerateDataLabels(enumeration));
-                     break;
+                    return this.enumerateDataLabels(enumeration);
              }
  
-             return enumeration.complete();
+             return enumeration;
          }
  
-         private enumerateDataLabels(enumeration: ObjectEnumerationBuilder): VisualObjectInstance {
+        private enumerateDataLabels(enumeration: powerbi.VisualObjectInstanceEnumeration): VisualObjectInstance[] {
              let settings: RadarChartLabelSettings = this.radarChartData.settings.labels;
-             let labels: VisualObjectInstance = {
+             let labels: VisualObjectInstance[] = [{
                  objectName: "labels",
                  displayName: "labels",
                  selector: null,
@@ -996,24 +992,24 @@ module powerbi.extensibility.visual {
                      color: settings.color,
                      fontSize: settings.fontSize,
                  }
-             };
+             }];
  
              return labels;
          }
  
-         private enumerateLegend(settings: RadarChartSettings): VisualObjectInstance {
+        private enumerateLegend(settings: RadarChartSettings): VisualObjectInstance[] {
              let showTitle: boolean = true,
                  titleText: string = "",
                  legend: VisualObjectInstance,
-                 labelColor: DataColorPalette,
+                // labelColor: DataColorPalette,
                  fontSize: number = 8,
                  position;
  
-             showTitle = DataViewObject.getValue(this.legendObjectProperties, legendProps.showTitle, showTitle);
-             titleText = DataViewObject.getValue(this.legendObjectProperties, legendProps.titleText, titleText);
-             labelColor = DataViewObject.getValue(this.legendObjectProperties, legendProps.labelColor, labelColor);
-             fontSize = DataViewObject.getValue(this.legendObjectProperties, legendProps.fontSize, fontSize);
-             position = DataViewObject.getValue(this.legendObjectProperties, legendProps.position, legendPosition.top);
+             //showTitle = DataViewObject.getValue(this.legendObjectProperties, legendProps.showTitle, showTitle);
+             //titleText = DataViewObject.getValue(this.legendObjectProperties, legendProps.titleText, titleText);
+             //labelColor = DataViewObject.getValue(this.legendObjectProperties, legendProps.labelColor, labelColor);
+             //fontSize = DataViewObject.getValue(this.legendObjectProperties, legendProps.fontSize, fontSize);
+             //position = DataViewObject.getValue(this.legendObjectProperties, legendProps.position, legendPosition.top);
  
              legend = {
                  objectName: "legend",
@@ -1024,16 +1020,16 @@ module powerbi.extensibility.visual {
                      position: position,//LegendPosition[this.legend.getOrientation()],
                      showTitle: showTitle,
                      titleText: titleText,
-                     labelColor: labelColor,
+                     //labelColor: labelColor,
                      fontSize: fontSize,
                  }
              };
  
-             return legend;
+             return [legend];
          }
  
-         private enumerateLine(settings: RadarChartSettings): VisualObjectInstance {
-             return {
+        private enumerateLine(settings: RadarChartSettings): VisualObjectInstance[] {
+             return [ {
                  objectName: RadarChart.Properties.line.show.objectName,
                  displayName: 'Draw Lines',
                  selector: null,
@@ -1041,12 +1037,11 @@ module powerbi.extensibility.visual {
                      show: settings.line,
                      lineWidth: settings.lineWidth
                  }
-             };
+             }];
          }
-         */
+         
 
-        //  private enumerateDataPoint(enumeration: ObjectEnumerationBuilder): void {
-        private enumerateDataPoint(enumeration: any): void {
+        private enumerateDataPoint(enumeration: any): VisualObjectInstance[] {
             if (!this.radarChartData || !this.radarChartData.series) {
                 return;
             }

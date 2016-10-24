@@ -46,5 +46,9 @@
     "moment": "^2.15.1",
     "powerbi-visuals-tools": "git+https://github.com/Microsoft/PowerBI-visuals-tools.git",
     "typings": "1.4.0"
+  },
+  "dependencies": {
+    "@powerbi-visuals-utils/color": "git+https://github.com/vtkalek/powerbi-visuals-utils-color.git",
+    "@powerbi-visuals-utils/dataviewobjects": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-dataviewobjects.git"
   }
 }
