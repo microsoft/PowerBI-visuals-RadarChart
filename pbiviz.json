@@ -26,7 +26,8 @@
     "node_modules/@powerbi-visuals-utils/pixelconverter/lib/index.js",
     "node_modules/@powerbi-visuals-utils/arrayextensions/lib/index.js",
     "node_modules/@powerbi-visuals-utils/shapes/lib/index.js",
-    "node_modules/@powerbi-visuals-utils/interactivityservice/lib/index.js"
+    "node_modules/@powerbi-visuals-utils/interactivityservice/lib/index.js",
+    "node_modules/@powerbi-visuals-utils/colorhelper/lib/index.js"
   ],
   "style": "style/radarChart.less",
   "capabilities": "capabilities.json"

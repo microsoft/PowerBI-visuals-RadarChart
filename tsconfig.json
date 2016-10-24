@@ -23,6 +23,7 @@
     "node_modules/@powerbi-visuals-utils/standaloneutility/lib/index.d.ts",
     "node_modules/@powerbi-visuals-utils/shapes/lib/index.d.ts",
     "node_modules/@powerbi-visuals-utils/interactivityservice/lib/index.d.ts",
+    "node_modules/@powerbi-visuals-utils/colorhelper/lib/index.d.ts",
     "src/radarChart.ts"
   ]
 }

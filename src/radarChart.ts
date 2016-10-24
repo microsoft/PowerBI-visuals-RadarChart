@@ -30,12 +30,17 @@ module powerbi.extensibility.visual {
     import CreateClassAndSelector = jsCommon.CssConstants.createClassAndSelector;
     import PixelConverter = jsCommon.PixelConverter;
 
+    // powerbi.extensibility
+    import IColorPalette = powerbi.extensibility.IColorPalette;
+
     // powerbi.visuals
     import IInteractivityService = powerbi.visuals.IInteractivityService;
     import IInteractiveBehavior = powerbi.visuals.IInteractiveBehavior;
     import SelectableDataPoint = powerbi.visuals.SelectableDataPoint;
     import ISelectionHandler = powerbi.visuals.ISelectionHandler;
     import createInteractivityService = powerbi.visuals.createInteractivityService;
+    import ColorHelper = powerbi.visuals.ColorHelper;
+    import IVisualSelectionId = powerbi.visuals.ISelectionId;
 
     export interface RadarChartDatapoint extends SelectableDataPoint {
         x: number;
@@ -159,7 +164,7 @@ module powerbi.extensibility.visual {
 
         private mainGroupElement: d3.Selection<any>;
         private labelGraphicsContext: d3.Selection<any>;
-        private colors: IColorPalette;
+        private colorPalette: IColorPalette;
         private viewport: IViewport;
         private viewportAvailable: IViewport;
 
@@ -240,7 +245,7 @@ module powerbi.extensibility.visual {
 
         public static converter(
             dataView: DataView,
-            colors: IColorPalette,
+            colorPalette: IColorPalette,
             visualHost: IVisualHost,
             interactivityService?: IInteractivityService): RadarChartData {
 
@@ -275,7 +280,7 @@ module powerbi.extensibility.visual {
                 values: DataViewValueColumns = catDv.values,
                 grouped: DataViewValueColumnGroup[] = catDv && catDv.values ? catDv.values.grouped() : null,
                 series: RadarChartSeries[] = [],
-                colorHelper = null;//new ColorHelper(colors, RadarChart.Properties.dataPoint.fill);
+                colorHelper = new ColorHelper(colorPalette, RadarChart.Properties.dataPoint.fill);
 
             let hasHighlights: boolean = !!(values.length > 0 && values[0].highlights);
             //LegendData
@@ -286,10 +291,10 @@ module powerbi.extensibility.visual {
             };
 
             //Parse legend settings
-            let settings: RadarChartSettings = RadarChart.parseSettings(dataView);
+            let settings: RadarChartSettings = RadarChart.parseSettings(dataView, colorPalette);
 
             for (let i = 0, iLen = values.length; i < iLen; i++) {
-                let color = "#000",//colors.getColorByIndex(i).value,
+                let color: string = colorPalette.getColor(i.toString()).value,
                     serieIdentity: ISelectionId,
                     queryName: string,
                     displayName: string,
@@ -303,7 +308,10 @@ module powerbi.extensibility.visual {
 
                     if (source.queryName) {
                         queryName = source.queryName;
-                        serieIdentity = null;//SelectionId.createWithMeasure(queryName);
+
+                        serieIdentity = visualHost.createSelectionIdBuilder()
+                            .withMeasure(queryName)
+                            .createSelectionId();
                     }
 
                     if (source.displayName) {
@@ -312,7 +320,7 @@ module powerbi.extensibility.visual {
 
                     if (source.objects) {
                         let objects: any = source.objects;
-                        color = "#000";//colorHelper.getColorForMeasure(objects, queryName);
+                        color = colorHelper.getColorForMeasure(objects, queryName);
                     }
                 }
 
@@ -339,7 +347,7 @@ module powerbi.extensibility.visual {
                         i);*/
 
                     let labelFormatString = "";//valueFormatter.getFormatString(catDv.values[i].source, RadarChart.formatStringProp);
-                    let fontSizeInPx = "15px";//jsCommon.PixelConverter.fromPoint(settings.labels.fontSize);
+                    let fontSizeInPx = PixelConverter.fromPoint(settings.labels.fontSize);
 
                     dataPoints.push({
                         x: k,
@@ -381,7 +389,6 @@ module powerbi.extensibility.visual {
         constructor(options: VisualConstructorOptions) {
             const element: HTMLElement = options.element;
 
-            console.clear();
             console.log('Visual constructor', options);
 
             if (!this.svg) {
@@ -406,6 +413,9 @@ module powerbi.extensibility.visual {
                 true,
                 LegendPosition.Top);
             this.colors = options.style.colorPalette.dataColors;*/
+
+            this.colorPalette = options.host.colorPalette;
+
             this.mainGroupElement = this.svg.append('g');
 
             this.labelGraphicsContext = this.mainGroupElement
@@ -437,7 +447,7 @@ module powerbi.extensibility.visual {
 
             this.radarChartData = RadarChart.converter(
                 dataView,
-                this.colors,
+                this.colorPalette,
                 this.visualHost,
                 this.interactivityService);
 
@@ -877,10 +887,8 @@ module powerbi.extensibility.visual {
             //this.legendObjectProperties = DataViewObjects.getObject(dataView.metadata.objects, "legend", {});
         }
 
-        private static parseSettings(dataView: DataView): RadarChartSettings {
+        private static parseSettings(dataView: DataView, colorPalette: IColorPalette): RadarChartSettings {
             let objects: DataViewObjects;
-            //let powerbi.visuals.DataColorPalette;
-            // let colors: IDataColorPalette = new powerbi.visuals.DataColorPalette();
 
             if (!dataView || !dataView.metadata || !dataView.metadata.columns || !dataView.metadata.objects) {
                 objects = null;
@@ -892,29 +900,24 @@ module powerbi.extensibility.visual {
                 showLegend: true,//DataViewObjects.getValue(objects, RadarChart.Properties.legend.show, true),
                 line: true,//DataViewObjects.getValue(objects, RadarChart.Properties.line.show, false),
                 lineWidth: 5,//DataViewObjects.getValue(objects, RadarChart.Properties.line.lineWidth, RadarChart.DefaultLineWidth),
-                labels: this.parseLabelSettings(objects),
+                labels: this.parseLabelSettings(objects, colorPalette),
             };
         }
 
-        private static parseLabelSettings(objects: DataViewObjects): RadarChartLabelSettings {
-            let settings: RadarChartLabelSettings = <RadarChartLabelSettings>{};
-            let defaultSettings: RadarChartLabelSettings = RadarChart.DefaultLabelSettings;
-            // if (typeof powerbi.visuals.DataColorPalette != undefined) {
-            //     let colors: IDataColorPalette = new powerbi.visuals.DataColorPalette();
-            // }
-            // var theme = powerbi.visuals.ThemeManager.getDefaultTheme();
+        private static parseLabelSettings(objects: DataViewObjects, colorPalette: IColorPalette): RadarChartLabelSettings {
+            let settings: RadarChartLabelSettings = <RadarChartLabelSettings>{},
+                defaultSettings: RadarChartLabelSettings = RadarChart.DefaultLabelSettings;
 
             settings.show = true;//DataViewObjects.getValue(objects, RadarChart.Properties.labels.show, defaultSettings.show);
             settings.fontSize = 5;//DataViewObjects.getValue(objects, RadarChart.Properties.labels.fontSize, defaultSettings.fontSize);
 
-            /*
-                        var ColorHelper
-                        let colorHelper = new ColorHelper(
-                            colors,
-                            RadarChart.Properties.labels.color,
-                            defaultSettings.color);
-                        */
-            settings.color = "#000";//colorHelper.getColorForMeasure(objects, "");
+            let colorHelper = new ColorHelper(
+                colorPalette,
+                RadarChart.Properties.labels.color,
+                defaultSettings.color);
+
+            settings.color = colorHelper.getColorForMeasure(objects, "");
+
             return settings;
         }
         /*
@@ -1007,8 +1010,10 @@ module powerbi.extensibility.visual {
                  }
              };
          }
- 
-         private enumerateDataPoint(enumeration: ObjectEnumerationBuilder): void {
+         */
+
+        //  private enumerateDataPoint(enumeration: ObjectEnumerationBuilder): void {
+         private enumerateDataPoint(enumeration: any): void {
              if (!this.radarChartData || !this.radarChartData.series) {
                  return;
              }
@@ -1021,14 +1026,15 @@ module powerbi.extensibility.visual {
                  enumeration.pushInstance({
                      objectName: "dataPoint",
                      displayName: serie.name,
-                     selector: ColorHelper.normalizeSelector(serie.identity.getSelector(), false),
+                     selector: ColorHelper.normalizeSelector(
+                         (serie.identity as IVisualSelectionId).getSelector(),
+                         false),
                      properties: {
                          fill: { solid: { color: serie.fill } }
                      }
                  });
              }
          }
-         */
 
         private updateViewport(): void {
             // let legendMargins: IViewport = null,//this.legend.getMargins(),
