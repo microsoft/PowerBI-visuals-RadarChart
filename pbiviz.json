@@ -40,7 +40,12 @@
     "node_modules/@powerbi-visuals-utils/svgutil/lib/index.js",
     "node_modules/@powerbi-visuals-utils/tooltipservice/lib/index.js",
     "node_modules/@powerbi-visuals-utils/tooltipmanager/lib/index.js",
-    "node_modules/@powerbi-visuals-utils/tooltipbuilder/lib/index.js"
+    "node_modules/@powerbi-visuals-utils/tooltipbuilder/lib/index.js",
+    "node_modules/@powerbi-visuals-utils/fontutils/lib/index.js",
+    "node_modules/@powerbi-visuals-utils/interactivityutils/lib/index.js",
+    "node_modules/@powerbi-visuals-utils/localstorageservice/lib/index.js",
+    "node_modules/@powerbi-visuals-utils/textmeasurementservice/lib/index.js",
+    "node_modules/@powerbi-visuals-utils/legend/lib/index.js"
   ],
   "style": "style/radarChart.less",
   "capabilities": "capabilities.json"
