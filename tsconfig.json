@@ -34,6 +34,12 @@
     "node_modules/@powerbi-visuals-utils/dataviewobjects/lib/index.d.ts",
     "node_modules/@powerbi-visuals-utils/color/lib/index.d.ts",
     "node_modules/@powerbi-visuals-utils/legend/lib/index.d.ts",
+    "node_modules/@powerbi-visuals-utils/datalabelutils/lib/index.d.ts",
+    "node_modules/@powerbi-visuals-utils/textmeasurementservice/lib/index.d.ts",
+    "node_modules/@powerbi-visuals-utils/datalabelmanager/lib/index.d.ts",
+    "src/radarChartDataInterfaces.ts",
+    "src/radarChartUtils.ts",
+    "src/radarChartWebBehavior.ts",
     "src/radarChart.ts"
   ]
 }

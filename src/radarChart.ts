@@ -32,6 +32,7 @@ module powerbi.extensibility.visual {
 
     // powerbi
     import DataViewObject = powerbi.DataViewObject;
+    import DataLabelManager = powerbi.DataLabelManager;
 
     // powerbi.extensibility
     import IColorPalette = powerbi.extensibility.IColorPalette;
@@ -40,8 +41,6 @@ module powerbi.extensibility.visual {
     import IMargin = powerbi.visuals.IMargin;
     import IInteractivityService = powerbi.visuals.IInteractivityService;
     import IInteractiveBehavior = powerbi.visuals.IInteractiveBehavior;
-    import SelectableDataPoint = powerbi.visuals.SelectableDataPoint;
-    import ISelectionHandler = powerbi.visuals.ISelectionHandler;
     import createInteractivityService = powerbi.visuals.createInteractivityService;
     import ColorHelper = powerbi.visuals.ColorHelper;
     import IVisualSelectionId = powerbi.visuals.ISelectionId;
@@ -61,76 +60,6 @@ module powerbi.extensibility.visual {
     import legendProps = powerbi.visuals.legendProps;
     import Legend = powerbi.visuals.Legend;
     import legendPosition = powerbi.visuals.legendPosition;
-
-    export interface RadarChartDatapoint extends SelectableDataPoint {
-        x: number;
-        y: number;
-        y0?: number;
-        color?: string;
-        value?: number;
-        tooltipInfo?: VisualTooltipDataItem[];
-        labelFormatString?: string;
-        labelFontSize?: string;
-        highlight?: boolean;
-    }
-
-    export interface RadarChartAxesLabel {
-        x: number;
-        y: number;
-        color: string;
-        labelFormatString: string;
-        labelFontSize: string;
-    }
-
-    export interface RadarChartData {
-        legendData: LegendData;
-        labels: RadarChartLabelsData;
-        series: RadarChartSeries[];
-        settings: RadarChartSettings;
-    }
-
-    export interface RadarChartLabel extends d3.svg.arc.Arc {
-        text: any;
-        index: number;
-        x?: number;
-        y?: number;
-        textAnchor?: string;
-        maxWidth?: number;
-        isLabelHasConflict?: boolean;
-    }
-
-    export interface RadarChartLabelsData {
-        labelPoints: RadarChartLabel[];
-        formatter: IValueFormatter;
-    }
-
-    export interface RadarChartSeries {
-        fill: string;
-        name: string;
-        dataPoints: RadarChartDatapoint[];
-        identity: ISelectionId;
-        hasHighlights?: boolean;
-    }
-
-    export interface RadarChartSettings {
-        showLegend?: boolean;
-        line: boolean;
-        lineWidth: number;
-        labels: RadarChartLabelSettings;
-    }
-
-    export interface RadarChartLabelSettings {
-        show: boolean;
-        color: string;
-        fontSize: number;
-    }
-
-    export interface RadarChartBehaviorOptions {
-        selection: d3.Selection<any>;
-        clearCatcher: d3.Selection<any>;
-        interactivityService: IInteractivityService;
-        hasHighlights: boolean;
-    }
 
     export class RadarChart implements IVisual {
         /** Note: Public for testability */
@@ -464,8 +393,6 @@ module powerbi.extensibility.visual {
         }
 
         public update(options: VisualUpdateOptions) {
-            console.log('Visual update', options);
-
             if (!options.dataViews || !options.dataViews[0]) {
                 this.clear();
                 return;
@@ -569,7 +496,7 @@ module powerbi.extensibility.visual {
         }
 
         private drawCircularSegments(values: string[]): void {
-            let data = [],
+            let data: RadarChartCircularSegment[] = [],
                 angle: number = this.angle,
                 factor: number = RadarChart.SegmentFactor,
                 levels: number = RadarChart.SegmentLevels,
@@ -577,16 +504,18 @@ module powerbi.extensibility.visual {
 
             for (let level: number = 0; level < levels; level++) {
                 let levelFactor: number = radius * factor * ((level + 1) / levels);
-                for (let i = 0; i <= values.length; i++)
+
+                for (let i = 0; i <= values.length; i++) {
                     data.push({
                         x1: levelFactor * (Math.sin(i * angle)),
                         y1: levelFactor * (Math.cos(i * angle)),
                         x2: levelFactor * (Math.sin((i + 1) * angle)),
                         y2: levelFactor * (Math.cos((i + 1) * angle)),
                     });
+                }
             }
 
-            let selection = this.mainGroupElement
+            let selection: d3.selection.Update<RadarChartCircularSegment> = this.mainGroupElement
                 .select(RadarChart.Segments.selector)
                 .selectAll(RadarChart.SegmentNode.selector)
                 .data(data);
@@ -595,6 +524,7 @@ module powerbi.extensibility.visual {
                 .enter()
                 .append('svg:line')
                 .classed(RadarChart.SegmentNode.class, true);
+
             selection
                 .attr({
                     'x1': item => item.x1,
@@ -639,13 +569,13 @@ module powerbi.extensibility.visual {
 
             return {
                 labelText: (d: RadarChartLabel) => {
-                    return d.text;
-                    /*let properties: TextProperties = {
+                    let properties: TextProperties = {
                         fontFamily: RadarChart.AxesLabelsFontFamily,
                         fontSize: PixelConverter.fromPoint(labelSettings.fontSize),
                         text: this.radarChartData.labels.formatter.format(d.text)
                     };
-                    return TextMeasurementService.getTailoredTextOrDefault(properties, d.maxWidth);*/
+
+                    return TextMeasurementService.getTailoredTextOrDefault(properties, d.maxWidth);
                 },
                 labelLayout: {
                     x: (d: RadarChartLabel) => d.x,
@@ -683,12 +613,11 @@ module powerbi.extensibility.visual {
                 .outerRadius(d => radius * 2);
 
             let labelLayout = this.getLabelLayout(labelArc, this.viewport);
-            /*
+
             // Hide and reposition labels that overlap
             let dataLabelManager = new DataLabelManager();
             let filteredData = dataLabelManager.hideCollidedLabels(this.viewport, values, labelLayout, true);
             this.drawAxesLabels(<RadarChartLabel[]>filteredData);
-            */
         }
 
         private drawAxesLabels(values: RadarChartLabel[], dataViewMetadataColumn?: DataViewMetadataColumn): void {
@@ -712,15 +641,13 @@ module powerbi.extensibility.visual {
                     y: (d: RadarChartLabel) => d.y
                 })
                 .text((d: RadarChartLabel) => {
-                    return d.text;
-                    /*
                     let properties: TextProperties = {
                         fontFamily: RadarChart.AxesLabelsFontFamily,
                         fontSize: PixelConverter.fromPoint(labelSettings.fontSize),
                         text: this.radarChartData.labels.formatter.format(d.text)
                     };
+
                     return TextMeasurementService.getTailoredTextOrDefault(properties, d.maxWidth);
-                    */
                 })
                 .style('font-size', (d: RadarChartLabel) => PixelConverter.fromPoint(labelSettings.fontSize))
                 .style('text-anchor', (d: RadarChartLabel) => d.textAnchor)
@@ -1123,50 +1050,5 @@ module powerbi.extensibility.visual {
         }
 
         public destroy(): void { }
-    }
-
-    /**
-     * RadarChartBehavior
-     */
-    export class RadarChartWebBehavior implements IInteractiveBehavior {
-        private selection: d3.Selection<SelectableDataPoint>;
-        private interactivityService: IInteractivityService;
-        private hasHighlights: boolean;
-
-        public bindEvents(options: RadarChartBehaviorOptions, selectionHandler: ISelectionHandler): void {
-            var selection = this.selection = options.selection;
-            var clearCatcher = options.clearCatcher;
-            this.interactivityService = options.interactivityService;
-            this.hasHighlights = options.hasHighlights;
-
-            selection.on('click', function (d: SelectableDataPoint) {
-                selectionHandler.handleSelection(d, (<MouseEvent>d3.event).ctrlKey);
-                (<MouseEvent>d3.event).stopPropagation();
-            });
-
-            clearCatcher.on('click', function () {
-                selectionHandler.handleClearSelection();
-            });
-        }
-
-        public renderSelection(hasSelection: boolean): void {
-            var hasHighlights: boolean = this.hasHighlights;
-
-            this.selection.style("opacity", (d: RadarChartDatapoint) => {
-                return radarChartUtils.getFillOpacity(d.selected, d.highlight, !d.highlight && hasSelection, !d.selected && hasHighlights);
-            });
-        }
-    }
-
-    export module radarChartUtils {
-        const DimmedOpacity: number = 0.4;
-        const DefaultOpacity: number = 1.0;
-
-        export function getFillOpacity(selected: boolean, highlight: boolean, hasSelection: boolean, hasPartialHighlights: boolean): number {
-            if ((hasPartialHighlights && !highlight) || (hasSelection && !selected)) {
-                return DimmedOpacity;
-            }
-            return DefaultOpacity;
-        }
     }
 }
