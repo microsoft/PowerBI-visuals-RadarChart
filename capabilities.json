@@ -15,7 +15,10 @@
         {
             "conditions": [
                 {
-                    "Category": { "min": 0, "max": 1 }
+                    "Category": {
+                        "min": 0,
+                        "max": 1
+                    }
                 }
             ],
             "categorical": {
@@ -40,52 +43,114 @@
         }
     ],
     "objects": {
-         "dataPoint": {
-                    "displayName": "Data colors",
-                    "description": "Display data color options",
-                    "properties": {
+        "legend": {
+            "displayName": "Legend",
+            "description": "Display Legend Options",
+            "properties": {
+                "show": {
+                    "displayName": "Show",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showTitle": {
+                    "displayName": "Title",
+                    "description": "Display a title for legend symbols",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "titleText": {
+                    "displayName": "Name",
+                    "description": "Title Text",
+                    "type": {
+                        "text": true
+                    },
+                    "suppressFormatPainterCopy": true
+                },
+                "labelColor": {
+                    "displayName": "Color",
+                    "type": {
                         "fill": {
-                            "displayName": "Fill",
-                            "type": { "fill": { "solid": { "color": true } } }
+                            "solid": {
+                                "color": true
+                            }
                         }
                     }
                 },
-                 "line": {
-                    "displayName": "Draw Lines",
-                    "properties": {
-                        "show": {
-                            "displayName": "Draw Lines",
-                            "type": { "bool": true }
-                        },
-                        "lineWidth": {
-                            "displayName": "Line Width",
-                            "type": { "numeric": true }
-                        }
-                    }
-                },
-                "labels": {
-                    "displayName": "Data Labels",
-                    "description": "Display data label options",
-                    "properties": {
-                        "show": {
-                            "displayName": "Show",
-                            "type": { "bool": true }
-                        },
-                        "color": {
-                            "displayName": "Color",
-                            "description": "Select color for data labels",
-                            "type": { "fill": { "solid": { "color": true } } }
-                        },
-                        "fontSize": {
-                            "displayName": "Text Size",
-                            "type": {"formatting": { "fontSize": true } }
+                "fontSize": {
+                    "displayName": "Text Size",
+                    "type": {
+                        "formatting": {
+                            "fontSize": true
                         }
                     }
                 }
+            }
+        },
+        "dataPoint": {
+            "displayName": "Data colors",
+            "description": "Display data color options",
+            "properties": {
+                "fill": {
+                    "displayName": "Fill",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "line": {
+            "displayName": "Draw Lines",
+            "properties": {
+                "show": {
+                    "displayName": "Draw Lines",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "lineWidth": {
+                    "displayName": "Line Width",
+                    "type": {
+                        "numeric": true
+                    }
+                }
+            }
+        },
+        "labels": {
+            "displayName": "Data Labels",
+            "description": "Display data label options",
+            "properties": {
+                "show": {
+                    "displayName": "Show",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "color": {
+                    "displayName": "Color",
+                    "description": "Select color for data labels",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "fontSize": {
+                    "displayName": "Text Size",
+                    "type": {
+                        "formatting": {
+                            "fontSize": true
+                        }
+                    }
+                }
+            }
+        }
     }
 }
-
-
-
- 
-

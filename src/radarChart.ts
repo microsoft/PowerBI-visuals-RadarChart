@@ -30,10 +30,14 @@ module powerbi.extensibility.visual {
     import CreateClassAndSelector = jsCommon.CssConstants.createClassAndSelector;
     import PixelConverter = jsCommon.PixelConverter;
 
+    // powerbi
+    import DataViewObject = powerbi.DataViewObject;
+
     // powerbi.extensibility
     import IColorPalette = powerbi.extensibility.IColorPalette;
 
     // powerbi.visuals
+    import IMargin = powerbi.visuals.IMargin;
     import IInteractivityService = powerbi.visuals.IInteractivityService;
     import IInteractiveBehavior = powerbi.visuals.IInteractiveBehavior;
     import SelectableDataPoint = powerbi.visuals.SelectableDataPoint;
@@ -49,6 +53,14 @@ module powerbi.extensibility.visual {
     import TooltipEventArgs = powerbi.visuals.TooltipEventArgs;
     import createTooltipService = powerbi.visuals.createTooltipService;
     import SVGUtil = powerbi.visuals.SVGUtil;
+    import LegendData = powerbi.visuals.LegendData;
+    import LegendIcon = powerbi.visuals.LegendIcon;
+    import ILegend = powerbi.visuals.ILegend;
+    import createLegend = powerbi.visuals.createLegend;
+    import LegendPosition = powerbi.visuals.LegendPosition;
+    import legendProps = powerbi.visuals.legendProps;
+    import Legend = powerbi.visuals.Legend;
+    import legendPosition = powerbi.visuals.legendPosition;
 
     export interface RadarChartDatapoint extends SelectableDataPoint {
         x: number;
@@ -71,7 +83,7 @@ module powerbi.extensibility.visual {
     }
 
     export interface RadarChartData {
-        legendData: any,//powerbi.visuals.LegendData;
+        legendData: LegendData;
         labels: RadarChartLabelsData;
         series: RadarChartSeries[];
         settings: RadarChartSettings;
@@ -161,6 +173,8 @@ module powerbi.extensibility.visual {
         private static MinLineWidth: number = 1;
         private static DefaultLineWidth: number = 5;
 
+        private static AnimationDuration: number = 100; // TODO: should we use animation with this visual ?
+
         private svg: d3.Selection<any>;
         private segments: d3.Selection<any>;
         private axis: d3.Selection<any>;
@@ -178,14 +192,12 @@ module powerbi.extensibility.visual {
 
         private tooltipService: ITooltipService;
 
-        // private animator: IGenericAnimator;
-        private margin: powerbi.visuals.IMargin;
-        //  private legend: ILegend;
+        private margin: IMargin;
+        private legend: ILegend;
         private legendObjectProperties: DataViewObject;
         private radarChartData: RadarChartData;
-        private isInteractiveChart: boolean;
 
-        private static DefaultMargin: powerbi.visuals.IMargin = {
+        private static DefaultMargin: IMargin = {
             top: 10,
             bottom: 10,
             right: 50,
@@ -198,16 +210,18 @@ module powerbi.extensibility.visual {
             fontSize: 8,
         };
 
-        private static ViewportMinWidth = 50;
-        private static ViewportMinHeight = 50;
+        private static ViewportMinWidth: number = 50;
+        private static ViewportMinHeight: number = 50;
 
         private static SegmentLevels: number = 5;
         private static SegmentFactor: number = .9;
         private static Radians: number = 2 * Math.PI;
         private static Scale: number = 1;
+
         public static NodeFillOpacity = 1;
         public static AreaFillOpacity = 0.6;
         public static DimmedAreaFillOpacity = 0.4;
+
         private angle: number;
         private radius: number;
 
@@ -245,7 +259,7 @@ module powerbi.extensibility.visual {
                     startAngle: null,
                     endAngle: null,
                     index: i,
-                    // TODO: check this probperties below.
+                    // TODO: check this properties below.
                     innerRadius: 0,
                     outerRadius: 0,
                     padAngle: 0
@@ -260,14 +274,15 @@ module powerbi.extensibility.visual {
             visualHost: IVisualHost,
             interactivityService?: IInteractivityService): RadarChartData {
 
-            if (!dataView ||
-                !dataView.categorical ||
-                !dataView.categorical.categories ||
-                !(dataView.categorical.categories.length > 0) ||
-                !dataView.categorical.categories[0] ||
-                !dataView.categorical.values ||
-                !(dataView.categorical.values.length > 0)) {
-                //|| !colors) {
+            if (!dataView
+                || !dataView.categorical
+                || !dataView.categorical.categories
+                || !(dataView.categorical.categories.length > 0)
+                || !dataView.categorical.categories[0]
+                || !dataView.categorical.values
+                || !(dataView.categorical.values.length > 0)
+                || !colorPalette) {
+
                 return {
                     legendData: {
                         dataPoints: []
@@ -294,8 +309,8 @@ module powerbi.extensibility.visual {
                 colorHelper = new ColorHelper(colorPalette, RadarChart.Properties.dataPoint.fill);
 
             let hasHighlights: boolean = !!(values.length > 0 && values[0].highlights);
-            //LegendData
-            let legendData = {
+
+            let legendData: LegendData = {
                 fontSize: 8.25,
                 dataPoints: [],
                 title: ""
@@ -338,18 +353,20 @@ module powerbi.extensibility.visual {
                 legendData.dataPoints.push({
                     label: displayName,
                     color: color,
-                    //icon: LegendIcon.Box,
+                    icon: LegendIcon.Box,
                     selected: false,
                     identity: serieIdentity
                 });
 
                 for (let k = 0, kLen = values[i].values.length; k < kLen; k++) {
                     let dataPointIdentity: ISelectionId = visualHost.createSelectionIdBuilder()
+                        .withMeasure(queryName)
                         .withCategory(catDv.categories[0], k)
                         .withSeries(dataView.categorical.values, columnGroup)
                         .createSelectionId();
 
-                    let tooltipInfo: VisualTooltipDataItem[] = TooltipBuilder.createTooltipInfo(RadarChart.formatStringProp,
+                    let tooltipInfo: VisualTooltipDataItem[] = TooltipBuilder.createTooltipInfo(
+                        RadarChart.formatStringProp,
                         catDv,
                         catDv.categories[0].values[k],
                         values[i].values[k],
@@ -357,17 +374,17 @@ module powerbi.extensibility.visual {
                         null,
                         i);
 
-                    let labelFormatString = valueFormatter.getFormatStringByColumn(catDv.values[i].source);
-                    let fontSizeInPx = PixelConverter.fromPoint(settings.labels.fontSize);
+                    let labelFormatString = valueFormatter.getFormatStringByColumn(catDv.values[i].source),
+                        fontSizeInPx = PixelConverter.fromPoint(settings.labels.fontSize);
 
                     dataPoints.push({
                         x: k,
-                        y: <number>values[i].values[k],
+                        y: values[i].values[k] as number,
                         color: color,
-                        identity: <powerbi.visuals.ISelectionId>dataPointIdentity,
+                        identity: dataPointIdentity,
                         selected: false,
                         tooltipInfo: tooltipInfo,
-                        value: <number>values[i].values[k],
+                        value: values[i].values[k] as number,
                         labelFormatString: labelFormatString,
                         labelFontSize: fontSizeInPx,
                         highlight: hasHighlights && !!(values[0].highlights[k])
@@ -419,14 +436,11 @@ module powerbi.extensibility.visual {
 
             this.tooltipService = createTooltipService(options.host);
 
-            /*
-            this.isInteractiveChart = options.interactivity && options.interactivity.isInteractiveLegend;
-            this.legend = createLegend(element,
-                this.isInteractiveChart,
+            this.legend = createLegend($(element),
+                false,
                 this.interactivityService,
                 true,
                 LegendPosition.Top);
-            this.colors = options.style.colorPalette.dataColors;*/
 
             this.colorPalette = options.host.colorPalette;
 
@@ -467,8 +481,7 @@ module powerbi.extensibility.visual {
 
             let categories: any[] = [],
                 series = this.radarChartData.series,
-                dataViewMetadataColumn: DataViewMetadataColumn,
-                duration = 1000;//AnimatorCommon.GetAnimationDuration(this.animator, options.suppressAnimations);
+                dataViewMetadataColumn: DataViewMetadataColumn;
 
             if (dataView.categorical &&
                 dataView.categorical.categories &&
@@ -495,14 +508,14 @@ module powerbi.extensibility.visual {
             this.renderLegend(this.radarChartData);
             this.updateViewport();
 
-            this.svg
-                .attr({
-                    'height': this.viewport.height,
-                    'width': this.viewport.width
-                });
+            this.svg.attr({
+                'height': this.viewport.height,
+                'width': this.viewport.width
+            });
 
-            let mainGroup = this.mainGroupElement;
-            mainGroup.attr('transform', SVGUtil.translate(this.viewport.width / 2, this.viewport.height / 2));
+            this.mainGroupElement.attr(
+                'transform',
+                SVGUtil.translate(this.viewport.width / 2, this.viewport.height / 2));
 
             let labelsFontSize: number = this.radarChartData.settings.labels.fontSize;
 
@@ -511,8 +524,8 @@ module powerbi.extensibility.visual {
             this.margin.right = Math.max(RadarChart.DefaultMargin.right, labelsFontSize);
             this.margin.bottom = Math.max(RadarChart.DefaultMargin.bottom, labelsFontSize);
 
-            let width: number = this.viewport.width - this.margin.left - this.margin.right;
-            let height: number = this.viewport.height - this.margin.top - this.margin.bottom;
+            let width: number = this.viewport.width - this.margin.left - this.margin.right,
+                height: number = this.viewport.height - this.margin.top - this.margin.bottom;
 
             if ((width < RadarChart.ViewportMinWidth) || (height < RadarChart.ViewportMinHeight)) {
                 this.clear();
@@ -531,7 +544,7 @@ module powerbi.extensibility.visual {
             this.drawAxes(categories);
 
             this.createAxesLabels();
-            this.drawChart(series, duration);
+            this.drawChart(series, RadarChart.AnimationDuration);
         }
 
         private clear(): void {
@@ -556,8 +569,8 @@ module powerbi.extensibility.visual {
         }
 
         private drawCircularSegments(values: string[]): void {
-            let data = [];
-            let angle: number = this.angle,
+            let data = [],
+                angle: number = this.angle,
                 factor: number = RadarChart.SegmentFactor,
                 levels: number = RadarChart.SegmentLevels,
                 radius: number = this.radius;
@@ -590,7 +603,9 @@ module powerbi.extensibility.visual {
                     'y2': item => item.y2,
                 });
 
-            selection.exit().remove();
+            selection
+                .exit()
+                .remove();
         }
 
         private drawAxes(values: string[]): void {
@@ -606,6 +621,7 @@ module powerbi.extensibility.visual {
             axis
                 .enter()
                 .append('svg:line');
+
             axis
                 .attr({
                     'x1': 0,
@@ -857,7 +873,6 @@ module powerbi.extensibility.visual {
         }
 
         private renderLegend(radarChartData: RadarChartData): void {
-            /*
             if (!radarChartData.legendData) {
                 return;
             }
@@ -866,6 +881,7 @@ module powerbi.extensibility.visual {
 
             if (this.legendObjectProperties) {
                 LegendData.update(legendData, this.legendObjectProperties);
+
                 let position = <string>this.legendObjectProperties[legendProps.position];
 
                 if (position) {
@@ -878,7 +894,6 @@ module powerbi.extensibility.visual {
             let viewport = this.viewport;
             this.legend.drawLegend(legendData, { height: viewport.height, width: viewport.width });
             Legend.positionChartArea(this.svg, this.legend);
-            */
         }
 
         private getDataPoints(series: RadarChartSeries[]): RadarChartDatapoint[][] {
@@ -953,95 +968,107 @@ module powerbi.extensibility.visual {
 
             return settings;
         }
-        
-         // This function returns the values to be displayed in the property pane for each object.
-         // Usually it is a bind pass of what the property pane gave you, but sometimes you may want to do
-         // validation and return other values/defaults
-        public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
-             let enumeration: VisualObjectInstanceEnumeration;
-             let settings: RadarChartSettings;
- 
-             if (!this.radarChartData || !this.radarChartData.settings) {
-                 return [];
-             }
- 
-             settings = this.radarChartData.settings;
- 
-             switch (options.objectName) {
-                 case "legend":
-                     return this.enumerateLegend(settings);
-                 case "dataPoint":
-                     return this.enumerateDataPoint(enumeration);
-                 case "line":
-                     return this.enumerateLine(settings);
-                 case 'labels':
-                    return this.enumerateDataLabels(enumeration);
-             }
- 
-             return enumeration;
-         }
- 
-        private enumerateDataLabels(enumeration: powerbi.VisualObjectInstanceEnumeration): VisualObjectInstance[] {
-             let settings: RadarChartLabelSettings = this.radarChartData.settings.labels;
-             let labels: VisualObjectInstance[] = [{
-                 objectName: "labels",
-                 displayName: "labels",
-                 selector: null,
-                 properties: {
-                     show: settings.show,
-                     color: settings.color,
-                     fontSize: settings.fontSize,
-                 }
-             }];
- 
-             return labels;
-         }
- 
-        private enumerateLegend(settings: RadarChartSettings): VisualObjectInstance[] {
-             let showTitle: boolean = true,
-                 titleText: string = "",
-                 legend: VisualObjectInstance,
-                // labelColor: DataColorPalette,
-                 fontSize: number = 8,
-                 position;
- 
-             //showTitle = DataViewObject.getValue(this.legendObjectProperties, legendProps.showTitle, showTitle);
-             //titleText = DataViewObject.getValue(this.legendObjectProperties, legendProps.titleText, titleText);
-             //labelColor = DataViewObject.getValue(this.legendObjectProperties, legendProps.labelColor, labelColor);
-             //fontSize = DataViewObject.getValue(this.legendObjectProperties, legendProps.fontSize, fontSize);
-             //position = DataViewObject.getValue(this.legendObjectProperties, legendProps.position, legendPosition.top);
- 
-             legend = {
-                 objectName: "legend",
-                 displayName: "legend",
-                 selector: null,
-                 properties: {
-                     show: settings.showLegend,
-                     position: position,//LegendPosition[this.legend.getOrientation()],
-                     showTitle: showTitle,
-                     titleText: titleText,
-                     //labelColor: labelColor,
-                     fontSize: fontSize,
-                 }
-             };
- 
-             return [legend];
-         }
- 
-        private enumerateLine(settings: RadarChartSettings): VisualObjectInstance[] {
-             return [ {
-                 objectName: RadarChart.Properties.line.show.objectName,
-                 displayName: 'Draw Lines',
-                 selector: null,
-                 properties: {
-                     show: settings.line,
-                     lineWidth: settings.lineWidth
-                 }
-             }];
-         }
-         
 
-        private enumerateDataPoint(enumeration: any): VisualObjectInstance[] {
+        /**
+         * This function returns the values to be displayed in the property pane for each object.
+         * Usually it is a bind pass of what the property pane gave you, but sometimes you may want to do
+         * validation and return other values/defaults
+         * 
+         * TODO: We should use SettingsParser instead. Please rewrite it in future versions.
+         */
+        public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
+            let instances: VisualObjectInstance[] = [];
+
+            if (this.radarChartData && this.radarChartData.settings) {
+                let settings: RadarChartSettings = this.radarChartData.settings;
+
+                switch (options.objectName) {
+                    case "legend": {
+                        this.enumerateLegend(settings, instances);
+
+                        break;
+                    }
+                    case "dataPoint": {
+                        this.enumerateDataPoint(instances);
+
+                        break;
+                    }
+                    case "line": {
+                        this.enumerateLine(settings, instances);
+
+                        break;
+                    }
+                    case 'labels': {
+                        this.enumerateDataLabels(instances);
+
+                        break;
+                    }
+                }
+            }
+
+            return instances;
+        }
+
+        private enumerateDataLabels(enumeration: powerbi.VisualObjectInstanceEnumeration): VisualObjectInstance[] {
+            let settings: RadarChartLabelSettings = this.radarChartData.settings.labels;
+            let labels: VisualObjectInstance[] = [{
+                objectName: "labels",
+                displayName: "labels",
+                selector: null,
+                properties: {
+                    show: settings.show,
+                    color: settings.color,
+                    fontSize: settings.fontSize,
+                }
+            }];
+
+            return labels;
+        }
+
+        private enumerateLegend(settings: RadarChartSettings, instances: VisualObjectInstance[]): void {
+            let showTitle: boolean = true,
+                titleText: string = "",
+                legend: VisualObjectInstance,
+                labelColor: string,
+                fontSize: number = 8,
+                position: any; // TODO: Power BI doesn't support the legend position for now. We will implement legend position when PBI supports it.
+
+            showTitle = DataViewObject.getValue(this.legendObjectProperties, legendProps.showTitle, showTitle);
+            titleText = DataViewObject.getValue(this.legendObjectProperties, legendProps.titleText, titleText);
+            labelColor = DataViewObject.getValue(this.legendObjectProperties, legendProps.labelColor, labelColor);
+            fontSize = DataViewObject.getValue(this.legendObjectProperties, legendProps.fontSize, fontSize);
+            position = DataViewObject.getValue(this.legendObjectProperties, legendProps.position, legendPosition.top);
+
+            legend = {
+                objectName: "legend",
+                displayName: "legend",
+                selector: null,
+                properties: {
+                    show: settings.showLegend,
+                    position: position,
+                    showTitle: showTitle,
+                    titleText: titleText,
+                    labelColor: labelColor,
+                    fontSize: fontSize,
+                }
+            };
+
+            instances.push(legend);
+        }
+
+        private enumerateLine(settings: RadarChartSettings, instances: VisualObjectInstance[]): void {
+            instances.push({
+                objectName: RadarChart.Properties.line.show.objectName,
+                displayName: 'Draw Lines',
+                selector: null,
+                properties: {
+                    show: settings.line,
+                    lineWidth: settings.lineWidth
+                }
+            });
+        }
+
+        private enumerateDataPoint(instances: VisualObjectInstance[]): void {
             if (!this.radarChartData || !this.radarChartData.series) {
                 return;
             }
@@ -1051,7 +1078,7 @@ module powerbi.extensibility.visual {
             for (let i: number = 0; i < series.length; i++) {
                 let serie = series[i];
 
-                enumeration.pushInstance({
+                instances.push({
                     objectName: "dataPoint",
                     displayName: serie.name,
                     selector: ColorHelper.normalizeSelector(
@@ -1065,31 +1092,29 @@ module powerbi.extensibility.visual {
         }
 
         private updateViewport(): void {
-            // let legendMargins: IViewport = null,//this.legend.getMargins(),
-            //     legendPosition: powerbi.visuals.LegendPosition;
+            let legendMargins: IViewport = this.legend.getMargins(),
+                legendPosition: powerbi.visuals.LegendPosition;
 
-            // legendMargins = {
-            //     width: 50,
-            //     height: 50
-            // };
+            legendPosition = LegendPosition[this.legendObjectProperties[legendProps.position] as string];
 
-            // legendPosition = powerbi.visuals.LegendPosition.Top;//LegendPosition[<string>this.legendObjectProperties[legendProps.position]];
+            switch (legendPosition) {
+                case powerbi.visuals.LegendPosition.Top:
+                case powerbi.visuals.LegendPosition.TopCenter:
+                case powerbi.visuals.LegendPosition.Bottom:
+                case powerbi.visuals.LegendPosition.BottomCenter: {
+                    this.viewport.height = Math.max(this.viewport.height - legendMargins.height, 0);
 
-            // switch (legendPosition) {
-            //     case powerbi.visuals.LegendPosition.Top:
-            //     case powerbi.visuals.LegendPosition.TopCenter:
-            //     case powerbi.visuals.LegendPosition.Bottom:
-            //     case powerbi.visuals.LegendPosition.BottomCenter:
-            //         this.viewport.height = Math.max(this.viewport.height - legendMargins.height, 0);
-            //         break;
+                    break;
+                }
+                case powerbi.visuals.LegendPosition.Left:
+                case powerbi.visuals.LegendPosition.LeftCenter:
+                case powerbi.visuals.LegendPosition.Right:
+                case powerbi.visuals.LegendPosition.RightCenter: {
+                    this.viewport.width = Math.max(this.viewport.width - legendMargins.width, 0);
 
-            //     case powerbi.visuals.LegendPosition.Left:
-            //     case powerbi.visuals.LegendPosition.LeftCenter:
-            //     case powerbi.visuals.LegendPosition.Right:
-            //     case powerbi.visuals.LegendPosition.RightCenter:
-            //         this.viewport.width = Math.max(this.viewport.width - legendMargins.width, 0);
-            //         break;
-            // }
+                    break;
+                }
+            }
         }
 
         private parseLineWidth(): void {

@@ -33,6 +33,7 @@
     "node_modules/@powerbi-visuals-utils/tooltipbuilder/lib/index.d.ts",
     "node_modules/@powerbi-visuals-utils/dataviewobjects/lib/index.d.ts",
     "node_modules/@powerbi-visuals-utils/color/lib/index.d.ts",
+    "node_modules/@powerbi-visuals-utils/legend/lib/index.d.ts",
     "src/radarChart.ts"
   ]
 }
