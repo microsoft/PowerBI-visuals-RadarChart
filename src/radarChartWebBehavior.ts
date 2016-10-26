@@ -25,38 +25,54 @@
  */
 
 module powerbi.extensibility.visual {
+    // external libraries
+    import Selection = d3.Selection;
+
     // powerbi.visuals
     import SelectableDataPoint = powerbi.visuals.SelectableDataPoint;
     import IInteractivityService = powerbi.visuals.IInteractivityService;
     import IInteractiveBehavior = powerbi.visuals.IInteractiveBehavior;
     import ISelectionHandler = powerbi.visuals.ISelectionHandler;
 
+    export interface RadarChartBehaviorOptions {
+        selection: Selection<SelectableDataPoint>;
+        clearCatcher: Selection<any>;
+        interactivityService: IInteractivityService;
+        hasHighlights: boolean;
+    }
+
     export class RadarChartWebBehavior implements IInteractiveBehavior {
-        private selection: d3.Selection<SelectableDataPoint>;
+        private selection: Selection<SelectableDataPoint>;
         private interactivityService: IInteractivityService;
         private hasHighlights: boolean;
 
         public bindEvents(options: RadarChartBehaviorOptions, selectionHandler: ISelectionHandler): void {
-            var selection = this.selection = options.selection;
-            var clearCatcher = options.clearCatcher;
+            const clearCatcher: Selection<any> = options.clearCatcher;
+
+            this.selection = options.selection;
             this.interactivityService = options.interactivityService;
             this.hasHighlights = options.hasHighlights;
 
-            selection.on('click', function (d: SelectableDataPoint) {
-                selectionHandler.handleSelection(d, (<MouseEvent>d3.event).ctrlKey);
-                (<MouseEvent>d3.event).stopPropagation();
+            this.selection.on("click", (dataPoint: SelectableDataPoint) => {
+                const mouseEvent: MouseEvent = d3.event as MouseEvent;
+
+                selectionHandler.handleSelection(dataPoint, mouseEvent.ctrlKey);
+
+                mouseEvent.stopPropagation();
             });
 
-            clearCatcher.on('click', function () {
+            clearCatcher.on("click", () => {
                 selectionHandler.handleClearSelection();
             });
         }
 
         public renderSelection(hasSelection: boolean): void {
-            var hasHighlights: boolean = this.hasHighlights;
-
-            this.selection.style("opacity", (d: RadarChartDatapoint) => {
-                return radarChartUtils.getFillOpacity(d.selected, d.highlight, !d.highlight && hasSelection, !d.selected && hasHighlights);
+            this.selection.style("opacity", (dataPoint: RadarChartDatapoint) => {
+                return radarChartUtils.getFillOpacity(
+                    dataPoint.selected,
+                    dataPoint.highlight,
+                    !dataPoint.highlight && hasSelection,
+                    !dataPoint.selected && this.hasHighlights);
             });
         }
     }
