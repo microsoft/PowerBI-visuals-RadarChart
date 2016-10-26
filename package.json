@@ -56,6 +56,7 @@
   },
   "dependencies": {
     "@powerbi-visuals-utils/color": "git+https://github.com/vtkalek/powerbi-visuals-utils-color.git",
-    "@powerbi-visuals-utils/dataviewobjects": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-dataviewobjects.git"
+    "@powerbi-visuals-utils/dataviewobjects": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-dataviewobjects.git",
+    "@powerbi-visuals-utils/interactivityservice": "git+https://github.com/vtkalek/powerbi-visuals-utils-interactivityservice.git"
   }
 }
