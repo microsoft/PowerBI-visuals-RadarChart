@@ -25,6 +25,9 @@
  */
 
 module powerbi.extensibility.visual {
+    // external libraries
+    import Arc = d3.svg.arc.Arc;
+
     // powerbi.visuals
     import SelectableDataPoint = powerbi.visuals.SelectableDataPoint;
     import VisualTooltipDataItem = powerbi.visuals.VisualTooltipDataItem;
@@ -59,7 +62,7 @@ module powerbi.extensibility.visual {
         settings: RadarChartSettings;
     }
 
-    export interface RadarChartLabel extends d3.svg.arc.Arc {
+    export interface RadarChartLabel extends Arc {
         text: any;
         index: number;
         x?: number;
@@ -93,13 +96,6 @@ module powerbi.extensibility.visual {
         show: boolean;
         color: string;
         fontSize: number;
-    }
-
-    export interface RadarChartBehaviorOptions {
-        selection: d3.Selection<any>;
-        clearCatcher: d3.Selection<any>;
-        interactivityService: IInteractivityService;
-        hasHighlights: boolean;
     }
 
     export interface RadarChartCircularSegment {

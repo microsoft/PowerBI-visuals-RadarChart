@@ -33,10 +33,19 @@
 @import (less) "node_modules/@powerbi-visuals-utils/legend/lib/index.css";
 
 .radarChart {
+    @defaultColor: grey;
+
+    .pathStyle(@strokeWidth) {
+        fill: none;
+        stroke: @defaultColor;
+        stroke-opacity: 0.75;
+        stroke-width: @strokeWidth;
+    }
+
     .axis {
         path, line {
             fill: none;
-            stroke: grey;
+            stroke: @defaultColor;
             stroke-width: 1px;
         }
 
@@ -47,27 +56,18 @@
 
     .segments {
         path, line {
-            fill: none;
-            stroke: grey;
-            stroke-opacity: 0.75;
-            stroke-width: 0.3px;
+            .pathStyle(0.3px);
         }
     }
 
     .zeroSegment {
         path, line {
-            fill: none;
-            stroke: grey;
-            stroke-opacity: 0.75;
-            stroke-width: 2px;
+            .pathStyle(2px);
         }
 
         text {
-            fill: none;
+            .pathStyle(1px);
             font-size: 10px;
-            stroke: grey;
-            stroke-opacity: 0.75;
-            stroke-width: 1px;
         }
     }
 }
