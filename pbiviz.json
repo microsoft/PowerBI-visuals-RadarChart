@@ -2,7 +2,7 @@
   "visual": {
     "name": "radarChart",
     "displayName": "RadarChart",
-    "guid": "RadarChart1446119667547_removeTheEnding",
+    "guid": "RadarChart1446119667547",
     "visualClassName": "RadarChart",
     "version": "0.5.4",
     "description": "A simple radar chart supporting multiple measures plotted over a categorical axis. Also known as a web chart, spider chart, or star chart. Use to display performance metrics for quality improvement.",
