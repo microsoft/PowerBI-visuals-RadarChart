@@ -37,20 +37,17 @@ module powerbi.extensibility.visual {
     export interface RadarChartBehaviorOptions {
         selection: Selection<SelectableDataPoint>;
         clearCatcher: Selection<any>;
-        interactivityService: IInteractivityService;
         hasHighlights: boolean;
     }
 
     export class RadarChartWebBehavior implements IInteractiveBehavior {
         private selection: Selection<SelectableDataPoint>;
-        private interactivityService: IInteractivityService;
         private hasHighlights: boolean;
 
         public bindEvents(options: RadarChartBehaviorOptions, selectionHandler: ISelectionHandler): void {
             const clearCatcher: Selection<any> = options.clearCatcher;
 
             this.selection = options.selection;
-            this.interactivityService = options.interactivityService;
             this.hasHighlights = options.hasHighlights;
 
             this.selection.on("click", (dataPoint: SelectableDataPoint) => {

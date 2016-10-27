@@ -1,7 +1,7 @@
 {
     "dataRoles": [
         {
-            "displayName": "Category Data",
+            "displayName": "Category",
             "name": "Category",
             "kind": "Grouping"
         },
@@ -152,5 +152,6 @@
                 }
             }
         }
-    }
+    },
+    "supportsHighlight": true
 }

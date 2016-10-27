@@ -392,8 +392,8 @@ module powerbi.extensibility.visual {
                 }
 
                 if (dataPoints.length > 0) {
-                    if (interactivityService && !hasHighlights) {
-                        interactivityService.applySelectionStateToData(dataPoints);
+                    if (interactivityService) {
+                        interactivityService.applySelectionStateToData(dataPoints, hasHighlights);
                     }
 
                     series.push({
@@ -887,7 +887,6 @@ module powerbi.extensibility.visual {
                 behaviorOptions = {
                     selection: dotsSelection,
                     clearCatcher: this.svg,
-                    interactivityService: this.interactivityService,
                     hasHighlights: hasHighlights
                 };
 
