@@ -78,13 +78,52 @@
                         }
                     }
                 },
-                "fontSize": {
-                    "displayName": "Text Size",
+              "fontSize": {
+                "displayName": "Text Size",
+                "type": {
+                  "formatting": {
+                    "fontSize": true
+                  }
+                }
+              },
+              "position": {
                     "type": {
-                        "formatting": {
-                            "fontSize": true
-                        }
-                    }
+                        "enumeration": [
+                            {
+                                "value": "Top",
+                                "displayName": "Top"
+                            },
+                            {
+                                "value": "Bottom",
+                                "displayName": "Bottom"
+                            },
+                          {
+                            "value": "Left",
+                            "displayName": "Left"
+                          },
+                          {
+                                "value": "Right",
+                                "displayName": "Right"
+                            },
+                          {
+                                "value": "TopCenter",
+                                "displayName": "Top Center"
+                            },
+                          {
+                                "value": "BottomCenter",
+                                "displayName": "Bottom Center"
+                            },
+                          {
+                                "value": "LeftCenter",
+                                "displayName": "Left Center"
+                            },
+                          {
+                                "value": "RightCenter",
+                                "displayName": "Right Center"
+                            }
+                        ]
+                    },
+                    "displayName": "Position"
                 }
             }
         },
