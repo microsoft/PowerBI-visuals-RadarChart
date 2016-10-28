@@ -28,6 +28,7 @@
     "@powerbi-visuals-utils/displayunitsystemtype": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-displayunitsystemtype.git",
     "@powerbi-visuals-utils/external-loader": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-external-loader.git",
     "@powerbi-visuals-utils/fontutils": "git+https://github.com/vtkalek/powerbi-visuals-utils-fontutils.git",
+    "@powerbi-visuals-utils/formatting": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-formatting.git",
     "@powerbi-visuals-utils/formattingservice": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-formattingservice.git",
     "@powerbi-visuals-utils/imargin": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-imargin.git",
     "@powerbi-visuals-utils/interactivityservice": "git+https://github.com/ignatvilesov/powerbi-visuals-utils-interactivityservice.git",
