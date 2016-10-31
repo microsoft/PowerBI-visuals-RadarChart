@@ -1,7 +1,7 @@
 {
   "visual": {
     "name": "radarChart",
-    "displayName": "RadarChart",
+    "displayName": "Radar Chart",
     "guid": "RadarChart1446119667547",
     "visualClassName": "RadarChart",
     "version": "0.5.4",
