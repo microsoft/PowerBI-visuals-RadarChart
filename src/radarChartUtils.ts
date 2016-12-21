@@ -1,5 +1,5 @@
 /*
- *  Power BI Visual CLI
+ *  Power BI Visualizations
  *
  *  Copyright (c) Microsoft Corporation
  *  All rights reserved.

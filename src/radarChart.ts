@@ -1,5 +1,5 @@
 /*
- *  Power BI Visual CLI
+ *  Power BI Visualizations
  *
  *  Copyright (c) Microsoft Corporation
  *  All rights reserved.
@@ -25,21 +25,15 @@
  */
 
 module powerbi.extensibility.visual {
-    // external libraries
+    // d3
     import Selection = d3.Selection;
     import UpdateSelection = d3.selection.Update;
     import Arc = d3.svg.arc.Arc;
     import SvgArc = d3.svg.Arc;
     import Linear = d3.scale.Linear;
 
-    // jsCommon
-    import ClassAndSelector = jsCommon.CssConstants.ClassAndSelector;
-    import CreateClassAndSelector = jsCommon.CssConstants.createClassAndSelector;
-    import PixelConverter = jsCommon.PixelConverter;
-
     // powerbi
-    import DataViewObject = powerbi.DataViewObject;
-    import DataLabelManager = powerbi.DataLabelManager;
+    import IDataViewObject = powerbi.DataViewObject;
     import PrimitiveValue = powerbi.PrimitiveValue;
     import IViewport = powerbi.IViewport;
     import DataViewObjectPropertyIdentifier = powerbi.DataViewObjectPropertyIdentifier;
@@ -48,9 +42,7 @@ module powerbi.extensibility.visual {
     import DataViewValueColumns = powerbi.DataViewValueColumns;
     import DataViewValueColumnGroup = powerbi.DataViewValueColumnGroup;
     import DataViewMetadataColumn = powerbi.DataViewMetadataColumn;
-    import TextProperties = powerbi.TextProperties;
-    import TextMeasurementService = powerbi.TextMeasurementService;
-    import DataViewObjects = powerbi.DataViewObjects;
+    import IDataViewObjects = powerbi.DataViewObjects;
     import EnumerateVisualObjectInstancesOptions = powerbi.EnumerateVisualObjectInstancesOptions;
     import VisualObjectInstanceEnumeration = powerbi.VisualObjectInstanceEnumeration;
     import VisualObjectInstance = powerbi.VisualObjectInstance;
@@ -64,52 +56,91 @@ module powerbi.extensibility.visual {
     import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 
     // powerbi.visuals
-    import IMargin = powerbi.visuals.IMargin;
-    import IInteractivityService = powerbi.visuals.IInteractivityService;
-    import IInteractiveBehavior = powerbi.visuals.IInteractiveBehavior;
-    import createInteractivityService = powerbi.visuals.createInteractivityService;
-    import ColorHelper = powerbi.visuals.ColorHelper;
     import IVisualSelectionId = powerbi.visuals.ISelectionId;
-    import valueFormatter = powerbi.visuals.valueFormatter;
-    import IValueFormatter = powerbi.visuals.IValueFormatter;
-    import TooltipBuilder = powerbi.visuals.TooltipBuilder;
-    import ITooltipService = powerbi.visuals.ITooltipService;
-    import VisualTooltipDataItem = powerbi.visuals.VisualTooltipDataItem;
-    import TooltipEventArgs = powerbi.visuals.TooltipEventArgs;
-    import createTooltipService = powerbi.visuals.createTooltipService;
-    import SVGUtil = powerbi.visuals.SVGUtil;
-    import LegendData = powerbi.visuals.LegendData;
-    import LegendIcon = powerbi.visuals.LegendIcon;
-    import ILegend = powerbi.visuals.ILegend;
-    import createLegend = powerbi.visuals.createLegend;
-    import LegendPosition = powerbi.visuals.LegendPosition;
-    import legendProps = powerbi.visuals.legendProps;
-    import Legend = powerbi.visuals.Legend;
-    import legendPosition = powerbi.visuals.legendPosition;
-    import LabelEnabledDataPoint = powerbi.visuals.LabelEnabledDataPoint;
-    import ILabelLayout = powerbi.visuals.ILabelLayout;
+
+    // powerbi.extensibility.utils.svg
+    import IMargin = powerbi.extensibility.utils.svg.IMargin;
+    import translate = powerbi.extensibility.utils.svg.translate;
+    import ClassAndSelector = powerbi.extensibility.utils.svg.CssConstants.ClassAndSelector;
+    import CreateClassAndSelector = powerbi.extensibility.utils.svg.CssConstants.createClassAndSelector;
+
+    // powerbi.extensibility.utils.formatting
+    import TextProperties = powerbi.extensibility.utils.formatting.TextProperties;
+    import valueFormatter = powerbi.extensibility.utils.formatting.valueFormatter;
+    import IValueFormatter = powerbi.extensibility.utils.formatting.IValueFormatter;
+    import textMeasurementService = powerbi.extensibility.utils.formatting.textMeasurementService;
+
+    // powerbi.extensibility.utils.interactivity
+    import IInteractivityService = powerbi.extensibility.utils.interactivity.IInteractivityService;
+    import IInteractiveBehavior = powerbi.extensibility.utils.interactivity.IInteractiveBehavior;
+    import createInteractivityService = powerbi.extensibility.utils.interactivity.createInteractivityService;
+
+    // powerbi.extensibility.utils.type
+    import PixelConverter = powerbi.extensibility.utils.type.PixelConverter;
+
+    // powerbi.extensibility.utils.color
+    import ColorHelper = powerbi.extensibility.utils.color.ColorHelper;
+
+    // powerbi.extensibility.utils.tooltip
+    import TooltipEventArgs = powerbi.extensibility.utils.tooltip.TooltipEventArgs;
+    import ITooltipServiceWrapper = powerbi.extensibility.utils.tooltip.ITooltipServiceWrapper;
+    import createTooltipServiceWrapper = powerbi.extensibility.utils.tooltip.createTooltipServiceWrapper;
+
+    // powerbi.extensibility.utils.dataview
+    import DataViewObject = powerbi.extensibility.utils.dataview.DataViewObject;
+    import DataViewObjects = powerbi.extensibility.utils.dataview.DataViewObjects;
+
+    // powerbi.extensibility.utils.chart
+    import LegendModule = powerbi.extensibility.utils.chart.legend;
+    import ILegend = powerbi.extensibility.utils.chart.legend.ILegend;
+    import LegendData = powerbi.extensibility.utils.chart.legend.LegendData;
+    import LegendDataModule = powerbi.extensibility.utils.chart.legend.data;
+    import LegendIcon = powerbi.extensibility.utils.chart.legend.LegendIcon;
+    import legendProps = powerbi.extensibility.utils.chart.legend.legendProps;
+    import legendPosition = powerbi.extensibility.utils.chart.legend.position;
+    import createLegend = powerbi.extensibility.utils.chart.legend.createLegend;
+    import LegendPosition = powerbi.extensibility.utils.chart.legend.LegendPosition;
+    import ILabelLayout = powerbi.extensibility.utils.chart.dataLabel.ILabelLayout;
+    import DataLabelManager = powerbi.extensibility.utils.chart.dataLabel.DataLabelManager;
+    import LabelEnabledDataPoint = powerbi.extensibility.utils.chart.dataLabel.LabelEnabledDataPoint;
 
     export class RadarChart implements IVisual {
-        private static formatStringProp: DataViewObjectPropertyIdentifier = {
-            objectName: "general",
-            propertyName: "formatString",
-        };
-
-        private static Properties: any = {
+        private static Properties = {
             legend: {
-                show: <DataViewObjectPropertyIdentifier>{ objectName: "legend", propertyName: "show" }
+                show: {
+                    objectName: "legend",
+                    propertyName: "show"
+                } as DataViewObjectPropertyIdentifier
             },
             line: {
-                show: <DataViewObjectPropertyIdentifier>{ objectName: "line", propertyName: "show" },
-                lineWidth: <DataViewObjectPropertyIdentifier>{ objectName: "line", propertyName: "lineWidth" }
+                show: {
+                    objectName: "line",
+                    propertyName: "show"
+                } as DataViewObjectPropertyIdentifier,
+                lineWidth: {
+                    objectName: "line",
+                    propertyName: "lineWidth"
+                } as DataViewObjectPropertyIdentifier
             },
             dataPoint: {
-                fill: <DataViewObjectPropertyIdentifier>{ objectName: "dataPoint", propertyName: "fill" }
+                fill: {
+                    objectName: "dataPoint",
+                    propertyName: "fill"
+                } as DataViewObjectPropertyIdentifier
             },
             labels: {
-                show: <DataViewObjectPropertyIdentifier>{ objectName: "labels", propertyName: "show" },
-                color: <DataViewObjectPropertyIdentifier>{ objectName: "labels", propertyName: "color" },
-                fontSize: <DataViewObjectPropertyIdentifier>{ objectName: "labels", propertyName: "fontSize" }
+                show: {
+                    objectName: "labels",
+                    propertyName: "show"
+                } as DataViewObjectPropertyIdentifier,
+                color: {
+                    objectName: "labels",
+                    propertyName: "color"
+                } as DataViewObjectPropertyIdentifier,
+                fontSize: {
+                    objectName: "labels",
+                    propertyName: "fontSize"
+                } as DataViewObjectPropertyIdentifier
             }
         };
 
@@ -210,11 +241,11 @@ module powerbi.extensibility.visual {
         private behavior: IInteractiveBehavior;
         private visualHost: IVisualHost;
 
-        private tooltipService: ITooltipService;
+        private tooltipServiceWrapper: ITooltipServiceWrapper;
 
         private margin: IMargin;
         private legend: ILegend;
-        private legendObjectProperties: DataViewObject;
+        private legendObjectProperties: IDataViewObject;
         private radarChartData: RadarChartData;
 
         private angle: number;
@@ -365,13 +396,10 @@ module powerbi.extensibility.visual {
                         .withSeries(dataView.categorical.values, columnGroup)
                         .createSelectionId();
 
-                    let tooltipInfo: VisualTooltipDataItem[] = TooltipBuilder.createTooltipInfo(
-                        RadarChart.formatStringProp,
+                    let tooltipInfo: VisualTooltipDataItem[] = tooltipBuilder.createTooltipInfo(
                         catDv,
                         catDv.categories[0].values[k],
                         values[i].values[k],
-                        null,
-                        null,
                         i);
 
                     let labelFormatString: string = valueFormatter.getFormatStringByColumn(catDv.values[i].source),
@@ -432,7 +460,9 @@ module powerbi.extensibility.visual {
             this.interactivityService = createInteractivityService(options.host);
             this.behavior = new RadarChartWebBehavior();
 
-            this.tooltipService = createTooltipService(options.host);
+            this.tooltipServiceWrapper = createTooltipServiceWrapper(
+                options.host.tooltipService,
+                options.element);
 
             this.legend = createLegend(
                 $(element),
@@ -517,7 +547,7 @@ module powerbi.extensibility.visual {
 
             this.mainGroupElement.attr(
                 "transform",
-                SVGUtil.translate(this.viewport.width / 2, this.viewport.height / 2));
+                translate(this.viewport.width / 2, this.viewport.height / 2));
 
             let labelsFontSize: number = this.radarChartData.settings.labels.fontSize;
 
@@ -652,7 +682,7 @@ module powerbi.extensibility.visual {
                         text: this.radarChartData.labels.formatter.format(label.text)
                     };
 
-                    return TextMeasurementService.getTailoredTextOrDefault(properties, label.maxWidth);
+                    return textMeasurementService.getTailoredTextOrDefault(properties, label.maxWidth);
                 },
                 labelLayout: {
                     x: (label: RadarChartLabel) => label.x,
@@ -725,7 +755,7 @@ module powerbi.extensibility.visual {
             labelsSelection
                 .attr({
                     dy: `${RadarChart.LabelYOffset}em`,
-                    transform: SVGUtil.translate(
+                    transform: translate(
                         RadarChart.LabelXOffset,
                         -RadarChart.LabelYOffset * labelSettings.fontSize),
                     x: (label: RadarChartLabel) => label.x,
@@ -738,7 +768,7 @@ module powerbi.extensibility.visual {
                         text: this.radarChartData.labels.formatter.format(label.text)
                     };
 
-                    return TextMeasurementService.getTailoredTextOrDefault(properties, label.maxWidth);
+                    return textMeasurementService.getTailoredTextOrDefault(properties, label.maxWidth);
                 })
                 .style("font-size", () => PixelConverter.fromPoint(labelSettings.fontSize))
                 .style("text-anchor", (label: RadarChartLabel) => label.textAnchor)
@@ -867,7 +897,7 @@ module powerbi.extensibility.visual {
                 .exit()
                 .remove();
 
-            this.tooltipService.addTooltip(
+            this.tooltipServiceWrapper.addTooltip(
                 dotsSelection,
                 (eventArgs: TooltipEventArgs<RadarChartDatapoint>) => {
                     return eventArgs.data.tooltipInfo;
@@ -936,7 +966,7 @@ module powerbi.extensibility.visual {
                 legendData: LegendData = radarChartData.legendData;
 
             if (this.legendObjectProperties) {
-                LegendData.update(legendData, this.legendObjectProperties);
+                LegendDataModule.update(legendData, this.legendObjectProperties);
 
                 let position: string = this.legendObjectProperties[legendProps.position] as string;
 
@@ -948,7 +978,7 @@ module powerbi.extensibility.visual {
             }
 
             this.legend.drawLegend(legendData, { height, width });
-            Legend.positionChartArea(this.svg, this.legend);
+            LegendModule.positionChartArea(this.svg, this.legend);
         }
 
         private getDataPoints(seriesList: RadarChartSeries[]): RadarChartDatapoint[][] {
@@ -994,7 +1024,7 @@ module powerbi.extensibility.visual {
         }
 
         private static parseSettings(dataView: DataView, colorPalette: IColorPalette): RadarChartSettings {
-            let objects: DataViewObjects = null,
+            let objects: IDataViewObjects = null,
                 defaultSettings: RadarChartSettings = RadarChart.DefaultSettings;
 
             if (dataView
@@ -1024,7 +1054,7 @@ module powerbi.extensibility.visual {
             };
         }
 
-        private static parseLabelSettings(objects: DataViewObjects, colorPalette: IColorPalette): RadarChartLabelSettings {
+        private static parseLabelSettings(objects: IDataViewObjects, colorPalette: IColorPalette): RadarChartLabelSettings {
             let settings: RadarChartLabelSettings = <RadarChartLabelSettings>{},
                 defaultSettings: RadarChartLabelSettings = RadarChart.DefaultLabelSettings;
 
@@ -1191,20 +1221,20 @@ module powerbi.extensibility.visual {
             legendPosition = LegendPosition[this.legendObjectProperties[legendProps.position] as string];
 
             switch (legendPosition) {
-                case powerbi.visuals.LegendPosition.Top:
-                case powerbi.visuals.LegendPosition.TopCenter:
-                case powerbi.visuals.LegendPosition.Bottom:
-                case powerbi.visuals.LegendPosition.BottomCenter: {
+                case LegendPosition.Top:
+                case LegendPosition.TopCenter:
+                case LegendPosition.Bottom:
+                case LegendPosition.BottomCenter: {
                     this.viewport.height = Math.max(
                         this.viewport.height - legendMargins.height,
                         RadarChart.MinViewport.height);
 
                     break;
                 }
-                case powerbi.visuals.LegendPosition.Left:
-                case powerbi.visuals.LegendPosition.LeftCenter:
-                case powerbi.visuals.LegendPosition.Right:
-                case powerbi.visuals.LegendPosition.RightCenter: {
+                case LegendPosition.Left:
+                case LegendPosition.LeftCenter:
+                case LegendPosition.Right:
+                case LegendPosition.RightCenter: {
                     this.viewport.width = Math.max(
                         this.viewport.width - legendMargins.width,
                         RadarChart.MinViewport.width);

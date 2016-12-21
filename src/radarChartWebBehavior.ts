@@ -1,5 +1,5 @@
 /*
- *  Power BI Visual CLI
+ *  Power BI Visualizations
  *
  *  Copyright (c) Microsoft Corporation
  *  All rights reserved.
@@ -25,14 +25,14 @@
  */
 
 module powerbi.extensibility.visual {
-    // external libraries
+    // d3
     import Selection = d3.Selection;
 
-    // powerbi.visuals
-    import SelectableDataPoint = powerbi.visuals.SelectableDataPoint;
-    import IInteractivityService = powerbi.visuals.IInteractivityService;
-    import IInteractiveBehavior = powerbi.visuals.IInteractiveBehavior;
-    import ISelectionHandler = powerbi.visuals.ISelectionHandler;
+    // powerbi.extensibility.utils.interactivity
+    import SelectableDataPoint = powerbi.extensibility.utils.interactivity.SelectableDataPoint;
+    import IInteractivityService = powerbi.extensibility.utils.interactivity.IInteractivityService;
+    import IInteractiveBehavior = powerbi.extensibility.utils.interactivity.IInteractiveBehavior;
+    import ISelectionHandler = powerbi.extensibility.utils.interactivity.ISelectionHandler;
 
     export interface RadarChartBehaviorOptions {
         selection: Selection<SelectableDataPoint>;
