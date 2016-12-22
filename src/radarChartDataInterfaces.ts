@@ -1,5 +1,5 @@
 /*
- *  Power BI Visual CLI
+ *  Power BI Visualizations
  *
  *  Copyright (c) Microsoft Corporation
  *  All rights reserved.
@@ -25,15 +25,18 @@
  */
 
 module powerbi.extensibility.visual {
-    // external libraries
+    // d3
     import Arc = d3.svg.arc.Arc;
 
-    // powerbi.visuals
-    import SelectableDataPoint = powerbi.visuals.SelectableDataPoint;
-    import VisualTooltipDataItem = powerbi.visuals.VisualTooltipDataItem;
-    import LegendData = powerbi.visuals.LegendData;
-    import IValueFormatter = powerbi.visuals.IValueFormatter;
-    import IInteractivityService = powerbi.visuals.IInteractivityService;
+    // powerbi.extensibility.utils.chart.legend
+    import LegendData = powerbi.extensibility.utils.chart.legend.LegendData;
+
+    // powerbi.extensibility.utils.formatting
+    import IValueFormatter = powerbi.extensibility.utils.formatting.IValueFormatter;
+
+    // powerbi.extensibility.utils.interactivity
+    import SelectableDataPoint = powerbi.extensibility.utils.interactivity.SelectableDataPoint;
+    import IInteractivityService = powerbi.extensibility.utils.interactivity.IInteractivityService;
 
     export interface RadarChartDatapoint extends SelectableDataPoint {
         x: number;
