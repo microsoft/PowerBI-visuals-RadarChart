@@ -306,7 +306,8 @@ module powerbi.extensibility.visual {
                 || !dataView.categorical.categories[0]
                 || !dataView.categorical.values
                 || !(dataView.categorical.values.length > 0)
-                || !colorPalette) {
+                || !colorPalette
+                || !visualHost) {
 
                 return {
                     legendData: {

@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "allowJs": true,
+    "allowJs": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "target": "ES5",
     "sourceMap": true,
     "inlineSources": true,
-    "out": "./.tmp/build/visual.js"
+    "out": "./.tmp/build/visual.js",
+    "declaration": true
   },
   "files": [
     "typings/index.d.ts",
