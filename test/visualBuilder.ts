@@ -31,12 +31,11 @@ module powerbi.extensibility.visual.test {
     import VisualBuilderBase = powerbi.extensibility.utils.test.VisualBuilderBase;
 
     // RadarChart1446119667547
-    import VisualPlugin = powerbi.visuals.plugins.RadarChart1446119667547;
     import VisualClass = powerbi.extensibility.visual.RadarChart1446119667547.RadarChart;
 
     export class RadarChartBuilder extends VisualBuilderBase<VisualClass> {
         constructor(width: number, height: number) {
-            super(width, height, VisualPlugin.name);
+            super(width, height, "RadarChart1446119667547");
         }
 
         protected build(options: VisualConstructorOptions): VisualClass {
