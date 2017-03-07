@@ -85,15 +85,29 @@ module powerbi.extensibility.visual.test {
                 });
             });
 
-            it("update with empty data point", (done) => {
-                dataView.categorical.values[0].values[2] = null;
+            it("update with bad data-set", (done) => {
+                dataView.categorical.values[0].values = [null, "0qqa123", undefined, "value", 1];
 
                 visualBuilder.updateRenderTimeout(dataView, () => {
                     expect(visualBuilder.dataLabelsText.length)
                         .toBe(dataView.categorical.categories[0].values.length);
 
                     expect(visualBuilder.chartDot.length)
-                        .toBe(dataView.categorical.categories[0].values.length - 1);
+                        .toBe(1);
+
+                    done();
+                });
+            });
+
+            it("update with no format value column data", (done) => {
+                dataView.categorical.values[0].source.format = null;
+
+                visualBuilder.updateRenderTimeout(dataView, () => {
+                    expect(visualBuilder.dataLabelsText.length)
+                        .toBe(dataView.categorical.categories[0].values.length);
+
+                    expect(visualBuilder.chartDot.length)
+                        .toBe(dataView.categorical.categories[0].values.length);
 
                     done();
                 });
