@@ -406,18 +406,23 @@ module powerbi.extensibility.visual {
                     let labelFormatString: string = valueFormatter.getFormatStringByColumn(catDv.values[i].source),
                         fontSizeInPx: string = PixelConverter.fromPoint(settings.labels.fontSize);
 
-                    dataPoints.push({
-                        x: k,
-                        y: values[i].values[k] as number,
-                        color: color,
-                        identity: dataPointIdentity,
-                        selected: false,
-                        tooltipInfo: tooltipInfo,
-                        value: values[i].values[k] as number,
-                        labelFormatString: labelFormatString,
-                        labelFontSize: fontSizeInPx,
-                        highlight: hasHighlights && !!(values[0].highlights[k])
-                    });
+                    let notConvertedValue: PrimitiveValue = values[i].values[k],
+                        y: number = notConvertedValue !== null ? Number(notConvertedValue) : NaN;
+
+                    if (!isNaN(y)) {
+                        dataPoints.push({
+                            x: k,
+                            y: y,
+                            color: color,
+                            identity: dataPointIdentity,
+                            selected: false,
+                            tooltipInfo: tooltipInfo,
+                            value: y,
+                            labelFormatString: labelFormatString,
+                            labelFontSize: fontSizeInPx,
+                            highlight: hasHighlights && !!(values[0].highlights[k])
+                        });
+                    }
                 }
 
                 if (dataPoints.length > 0) {
@@ -1004,7 +1009,7 @@ module powerbi.extensibility.visual {
 
         private isPercentChart(dataPointsList: RadarChartDatapoint[]): boolean {
             for (let dataPoint of dataPointsList) {
-                if (dataPoint.labelFormatString.indexOf("%") === -1) {
+                if (!dataPoint.labelFormatString || dataPoint.labelFormatString.indexOf("%") === -1) {
                     return false;
                 }
             }
