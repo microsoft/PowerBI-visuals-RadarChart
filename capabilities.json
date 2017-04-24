@@ -160,6 +160,32 @@
                 }
             }
         },
+        "displaySettings": {
+            "displayName": "Display settings",
+            "properties": {
+                "minValue": {
+                    "displayName": "Axis start",
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "axisBeginning": {
+                    "displayName": "Axis start position",
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "-1",
+                                "displayName": "North"
+                            },
+                            {
+                                "value": "1",
+                                "displayName": "South"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
         "labels": {
             "displayName": "Data Labels",
             "description": "Display data label options",
@@ -192,5 +218,8 @@
             }
         }
     },
-    "supportsHighlight": true
+    "supportsHighlight": true,
+    "sorting": {
+        "default": {}
+    }
 }

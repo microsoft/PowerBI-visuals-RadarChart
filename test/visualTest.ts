@@ -331,6 +331,24 @@ module powerbi.extensibility.visual.test {
                         });
                 });
             });
+
+            describe("In visual with small size", () => {
+                beforeEach(() => {
+                    visualBuilder = new RadarChartBuilder(350, 150);
+                    dataView.metadata.objects = {
+                        labels: {
+                            show: true
+                        }
+                    };
+                });
+
+                it("some labels should be hidden", (done) => {
+                    visualBuilder.updateRenderTimeout(dataView, () => {
+                        expect(visualBuilder.dataLabelsText.length < dataView.categorical.categories[0].values.length).toBeTruthy();
+                        done();
+                    });
+                });
+            });
         });
 
         describe("Highlights tests", () => {

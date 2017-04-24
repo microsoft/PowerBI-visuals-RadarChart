@@ -33,6 +33,7 @@
 
 .radarChart {
     @defaultColor: grey;
+    @labelLinkColor: #e1e1e1;
 
     .pathStyle(@strokeWidth) {
         fill: none;
@@ -51,6 +52,13 @@
         text {
             font-family: sans-serif;
         }
+    }
+
+    .axisLongLabelLink, .axisShortLabelLink {
+        stroke-opacity: 0.5;
+        fill: none;
+        stroke: @labelLinkColor;
+        stroke-width: 1px;
     }
 
     .segments {

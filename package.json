@@ -1,7 +1,7 @@
 {
   "name": "powerbi-visuals-radarchart",
   "description": "A simple radar chart supporting multiple measures plotted over a categorical axis. Also known as a web chart, spider chart, or star chart. Use to display performance metrics for quality improvement.",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "author": {
     "name": "Microsoft",
     "email": "pbicvsupport@microsoft.com"
@@ -14,12 +14,17 @@
     "package": "pbiviz package",
     "lint": "node node_modules/tslint/bin/tslint \"+(src|test)/**/*.ts\"",
     "pretest": "pbiviz package --resources --no-minify --no-pbiviz --no-plugin",
-    "test": "karma start"
+    "test": "karma start",
+    "debug": "karma start --browsers=Chrome --single-run=false"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Microsoft/PowerBI-visuals-RadarChart.git"
+  },
+  "dependencies": {
+    "d3": "3.5.5",
+    "jquery": "3.2.1"
   },
   "devDependencies": {
     "@types/jasmine": "2.5.37",
