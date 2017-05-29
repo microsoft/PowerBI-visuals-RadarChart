@@ -791,47 +791,50 @@ module powerbi.extensibility.visual {
             for (let i: number = 0; i < labelPoints.length; i++) {
                 let label: RadarChartLabel = labelPoints[i];
 
+                // from 0 to 90 shift up by Y
                 if (label.angleInDegree > RadarChart.Angle0Degree && label.angleInDegree < RadarChart.Angle90Degree) {
-                    this.shiftIntersectText(label, labelPoints.filter((l: RadarChartLabel) => l.angleInDegree <= RadarChart.Angle90Degree && l.angleInDegree >= RadarChart.Angle0Degree && l.index < label.index), !shiftDirrectionIsDown);
+                    this.shiftIntersectText(
+                        label,
+                        labelPoints.filter((l: RadarChartLabel) => l.angleInDegree <= RadarChart.Angle90Degree && l.angleInDegree >= RadarChart.Angle0Degree && l.index < label.index),
+                        !shiftDirrectionIsDown
+                    );
                 }
                 // from 180 to 270 shift down by Y
                 if (label.angleInDegree > RadarChart.Angle180Degree && label.angleInDegree < RadarChart.Angle270Degree) {
-                    this.shiftIntersectText(label, labelPoints.filter((l: RadarChartLabel) => l.angleInDegree < RadarChart.Angle270Degree && l.angleInDegree > RadarChart.Angle180Degree && l.index < label.index), shiftDirrectionIsDown);
+                    this.shiftIntersectText(
+                        label,
+                        labelPoints.filter((l: RadarChartLabel) => l.angleInDegree < RadarChart.Angle270Degree && l.angleInDegree > RadarChart.Angle180Degree && l.index < label.index),
+                        shiftDirrectionIsDown
+                    );
                 }
 
-                if (label.angleInDegree < RadarChart.Angle175Degree) {
-                    while (label.x * label.x + label.y * label.y < maxRadius * maxRadius) {
-                        label.x += RadarChart.LabelHorizontalShiftStep;
-                    }
-                }
-                if (label.angleInDegree > RadarChart.Angle185Degree) {
-                    while (label.x * label.x + label.y * label.y < maxRadius * maxRadius) {
-                        label.x -= RadarChart.LabelHorizontalShiftStep;
-                    }
-                }
                 label.maxWidth = this.viewportAvailable.width - Math.abs(label.x) - RadarChart.LabelMarginFactor;
-            }
 
-            let sortedByAngleInDegreeDes: RadarChartLabel[] = labelPoints.sort((a, b) => a.angleInDegree > b.angleInDegree ? -1 : a.angleInDegree < b.angleInDegree ? 1 : 0);
-
-            for (let i: number = 0; i < sortedByAngleInDegreeDes.length; i++) {
-                let label: RadarChartLabel = sortedByAngleInDegreeDes[i];
+                let labelDec: RadarChartLabel = labelPoints[labelPoints.length - 1 - i];
                 // from 180 to 90 shift down by Y
-                if (label.angleInDegree > RadarChart.Angle90Degree && label.angleInDegree < RadarChart.Angle180Degree) {
-                    this.shiftIntersectText(label, sortedByAngleInDegreeDes.filter((l: RadarChartLabel) => l.angleInDegree < RadarChart.Angle180Degree && l.angleInDegree > RadarChart.Angle90Degree && l.index > label.index), shiftDirrectionIsDown);
+                if (labelDec.angleInDegree > RadarChart.Angle90Degree && labelDec.angleInDegree < RadarChart.Angle180Degree) {
+                    this.shiftIntersectText(
+                        labelDec,
+                        labelPoints.filter((l: RadarChartLabel) => l.angleInDegree < RadarChart.Angle180Degree && l.angleInDegree > RadarChart.Angle90Degree && l.index > labelDec.index).reverse(),
+                        shiftDirrectionIsDown
+                    );
                 }
                 // from 360 to 270 shift up by Y
-                if (label.angleInDegree > RadarChart.Angle270Degree && label.angleInDegree < RadarChart.Angle360Degree) {
-                    this.shiftIntersectText(label, sortedByAngleInDegreeDes.filter((l: RadarChartLabel) => l.angleInDegree < RadarChart.Angle360Degree && l.angleInDegree > RadarChart.Angle270Degree && l.index > label.index), !shiftDirrectionIsDown);
+                if (labelDec.angleInDegree > RadarChart.Angle270Degree && labelDec.angleInDegree < RadarChart.Angle360Degree) {
+                    this.shiftIntersectText(
+                        labelDec,
+                        labelPoints.filter((l: RadarChartLabel) => l.angleInDegree < RadarChart.Angle360Degree && l.angleInDegree > RadarChart.Angle270Degree && l.index > labelDec.index).reverse(),
+                        !shiftDirrectionIsDown
+                    );
                 }
 
-                if (label.angleInDegree < RadarChart.Angle170Degree) {
-                    while (label.x * label.x + label.y * label.y < maxRadius * maxRadius) {
-                        label.x += RadarChart.LabelHorizontalShiftStep;
+                if (labelDec.angleInDegree < RadarChart.Angle175Degree) {
+                    while (labelDec.x * labelDec.x + labelDec.y * labelDec.y < maxRadius * maxRadius) {
+                        labelDec.x += RadarChart.LabelHorizontalShiftStep;
                     }
                 }
 
-                if (label.angleInDegree >= RadarChart.Angle220Degree) {
+                if (label.angleInDegree > RadarChart.Angle185Degree) {
                     while (label.x * label.x + label.y * label.y < maxRadius * maxRadius) {
                         label.x -= RadarChart.LabelHorizontalShiftStep;
                     }
