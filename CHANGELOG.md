@@ -1,4 +1,4 @@
-## 0.5.9
+## 0.5.10
 
 * Optimization in calculating of positions of labels
 

@@ -770,7 +770,7 @@ module powerbi.extensibility.visual {
                 if (this.isIntersect(current.y, curTextUpperPoint, label.y, labelTextUpperPoint)) {
                     let shift: number = this.shiftText(current.y, curTextUpperPoint, label.y, labelTextUpperPoint, shiftDown);
                     current.y += shift;
-                    if (!shiftDown && current.y < 0 || shiftDown && current.y + currentTextHeight / 2 > 0) {
+                    if (!shiftDown && current.y - 5 < 0 || shiftDown && current.y + currentTextHeight / 2 + 5 > 0) {
                         current.hide = true;
                     }
                 }
@@ -803,7 +803,7 @@ module powerbi.extensibility.visual {
                 if (label.angleInDegree > RadarChart.Angle180Degree && label.angleInDegree < RadarChart.Angle270Degree) {
                     this.shiftIntersectText(
                         label,
-                        labelPoints.filter((l: RadarChartLabel) => l.angleInDegree < RadarChart.Angle270Degree && l.angleInDegree > RadarChart.Angle180Degree && l.index < label.index),
+                        labelPoints.filter((l: RadarChartLabel) => l.angleInDegree < RadarChart.Angle270Degree && l.angleInDegree >= RadarChart.Angle180Degree && l.index < label.index),
                         shiftDirrectionIsDown
                     );
                 }
@@ -828,13 +828,13 @@ module powerbi.extensibility.visual {
                     );
                 }
 
-                if (labelDec.angleInDegree < RadarChart.Angle175Degree) {
+                if (labelDec.angleInDegree < RadarChart.Angle180Degree) {
                     while (labelDec.x * labelDec.x + labelDec.y * labelDec.y < maxRadius * maxRadius) {
                         labelDec.x += RadarChart.LabelHorizontalShiftStep;
                     }
                 }
 
-                if (label.angleInDegree > RadarChart.Angle185Degree) {
+                if (label.angleInDegree > RadarChart.Angle180Degree) {
                     while (label.x * label.x + label.y * label.y < maxRadius * maxRadius) {
                         label.x -= RadarChart.LabelHorizontalShiftStep;
                     }
@@ -1228,18 +1228,7 @@ module powerbi.extensibility.visual {
                 objects = dataView.metadata.objects;
             }
 
-            let min: number = <number>dataView.categorical.values[0].values[0];
-            for (let values in dataView.categorical.values) {
-                if ((<any>dataView.categorical.values[values]).values) {
-                    (<any>dataView.categorical.values[values]).values.forEach((value: number) => {
-                        if (value < min) {
-                            min = value;
-                        }
-                    }); // get min value
-                }
-            }
-
-            defaultSettings.minValue = min;
+            defaultSettings.minValue = d3.min(<number[]>dataView.categorical.values[0].values);
 
             let minValue: number = DataViewObjects.getValue(
                 objects,
