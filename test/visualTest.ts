@@ -304,7 +304,7 @@ module powerbi.extensibility.visual.test {
                     expect(visualBuilder.dataLabelsText).not.toBeInDOM();
                 });
 
-                it("color", () => {
+                it("color must be #ABCDEF", () => {
                     const color: string = "#ABCDEF";
 
                     (dataView.metadata.objects as any).labels.color = getSolidColorStructuralObject(color);
@@ -317,7 +317,7 @@ module powerbi.extensibility.visual.test {
                         });
                 });
 
-                it("font size", () => {
+                it("font size must be 29.3333px", () => {
                     const fontSize: number = 22,
                         expectedFontSize: string = "29.3333px";
 
@@ -329,6 +329,24 @@ module powerbi.extensibility.visual.test {
                         .forEach((element: Element) => {
                             expect($(element).css("font-size")).toBe(expectedFontSize);
                         });
+                });
+            });
+
+            describe("in visual with small size", () => {
+                beforeEach(() => {
+                    visualBuilder = new RadarChartBuilder(350, 150);
+                    dataView.metadata.objects = {
+                        labels: {
+                            show: true
+                        }
+                    };
+                });
+
+                it("some labels should be hidden", (done) => {
+                    visualBuilder.updateRenderTimeout(dataView, () => {
+                        expect(visualBuilder.dataLabelsText.length < dataView.categorical.categories[0].values.length).toBeTruthy();
+                        done();
+                    });
                 });
             });
         });

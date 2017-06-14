@@ -37,8 +37,9 @@ module powerbi.extensibility.visual {
     // powerbi.extensibility.utils.interactivity
     import SelectableDataPoint = powerbi.extensibility.utils.interactivity.SelectableDataPoint;
     import IInteractivityService = powerbi.extensibility.utils.interactivity.IInteractivityService;
+    import TooltipEnabledDataPoint = powerbi.extensibility.utils.tooltip.TooltipEnabledDataPoint;
 
-    export interface RadarChartDatapoint extends SelectableDataPoint {
+    export interface RadarChartDatapoint extends SelectableDataPoint, TooltipEnabledDataPoint {
         x: number;
         y: number;
         y0?: number;
@@ -70,9 +71,16 @@ module powerbi.extensibility.visual {
         index: number;
         x?: number;
         y?: number;
+        angleInDegree?: number;
+        xLinkBegin?: number;
+        yLinkBegin?: number;
+        xLinkEnd?: number;
+        yLinkEnd?: number;
         textAnchor?: string;
         maxWidth?: number;
         isLabelHasConflict?: boolean;
+        outsidePlacement?: number;
+        hide?: boolean;
     }
 
     export interface RadarChartLabelsData {
@@ -91,7 +99,9 @@ module powerbi.extensibility.visual {
     export interface RadarChartSettings {
         showLegend?: boolean;
         line: boolean;
+        minValue: number;
         lineWidth: number;
+        axisBeginning: number;
         labels: RadarChartLabelSettings;
     }
 

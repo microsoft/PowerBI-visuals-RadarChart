@@ -101,8 +101,7 @@ module powerbi.extensibility.visual {
     import createLegend = powerbi.extensibility.utils.chart.legend.createLegend;
     import LegendPosition = powerbi.extensibility.utils.chart.legend.LegendPosition;
     import ILabelLayout = powerbi.extensibility.utils.chart.dataLabel.ILabelLayout;
-    import DataLabelManager = powerbi.extensibility.utils.chart.dataLabel.DataLabelManager;
-    import LabelEnabledDataPoint = powerbi.extensibility.utils.chart.dataLabel.LabelEnabledDataPoint;
+    import OutsidePlacement = powerbi.extensibility.utils.chart.dataLabel.OutsidePlacement;
 
     export class RadarChart implements IVisual {
         private static Properties = {
@@ -120,6 +119,20 @@ module powerbi.extensibility.visual {
                 lineWidth: {
                     objectName: "line",
                     propertyName: "lineWidth"
+                } as DataViewObjectPropertyIdentifier
+            },
+            displaySettings: {
+                show: {
+                    objectName: "displaySettings",
+                    propertyName: "show"
+                } as DataViewObjectPropertyIdentifier,
+                minValue: {
+                    objectName: "displaySettings",
+                    propertyName: "minValue"
+                } as DataViewObjectPropertyIdentifier,
+                axisBeginning: {
+                    objectName: "displaySettings",
+                    propertyName: "axisBeginning"
                 } as DataViewObjectPropertyIdentifier
             },
             dataPoint: {
@@ -156,11 +169,23 @@ module powerbi.extensibility.visual {
         private static ChartPolygonSelector: ClassAndSelector = CreateClassAndSelector("chartPolygon");
         private static ChartDotSelector: ClassAndSelector = CreateClassAndSelector("chartDot");
         private static LabelGraphicsContextSelector: ClassAndSelector = CreateClassAndSelector("labelGraphicsContext");
+        private static AxisLabelLinkLongLineSelector: ClassAndSelector = CreateClassAndSelector("axisLongLabelLink");
+        private static AxisLabelLinkShortLineSelector: ClassAndSelector = CreateClassAndSelector("axisShortLabelLink");
 
         private static MaxLineWidth: number = 10;
         private static MinLineWidth: number = 1;
 
         private static AnimationDuration: number = 100;
+
+        private static Angle0Degree: number = 0;
+        private static Angle90Degree: number = 90;
+        private static Angle180Degree: number = 180;
+        private static Angle270Degree: number = 270;
+        private static Angle360Degree: number = 360;
+        private static Angle185Degree: number = 185;
+        private static Angle170Degree: number = 175;
+        private static Angle175Degree: number = 175;
+        private static Angle220Degree: number = 220;
 
         private static DefaultMargin: IMargin = {
             top: 10,
@@ -171,8 +196,10 @@ module powerbi.extensibility.visual {
 
         private static DefaultSettings: RadarChartSettings = {
             showLegend: true,
+            minValue: 0,
             line: false,
             lineWidth: 5,
+            axisBeginning: -1,
             labels: undefined
         };
 
@@ -197,9 +224,10 @@ module powerbi.extensibility.visual {
         private static SegmentLevels: number = 5;
         private static SegmentFactor: number = .9;
         private static Radians: number = 2 * Math.PI;
-        private static Scale: number = 1;
+        private static Scale: number = 0.8;
 
-        private static LabelPositionFactor: number = 1.1;
+        private static LabelPositionFactor: number = 1.38;
+        private static LabelLinkBeginPositionFactor: number = 1.04;
 
         private static AreaFillOpacity: number = 0.6;
 
@@ -219,12 +247,17 @@ module powerbi.extensibility.visual {
         private static LabelXOffset: number = 0;
         private static LabelYOffset: number = 1.5;
 
+        private static LabelPositionXOffset: number = 9;
+
         private static DotRadius: number = 5;
 
         private static PolygonStrokeWidth: number = 0;
 
         private static MinDomainValue: number = 0;
         private static MaxDomainValue: number = 1;
+
+        private static LabelHorizontalShiftStep: number = 5;
+        private static LabelMarginFactor: number = 30;
 
         private svg: Selection<any>;
         private segments: Selection<any>;
@@ -293,11 +326,10 @@ module powerbi.extensibility.visual {
             return labelsData;
         }
 
-        public static converter(
-            dataView: DataView,
-            colorPalette: IColorPalette,
-            visualHost: IVisualHost,
-            interactivityService?: IInteractivityService): RadarChartData {
+        public static converter(dataView: DataView,
+                                colorPalette: IColorPalette,
+                                visualHost: IVisualHost,
+                                interactivityService?: IInteractivityService): RadarChartData {
 
             if (!dataView
                 || !dataView.categorical
@@ -317,6 +349,8 @@ module powerbi.extensibility.visual {
                         showLegend: true,
                         line: true,
                         lineWidth: 4,
+                        axisBeginning: -1,
+                        minValue: 0,
                         labels: {
                             show: true,
                             color: "#fff",
@@ -513,8 +547,7 @@ module powerbi.extensibility.visual {
                 this.interactivityService);
 
             let categories: PrimitiveValue[] = [],
-                series: RadarChartSeries[] = this.radarChartData.series,
-                dataViewMetadataColumn: DataViewMetadataColumn;
+                series: RadarChartSeries[] = this.radarChartData.series;
 
             if (dataView.categorical
                 && dataView.categorical.categories
@@ -526,10 +559,6 @@ module powerbi.extensibility.visual {
             } else {
                 this.clear();
                 return;
-            }
-
-            if (dataView.metadata && dataView.metadata.columns && dataView.metadata.columns.length > 0) {
-                dataViewMetadataColumn = dataView.metadata.columns[0];
             }
 
             this.viewport = {
@@ -597,6 +626,16 @@ module powerbi.extensibility.visual {
                 .remove();
 
             this.mainGroupElement
+                .select(RadarChart.AxisSelector.selector)
+                .selectAll(RadarChart.AxisLabelLinkShortLineSelector.selector)
+                .remove();
+
+            this.mainGroupElement
+                .select(RadarChart.AxisSelector.selector)
+                .selectAll(RadarChart.AxisLabelLinkLongLineSelector.selector)
+                .remove();
+
+            this.mainGroupElement
                 .select(RadarChart.SegmentsSelector.selector)
                 .selectAll(RadarChart.SegmentNodeSElector.selector)
                 .remove();
@@ -607,6 +646,7 @@ module powerbi.extensibility.visual {
         }
 
         private drawCircularSegments(values: PrimitiveValue[]): void {
+            let axisBeginning: number = this.radarChartData.settings.axisBeginning;
             let data: RadarChartCircularSegment[] = [],
                 angle: number = this.angle,
                 factor: number = RadarChart.SegmentFactor,
@@ -619,9 +659,9 @@ module powerbi.extensibility.visual {
                 for (let i: number = 0; i <= values.length; i++) {
                     data.push({
                         x1: levelFactor * (Math.sin(i * angle)),
-                        y1: levelFactor * (Math.cos(i * angle)),
+                        y1: axisBeginning * levelFactor * (Math.cos(i * angle)),
                         x2: levelFactor * (Math.sin((i + 1) * angle)),
-                        y2: levelFactor * (Math.cos((i + 1) * angle)),
+                        y2: axisBeginning * levelFactor * (Math.cos((i + 1) * angle)),
                     });
                 }
             }
@@ -650,6 +690,7 @@ module powerbi.extensibility.visual {
         }
 
         private drawAxes(values: PrimitiveValue[]): void {
+            let axisBeginning: number  = this.radarChartData.settings.axisBeginning;
             const angle: number = this.angle,
                 radius: number = this.radius;
 
@@ -668,7 +709,7 @@ module powerbi.extensibility.visual {
                     "x1": 0,
                     "y1": 0,
                     "x2": (d: PrimitiveValue, i: number) => radius * Math.sin(i * angle),
-                    "y2": (d: PrimitiveValue, i: number) => radius * Math.cos(i * angle)
+                    "y2": (d: PrimitiveValue, i: number) => axisBeginning * radius * Math.cos(i * angle)
                 })
                 .classed(RadarChart.AxisNodeSelector.class, true);
 
@@ -677,29 +718,128 @@ module powerbi.extensibility.visual {
                 .remove();
         }
 
-        private getLabelLayout(arc: d3.svg.Arc<Arc>, viewport: IViewport): ILabelLayout {
+        private isIntersect(y11: number, y12: number, y21: number, y22: number): boolean {
+            if (y11 <= y21 && y21 <= y12) {
+                return true;
+            }
+            if (y11 <= y22 && y22 <= y12) {
+                return true;
+            }
+            if (y22 <= y11 && y11 <= y21) {
+                return true;
+            }
+            if (y22 <= y12 && y12 <= y21) {
+                return true;
+            }
+            return false;
+        }
+
+        private shiftText(currentTextY1: number, currentTextY12: number, otherTextY21: number, otherTexty22: number, direction: boolean): number {
+            let shift: number = 0;
+
+            if (direction) {
+                shift = Math.abs(currentTextY12 - otherTextY21);
+            }
+            else {
+                shift = Math.abs(otherTexty22 - currentTextY1);
+            }
+
+            return shift * (direction ? 1 : -1);
+        }
+
+        private shiftIntersectText(current: RadarChartLabel, others: RadarChartLabel[], shiftDown: boolean): void {
             let labelSettings: RadarChartLabelSettings = this.radarChartData.settings.labels;
 
-            return {
-                labelText: (label: RadarChartLabel) => {
-                    let properties: TextProperties = {
-                        fontFamily: RadarChart.AxesLabelsFontFamily,
-                        fontSize: PixelConverter.fromPoint(labelSettings.fontSize),
-                        text: this.radarChartData.labels.formatter.format(label.text)
-                    };
-
-                    return textMeasurementService.getTailoredTextOrDefault(properties, label.maxWidth);
-                },
-                labelLayout: {
-                    x: (label: RadarChartLabel) => label.x,
-                    y: (label: RadarChartLabel) => label.y,
-                },
-                filter: (label: RadarChartLabel) => (label != null),
-                style: {
-                    "font-size": PixelConverter.fromPoint(labelSettings.fontSize),
-                    "text-anchor": (label: RadarChartLabel) => label.textAnchor,
-                },
+            let properties: TextProperties = {
+                fontFamily: RadarChart.AxesLabelsFontFamily,
+                fontSize: PixelConverter.fromPoint(labelSettings.fontSize),
+                text: this.radarChartData.labels.formatter.format(current.text)
             };
+
+            let currentTextHeight: number = textMeasurementService.estimateSvgTextHeight(properties);
+
+            for (let i: number = 0; i < others.length; i++) {
+                let label: RadarChartLabel = others[i];
+
+                properties.text = label.text;
+                let otherTextHeight: number = textMeasurementService.estimateSvgTextHeight(properties);
+
+                let curTextUpperPoint: number = current.y - currentTextHeight;
+                let labelTextUpperPoint: number = label.y - otherTextHeight;
+
+                if (this.isIntersect(current.y, curTextUpperPoint, label.y, labelTextUpperPoint)) {
+                    let shift: number = this.shiftText(current.y, curTextUpperPoint, label.y, labelTextUpperPoint, shiftDown);
+                    current.y += shift;
+                    if (!shiftDown && current.y - 5 < 0 || shiftDown && current.y + currentTextHeight / 2 + 5 > 0) {
+                        current.hide = true;
+                    }
+                }
+            }
+        }
+
+        private shiftCollidedLabels(labelPoints: RadarChartLabel[]): void {
+            // from 0 to 90 shift up by Y
+            let maxRadius: number = 0;
+            labelPoints.forEach(point => {
+                if (Math.abs(point.x) > maxRadius) {
+                    maxRadius = Math.abs(point.x);
+                }
+            });
+
+            let shiftDirrectionIsDown: boolean = this.radarChartData.settings.axisBeginning === 1;
+
+            for (let i: number = 0; i < labelPoints.length; i++) {
+                let label: RadarChartLabel = labelPoints[i];
+
+                // from 0 to 90 shift up by Y
+                if (label.angleInDegree > RadarChart.Angle0Degree && label.angleInDegree < RadarChart.Angle90Degree) {
+                    this.shiftIntersectText(
+                        label,
+                        labelPoints.filter((l: RadarChartLabel) => l.angleInDegree <= RadarChart.Angle90Degree && l.angleInDegree >= RadarChart.Angle0Degree && l.index < label.index),
+                        !shiftDirrectionIsDown
+                    );
+                }
+                // from 180 to 270 shift down by Y
+                if (label.angleInDegree > RadarChart.Angle180Degree && label.angleInDegree < RadarChart.Angle270Degree) {
+                    this.shiftIntersectText(
+                        label,
+                        labelPoints.filter((l: RadarChartLabel) => l.angleInDegree < RadarChart.Angle270Degree && l.angleInDegree >= RadarChart.Angle180Degree && l.index < label.index),
+                        shiftDirrectionIsDown
+                    );
+                }
+
+                label.maxWidth = this.viewportAvailable.width - Math.abs(label.x) - RadarChart.LabelMarginFactor;
+
+                let labelDec: RadarChartLabel = labelPoints[labelPoints.length - 1 - i];
+                // from 180 to 90 shift down by Y
+                if (labelDec.angleInDegree > RadarChart.Angle90Degree && labelDec.angleInDegree < RadarChart.Angle180Degree) {
+                    this.shiftIntersectText(
+                        labelDec,
+                        labelPoints.filter((l: RadarChartLabel) => l.angleInDegree < RadarChart.Angle180Degree && l.angleInDegree > RadarChart.Angle90Degree && l.index > labelDec.index).reverse(),
+                        shiftDirrectionIsDown
+                    );
+                }
+                // from 360 to 270 shift up by Y
+                if (labelDec.angleInDegree > RadarChart.Angle270Degree && labelDec.angleInDegree < RadarChart.Angle360Degree) {
+                    this.shiftIntersectText(
+                        labelDec,
+                        labelPoints.filter((l: RadarChartLabel) => l.angleInDegree < RadarChart.Angle360Degree && l.angleInDegree > RadarChart.Angle270Degree && l.index > labelDec.index).reverse(),
+                        !shiftDirrectionIsDown
+                    );
+                }
+
+                if (labelDec.angleInDegree < RadarChart.Angle180Degree) {
+                    while (labelDec.x * labelDec.x + labelDec.y * labelDec.y < maxRadius * maxRadius) {
+                        labelDec.x += RadarChart.LabelHorizontalShiftStep;
+                    }
+                }
+
+                if (label.angleInDegree > RadarChart.Angle180Degree) {
+                    while (label.x * label.x + label.y * label.y < maxRadius * maxRadius) {
+                        label.x -= RadarChart.LabelHorizontalShiftStep;
+                    }
+                }
+            }
         }
 
         private createAxesLabels(): void {
@@ -713,46 +853,48 @@ module powerbi.extensibility.visual {
                 radius: number = this.radius,
                 labelPoints: RadarChartLabel[] = this.radarChartData.labels.labelPoints;
 
+            let axisBeginning: number  = this.radarChartData.settings.axisBeginning;
+
             for (let i: number = 0; i < labelPoints.length; i++) {
                 let angleInRadian: number = i * angle,
-                    label: RadarChartLabel = labelPoints[i];
+                    label: RadarChartLabel = labelPoints[i],
+                    angleInDegree: number = angleInRadian * RadarChart.Angle180Degree / Math.PI;
+
+                label.angleInDegree = angleInDegree;
 
                 label.x = RadarChart.LabelPositionFactor * radius * Math.sin(angleInRadian);
-                label.y = RadarChart.LabelPositionFactor * radius * Math.cos(angleInRadian);
+                label.y = axisBeginning * RadarChart.LabelPositionFactor * radius * Math.cos(angleInRadian);
+
+                label.xLinkBegin = radius * RadarChart.LabelLinkBeginPositionFactor * Math.sin(angleInRadian);
+                label.yLinkBegin = axisBeginning * radius * RadarChart.LabelLinkBeginPositionFactor * Math.cos(angleInRadian);
 
                 label.textAnchor = (i * angle) < Math.PI
                     ? RadarChart.TextAnchorStart
                     : RadarChart.TextAnchorEnd;
-
-                label.maxWidth = this.viewportAvailable.width - Math.abs(label.x);
             }
 
-            let labelArc: SvgArc<Arc> = d3.svg.arc()
-                .innerRadius(() => radius)
-                .outerRadius(() => radius * RadarChart.OuterRadiusFactor);
+            this.shiftCollidedLabels(labelPoints as RadarChartLabel[]);
 
-            let labelLayout: ILabelLayout = this.getLabelLayout(labelArc, this.viewport);
+            for (let i: number = 0; i < labelPoints.length; i++) {
+                let label: RadarChartLabel = labelPoints[i];
+                label.outsidePlacement = OutsidePlacement.Allowed;
+                label.xLinkEnd = label.x;
+                label.yLinkEnd = label.y;
+            }
 
-            // Hide and reposition labels that overlap
-            let dataLabelManager: DataLabelManager = new DataLabelManager(),
-                filteredData: LabelEnabledDataPoint[] = dataLabelManager.hideCollidedLabels(
-                    this.viewport,
-                    labelPoints,
-                    labelLayout,
-                    true);
-
-            this.drawAxesLabels(filteredData as RadarChartLabel[]);
+            this.drawAxesLabels(labelPoints as RadarChartLabel[]);
         }
 
         private drawAxesLabels(values: RadarChartLabel[], dataViewMetadataColumn?: DataViewMetadataColumn): void {
             let labelSettings: RadarChartLabelSettings = this.radarChartData.settings.labels;
 
-            let selection: d3.Selection<RadarChartLabel> = this.mainGroupElement
+            let selectionLabelText: d3.Selection<RadarChartLabel> = this.mainGroupElement
                 .select(RadarChart.AxisSelector.selector)
                 .selectAll(RadarChart.AxisLabelSelector.selector);
 
-            let labelsSelection: UpdateSelection<RadarChartLabel> = selection.data(
-                values.filter((label: RadarChartLabel) => labelSettings.show));
+            let filteredData: RadarChartLabel[] = values.filter((label: RadarChartLabel) => labelSettings.show && !label.hide);
+
+            let labelsSelection: UpdateSelection<RadarChartLabel> = selectionLabelText.data(filteredData);
 
             labelsSelection
                 .enter()
@@ -764,7 +906,10 @@ module powerbi.extensibility.visual {
                     transform: translate(
                         RadarChart.LabelXOffset,
                         -RadarChart.LabelYOffset * labelSettings.fontSize),
-                    x: (label: RadarChartLabel) => label.x,
+                    x: (label: RadarChartLabel) => {
+                        let shift: number = label.textAnchor === RadarChart.TextAnchorStart ? +RadarChart.LabelPositionXOffset : -RadarChart.LabelPositionXOffset;
+                        return label.x + shift;
+                    },
                     y: (label: RadarChartLabel) => label.y
                 })
                 .text((label: RadarChartLabel) => {
@@ -784,6 +929,55 @@ module powerbi.extensibility.visual {
             labelsSelection
                 .exit()
                 .remove();
+
+            let selectionLongLineLableLink: d3.Selection<RadarChartLabel> = this.mainGroupElement
+                .select(RadarChart.AxisSelector.selector)
+                .selectAll(RadarChart.AxisLabelLinkLongLineSelector.selector);
+
+            let labelsLongLineLinkSelection: UpdateSelection<RadarChartLabel> = selectionLongLineLableLink.data(filteredData);
+
+            labelsLongLineLinkSelection
+                .enter()
+                .append("svg:line");
+
+            labelsLongLineLinkSelection
+                .attr({
+                    x1: (label: RadarChartLabel) => label.xLinkBegin,
+                    y1: (label: RadarChartLabel) => label.yLinkBegin,
+                    x2: (label: RadarChartLabel) => label.xLinkEnd,
+                    y2: (label: RadarChartLabel) => label.yLinkEnd
+                })
+                .classed(RadarChart.AxisLabelLinkLongLineSelector.class, true);
+
+            labelsLongLineLinkSelection
+                .exit()
+                .remove();
+
+            let selectionShortLineLableLink: d3.Selection<RadarChartLabel> = this.mainGroupElement
+                .select(RadarChart.AxisSelector.selector)
+                .selectAll(RadarChart.AxisLabelLinkShortLineSelector.selector);
+
+            let labelsShortLineLinkSelection: UpdateSelection<RadarChartLabel> = selectionShortLineLableLink.data(filteredData);
+
+            labelsShortLineLinkSelection
+                .enter()
+                .append("svg:line");
+
+            labelsShortLineLinkSelection
+                .attr({
+                    x1: (label: RadarChartLabel) => label.xLinkEnd,
+                    y1: (label: RadarChartLabel) => label.yLinkEnd,
+                    x2: (label: RadarChartLabel) => {
+                        let shift: number = label.textAnchor === RadarChart.TextAnchorStart ? +(RadarChart.LabelPositionXOffset - 2) : -(RadarChart.LabelPositionXOffset - 2);
+                        return label.xLinkEnd + shift;
+                    },
+                    y2: (label: RadarChartLabel) => label.yLinkEnd
+                })
+                .classed(RadarChart.AxisLabelLinkShortLineSelector.class, true);
+
+            labelsShortLineLinkSelection
+                .exit()
+                .remove();
         }
 
         private drawChart(series: RadarChartSeries[], duration: number): void {
@@ -791,11 +985,12 @@ module powerbi.extensibility.visual {
                 dataPoints: RadarChartDatapoint[][] = this.getDataPoints(series),
                 layers: RadarChartDatapoint[][] = d3.layout.stack<RadarChartDatapoint>()(dataPoints),
                 yDomain: any = this.calculateChartDomain(series);
+            let axisBeginning: number  = this.radarChartData.settings.axisBeginning;
 
             let calculatePoints = (points) => {
                 return points.map((value) => {
                     let x1: number = yDomain(value.y) * Math.sin(value.x * angle),
-                        y1: number = yDomain(value.y) * Math.cos(value.x * angle);
+                        y1: number = axisBeginning * yDomain(value.y) * Math.cos(value.x * angle);
 
                     return `${x1},${y1}`;
                 }).join(" ");
@@ -888,7 +1083,7 @@ module powerbi.extensibility.visual {
             dotsSelection.attr("r", RadarChart.DotRadius)
                 .attr({
                     "cx": (dataPoint: RadarChartDatapoint) => yDomain(dataPoint.y) * Math.sin(dataPoint.x * angle),
-                    "cy": (dataPoint: RadarChartDatapoint) => yDomain(dataPoint.y) * Math.cos(dataPoint.x * angle)
+                    "cy": (dataPoint: RadarChartDatapoint) => axisBeginning * yDomain(dataPoint.y) * Math.cos(dataPoint.x * angle)
                 })
                 .style("fill", (dataPoint: RadarChartDatapoint) => dataPoint.color)
                 .style("opacity", (dataPoint: RadarChartDatapoint) => {
@@ -930,23 +1125,15 @@ module powerbi.extensibility.visual {
             }
         }
 
-        public onClearSelection(): void {
-            if (this.interactivityService) {
-                this.interactivityService.clearSelection();
-            }
-        }
-
         private calculateChartDomain(series: RadarChartSeries[]): Linear<number, number> {
             let radius: number = this.radius * RadarChart.SegmentFactor,
                 dataPointsList: RadarChartDatapoint[] = this.getAllDataPointsList(series);
 
-            let minValue: number = d3.min(dataPointsList, (dataPoint: RadarChartDatapoint) => {
-                return dataPoint.y;
-            });
-
             let maxValue: number = d3.max(dataPointsList, (dataPoint: RadarChartDatapoint) => {
                 return dataPoint.y;
             });
+
+            let minValue: number = this.radarChartData.settings.minValue;
 
             if (this.isPercentChart(dataPointsList)) {
                 minValue = minValue >= RadarChart.MinDomainValue
@@ -968,7 +1155,7 @@ module powerbi.extensibility.visual {
                 return;
             }
 
-            const { height, width } = this.viewport,
+            const {height, width} = this.viewport,
                 legendData: LegendData = radarChartData.legendData;
 
             if (this.legendObjectProperties) {
@@ -983,7 +1170,7 @@ module powerbi.extensibility.visual {
                 this.legend.changeOrientation(LegendPosition.Top);
             }
 
-            this.legend.drawLegend(legendData, { height, width });
+            this.legend.drawLegend(legendData, {height, width});
             LegendModule.positionChartArea(this.svg, this.legend);
         }
 
@@ -1041,6 +1228,17 @@ module powerbi.extensibility.visual {
                 objects = dataView.metadata.objects;
             }
 
+            defaultSettings.minValue = d3.min(<number[]>dataView.categorical.values[0].values);
+
+            let minValue: number = DataViewObjects.getValue(
+                objects,
+                RadarChart.Properties.displaySettings.minValue,
+                defaultSettings.minValue);
+
+            if (minValue > defaultSettings.minValue) {
+                minValue = defaultSettings.minValue;
+            }
+
             return {
                 showLegend: DataViewObjects.getValue(
                     objects,
@@ -1054,6 +1252,11 @@ module powerbi.extensibility.visual {
                     objects,
                     RadarChart.Properties.line.lineWidth,
                     defaultSettings.lineWidth),
+                axisBeginning: DataViewObjects.getValue(
+                    objects,
+                    RadarChart.Properties.displaySettings.axisBeginning,
+                    defaultSettings.axisBeginning),
+                minValue: minValue,
                 labels: this.parseLabelSettings(
                     objects,
                     colorPalette),
@@ -1088,7 +1291,7 @@ module powerbi.extensibility.visual {
          * This function returns the values to be displayed in the property pane for each object.
          * Usually it is a bind pass of what the property pane gave you, but sometimes you may want to do
          * validation and return other values/defaults
-         * 
+         *
          * TODO: We should use SettingsParser instead. Please rewrite it in future versions.
          */
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
@@ -1100,22 +1303,22 @@ module powerbi.extensibility.visual {
                 switch (options.objectName) {
                     case "legend": {
                         this.enumerateLegend(settings, instances);
-
                         break;
                     }
                     case "dataPoint": {
                         this.enumerateDataPoint(instances);
-
                         break;
                     }
                     case "line": {
                         this.enumerateLine(settings, instances);
-
+                        break;
+                    }
+                    case "displaySettings": {
+                        this.enumerateDisplaySettings(settings, instances);
                         break;
                     }
                     case "labels": {
                         this.enumerateDataLabels(instances);
-
                         break;
                     }
                 }
@@ -1189,6 +1392,18 @@ module powerbi.extensibility.visual {
             instances.push(legend);
         }
 
+        private enumerateDisplaySettings(settings: RadarChartSettings, instances: VisualObjectInstance[]): void {
+            instances.push({
+                objectName: RadarChart.Properties.displaySettings.show.objectName,
+                displayName: "Display settings",
+                selector: null,
+                properties: {
+                    minValue: settings.minValue,
+                    axisBeginning: settings.axisBeginning
+                }
+            });
+        }
+
         private enumerateLine(settings: RadarChartSettings, instances: VisualObjectInstance[]): void {
             instances.push({
                 objectName: RadarChart.Properties.line.show.objectName,
@@ -1214,7 +1429,7 @@ module powerbi.extensibility.visual {
                         (series.identity as IVisualSelectionId).getSelector(),
                         false),
                     properties: {
-                        fill: { solid: { color: series.fill } }
+                        fill: {solid: {color: series.fill}}
                     }
                 });
             }
@@ -1258,6 +1473,7 @@ module powerbi.extensibility.visual {
                 Math.min(RadarChart.MaxLineWidth, settings.lineWidth));
         }
 
-        public destroy(): void { }
+        public destroy(): void {
+        }
     }
 }
