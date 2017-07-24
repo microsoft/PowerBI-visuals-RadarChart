@@ -259,13 +259,13 @@ module powerbi.extensibility.visual {
         private static LabelHorizontalShiftStep: number = 5;
         private static LabelMarginFactor: number = 30;
 
-        private svg: Selection<any>;
-        private segments: Selection<any>;
-        private axis: Selection<any>;
-        private chart: Selection<any>;
+        private svg: Selection<RadarChartCircularSegment>;
+        private segments: Selection<RadarChartCircularSegment>;
+        private axis: Selection<RadarChartCircularSegment>;
+        private chart: Selection<RadarChartCircularSegment>;
 
-        private mainGroupElement: Selection<any>;
-        private labelGraphicsContext: Selection<any>;
+        private mainGroupElement: Selection<RadarChartCircularSegment>;
+        private labelGraphicsContext: Selection<RadarChartCircularSegment>;
         private colorPalette: IColorPalette;
         private viewport: IViewport;
         private viewportAvailable: IViewport;
@@ -313,7 +313,7 @@ module powerbi.extensibility.visual {
 
             for (let i: number = 0, iLen: number = categoryValues.length; i < iLen; i++) {
                 labelsData.labelPoints.push({
-                    text: categoryValues[i],
+                    text: categoryValues[i].toString(),
                     startAngle: null,
                     endAngle: null,
                     index: i,
@@ -694,7 +694,7 @@ module powerbi.extensibility.visual {
             const angle: number = this.angle,
                 radius: number = this.radius;
 
-            let selection: Selection<any> = this.mainGroupElement
+            let selection: Selection<RadarChartCircularSegment> = this.mainGroupElement
                 .select(RadarChart.AxisSelector.selector)
                 .selectAll(RadarChart.AxisNodeSelector.selector);
 
@@ -984,7 +984,7 @@ module powerbi.extensibility.visual {
             let angle: number = this.angle,
                 dataPoints: RadarChartDatapoint[][] = this.getDataPoints(series),
                 layers: RadarChartDatapoint[][] = d3.layout.stack<RadarChartDatapoint>()(dataPoints),
-                yDomain: any = this.calculateChartDomain(series);
+                yDomain: Linear<number, number> = this.calculateChartDomain(series);
             let axisBeginning: number  = this.radarChartData.settings.axisBeginning;
 
             let calculatePoints = (points) => {
@@ -1348,7 +1348,7 @@ module powerbi.extensibility.visual {
                 legend: VisualObjectInstance,
                 labelColor: string,
                 fontSize: number,
-                position: any; // TODO: Power BI doesn"t support the legend position for now. We will implement legend position when PBI supports it.
+                position: string; // TODO: Power BI doesn"t support the legend position for now. We will implement legend position when PBI supports it.
 
             showTitle = DataViewObject.getValue(
                 this.legendObjectProperties,

@@ -30,7 +30,7 @@ module powerbi.extensibility.visual {
 
     // powerbi.extensibility.utils.chart.legend
     import LegendData = powerbi.extensibility.utils.chart.legend.LegendData;
-
+    import PrimitiveValue = powerbi.PrimitiveValue;
     // powerbi.extensibility.utils.formatting
     import IValueFormatter = powerbi.extensibility.utils.formatting.IValueFormatter;
 
@@ -67,7 +67,7 @@ module powerbi.extensibility.visual {
     }
 
     export interface RadarChartLabel extends Arc {
-        text: any;
+        text: string;
         index: number;
         x?: number;
         y?: number;
