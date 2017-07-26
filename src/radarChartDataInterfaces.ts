@@ -96,21 +96,6 @@ module powerbi.extensibility.visual {
         hasHighlights?: boolean;
     }
 
-    export interface RadarChartSettings {
-        showLegend?: boolean;
-        line: boolean;
-        minValue: number;
-        lineWidth: number;
-        axisBeginning: number;
-        labels: RadarChartLabelSettings;
-    }
-
-    export interface RadarChartLabelSettings {
-        show: boolean;
-        color: string;
-        fontSize: number;
-    }
-
     export interface RadarChartCircularSegment {
         x1: number;
         y1: number;
