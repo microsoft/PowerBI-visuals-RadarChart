@@ -30,7 +30,7 @@ module powerbi.extensibility.visual {
 
     // powerbi.extensibility.utils.chart.legend
     import LegendData = powerbi.extensibility.utils.chart.legend.LegendData;
-
+    import PrimitiveValue = powerbi.PrimitiveValue;
     // powerbi.extensibility.utils.formatting
     import IValueFormatter = powerbi.extensibility.utils.formatting.IValueFormatter;
 
@@ -67,7 +67,7 @@ module powerbi.extensibility.visual {
     }
 
     export interface RadarChartLabel extends Arc {
-        text: any;
+        text: string;
         index: number;
         x?: number;
         y?: number;
@@ -94,21 +94,6 @@ module powerbi.extensibility.visual {
         dataPoints: RadarChartDatapoint[];
         identity: ISelectionId;
         hasHighlights?: boolean;
-    }
-
-    export interface RadarChartSettings {
-        showLegend?: boolean;
-        line: boolean;
-        minValue: number;
-        lineWidth: number;
-        axisBeginning: number;
-        labels: RadarChartLabelSettings;
-    }
-
-    export interface RadarChartLabelSettings {
-        show: boolean;
-        color: string;
-        fontSize: number;
     }
 
     export interface RadarChartCircularSegment {

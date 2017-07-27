@@ -104,59 +104,6 @@ module powerbi.extensibility.visual {
     import OutsidePlacement = powerbi.extensibility.utils.chart.dataLabel.OutsidePlacement;
 
     export class RadarChart implements IVisual {
-        private static Properties = {
-            legend: {
-                show: {
-                    objectName: "legend",
-                    propertyName: "show"
-                } as DataViewObjectPropertyIdentifier
-            },
-            line: {
-                show: {
-                    objectName: "line",
-                    propertyName: "show"
-                } as DataViewObjectPropertyIdentifier,
-                lineWidth: {
-                    objectName: "line",
-                    propertyName: "lineWidth"
-                } as DataViewObjectPropertyIdentifier
-            },
-            displaySettings: {
-                show: {
-                    objectName: "displaySettings",
-                    propertyName: "show"
-                } as DataViewObjectPropertyIdentifier,
-                minValue: {
-                    objectName: "displaySettings",
-                    propertyName: "minValue"
-                } as DataViewObjectPropertyIdentifier,
-                axisBeginning: {
-                    objectName: "displaySettings",
-                    propertyName: "axisBeginning"
-                } as DataViewObjectPropertyIdentifier
-            },
-            dataPoint: {
-                fill: {
-                    objectName: "dataPoint",
-                    propertyName: "fill"
-                } as DataViewObjectPropertyIdentifier
-            },
-            labels: {
-                show: {
-                    objectName: "labels",
-                    propertyName: "show"
-                } as DataViewObjectPropertyIdentifier,
-                color: {
-                    objectName: "labels",
-                    propertyName: "color"
-                } as DataViewObjectPropertyIdentifier,
-                fontSize: {
-                    objectName: "labels",
-                    propertyName: "fontSize"
-                } as DataViewObjectPropertyIdentifier
-            }
-        };
-
         private static VisualClassName: string = "radarChart";
         private static SegmentsSelector: ClassAndSelector = CreateClassAndSelector("segments");
         private static SegmentNodeSElector: ClassAndSelector = CreateClassAndSelector("segmentNode");
@@ -194,21 +141,6 @@ module powerbi.extensibility.visual {
             left: 50
         };
 
-        private static DefaultSettings: RadarChartSettings = {
-            showLegend: true,
-            minValue: 0,
-            line: false,
-            lineWidth: 5,
-            axisBeginning: -1,
-            labels: undefined
-        };
-
-        private static DefaultLabelSettings: RadarChartLabelSettings = {
-            show: true,
-            color: "#000",
-            fontSize: 8,
-        };
-
         private static MinViewport: IViewport = {
             height: 0,
             width: 0
@@ -233,12 +165,6 @@ module powerbi.extensibility.visual {
 
         private static AxesLabelsFontFamily: string = "sans-serif";
 
-        private static DefaultLegendFontSize: number = 8.25;
-        private static DefaultLegendTitle: string = "";
-
-        private static LegendFontSize: number = 8;
-        private static LegendShowTitle: boolean = true;
-
         private static OuterRadiusFactor: number = 2;
 
         private static TextAnchorStart: string = "start";
@@ -259,13 +185,13 @@ module powerbi.extensibility.visual {
         private static LabelHorizontalShiftStep: number = 5;
         private static LabelMarginFactor: number = 30;
 
-        private svg: Selection<any>;
-        private segments: Selection<any>;
-        private axis: Selection<any>;
-        private chart: Selection<any>;
+        private svg: Selection<RadarChartCircularSegment>;
+        private segments: Selection<RadarChartCircularSegment>;
+        private axis: Selection<RadarChartCircularSegment>;
+        private chart: Selection<RadarChartCircularSegment>;
 
-        private mainGroupElement: Selection<any>;
-        private labelGraphicsContext: Selection<any>;
+        private mainGroupElement: Selection<RadarChartCircularSegment>;
+        private labelGraphicsContext: Selection<RadarChartCircularSegment>;
         private colorPalette: IColorPalette;
         private viewport: IViewport;
         private viewportAvailable: IViewport;
@@ -283,6 +209,10 @@ module powerbi.extensibility.visual {
 
         private angle: number;
         private radius: number;
+
+        private get settings(): RadarChartSettings {
+            return this.radarChartData && this.radarChartData.settings;
+        }
 
         private static getLabelsData(dataView: DataView): RadarChartLabelsData {
             if (!dataView
@@ -313,7 +243,7 @@ module powerbi.extensibility.visual {
 
             for (let i: number = 0, iLen: number = categoryValues.length; i < iLen; i++) {
                 labelsData.labelPoints.push({
-                    text: categoryValues[i],
+                    text: categoryValues[i] as string,
                     startAngle: null,
                     endAngle: null,
                     index: i,
@@ -345,18 +275,7 @@ module powerbi.extensibility.visual {
                     legendData: {
                         dataPoints: []
                     },
-                    settings: {
-                        showLegend: true,
-                        line: true,
-                        lineWidth: 4,
-                        axisBeginning: -1,
-                        minValue: 0,
-                        labels: {
-                            show: true,
-                            color: "#fff",
-                            fontSize: 8,
-                        }
-                    },
+                    settings: this.parseSettings(dataView, colorPalette),
                     labels: RadarChart.getLabelsData(dataView),
                     series: [],
                 };
@@ -365,25 +284,24 @@ module powerbi.extensibility.visual {
             let catDv: DataViewCategorical = dataView.categorical,
                 values: DataViewValueColumns = catDv.values,
                 series: RadarChartSeries[] = [],
-                grouped: DataViewValueColumnGroup[],
-                colorHelper: ColorHelper;
-
+                grouped: DataViewValueColumnGroup[];
+            const settings: RadarChartSettings = this.parseSettings(dataView, colorPalette);
             grouped = catDv && catDv.values
                 ? catDv.values.grouped()
                 : null;
-
-            colorHelper = new ColorHelper(colorPalette, RadarChart.Properties.dataPoint.fill);
+            const fillProp: DataViewObjectPropertyIdentifier = {
+                objectName: "dataPoint",
+                propertyName: "fill"
+            };
+            const colorHelper: ColorHelper = new ColorHelper(colorPalette, fillProp, settings.dataPoint.fill);
 
             let hasHighlights: boolean = !!(values.length > 0 && values[0].highlights);
 
             let legendData: LegendData = {
-                fontSize: RadarChart.DefaultLegendFontSize,
+                fontSize: settings.legend.fontSize,
                 dataPoints: [],
-                title: RadarChart.DefaultLegendTitle
+                title: settings.legend.titleText
             };
-
-            // Parses legend settings
-            let settings: RadarChartSettings = RadarChart.parseSettings(dataView, colorPalette);
 
             for (let i: number = 0, iLen: number = values.length; i < iLen; i++) {
                 let color: string = colorPalette.getColor(i.toString()).value,
@@ -537,7 +455,6 @@ module powerbi.extensibility.visual {
                 this.clear();
                 return;
             }
-
             let dataView: DataView = options.dataViews[0];
 
             this.radarChartData = RadarChart.converter(
@@ -646,7 +563,7 @@ module powerbi.extensibility.visual {
         }
 
         private drawCircularSegments(values: PrimitiveValue[]): void {
-            let axisBeginning: number = this.radarChartData.settings.axisBeginning;
+            let axisBeginning: number = this.radarChartData.settings.displaySettings.axisBeginning;
             let data: RadarChartCircularSegment[] = [],
                 angle: number = this.angle,
                 factor: number = RadarChart.SegmentFactor,
@@ -690,11 +607,11 @@ module powerbi.extensibility.visual {
         }
 
         private drawAxes(values: PrimitiveValue[]): void {
-            let axisBeginning: number  = this.radarChartData.settings.axisBeginning;
+            let axisBeginning: number = this.radarChartData.settings.displaySettings.axisBeginning;
             const angle: number = this.angle,
                 radius: number = this.radius;
 
-            let selection: Selection<any> = this.mainGroupElement
+            let selection: Selection<RadarChartCircularSegment> = this.mainGroupElement
                 .select(RadarChart.AxisSelector.selector)
                 .selectAll(RadarChart.AxisNodeSelector.selector);
 
@@ -748,7 +665,7 @@ module powerbi.extensibility.visual {
         }
 
         private shiftIntersectText(current: RadarChartLabel, others: RadarChartLabel[], shiftDown: boolean): void {
-            let labelSettings: RadarChartLabelSettings = this.radarChartData.settings.labels;
+            let labelSettings: LabelSettings = this.radarChartData.settings.labels;
 
             let properties: TextProperties = {
                 fontFamily: RadarChart.AxesLabelsFontFamily,
@@ -786,7 +703,7 @@ module powerbi.extensibility.visual {
                 }
             });
 
-            let shiftDirrectionIsDown: boolean = this.radarChartData.settings.axisBeginning === 1;
+            let shiftDirrectionIsDown: boolean = this.radarChartData.settings.displaySettings.axisBeginning === 1;
 
             for (let i: number = 0; i < labelPoints.length; i++) {
                 let label: RadarChartLabel = labelPoints[i];
@@ -853,7 +770,7 @@ module powerbi.extensibility.visual {
                 radius: number = this.radius,
                 labelPoints: RadarChartLabel[] = this.radarChartData.labels.labelPoints;
 
-            let axisBeginning: number  = this.radarChartData.settings.axisBeginning;
+            let axisBeginning: number = this.radarChartData.settings.displaySettings.axisBeginning;
 
             for (let i: number = 0; i < labelPoints.length; i++) {
                 let angleInRadian: number = i * angle,
@@ -886,7 +803,7 @@ module powerbi.extensibility.visual {
         }
 
         private drawAxesLabels(values: RadarChartLabel[], dataViewMetadataColumn?: DataViewMetadataColumn): void {
-            let labelSettings: RadarChartLabelSettings = this.radarChartData.settings.labels;
+            let labelSettings: LabelSettings = this.radarChartData.settings.labels;
 
             let selectionLabelText: d3.Selection<RadarChartLabel> = this.mainGroupElement
                 .select(RadarChart.AxisSelector.selector)
@@ -984,8 +901,8 @@ module powerbi.extensibility.visual {
             let angle: number = this.angle,
                 dataPoints: RadarChartDatapoint[][] = this.getDataPoints(series),
                 layers: RadarChartDatapoint[][] = d3.layout.stack<RadarChartDatapoint>()(dataPoints),
-                yDomain: any = this.calculateChartDomain(series);
-            let axisBeginning: number  = this.radarChartData.settings.axisBeginning;
+                yDomain: Linear<number, number> = this.calculateChartDomain(series);
+            let axisBeginning: number = this.radarChartData.settings.displaySettings.axisBeginning;
 
             let calculatePoints = (points) => {
                 return points.map((value) => {
@@ -1022,11 +939,11 @@ module powerbi.extensibility.visual {
 
             let settings: RadarChartSettings = this.radarChartData.settings;
 
-            if (settings.line) {
+            if (settings.line.show) {
                 polygonSelection
                     .style("fill", "none")
                     .style("stroke", (dataPoints: RadarChartDatapoint[]) => dataPoints[0].color)
-                    .style("stroke-width", settings.lineWidth);
+                    .style("stroke-width", settings.line.lineWidth);
             } else {
                 polygonSelection
                     .style("fill", (dataPoints: RadarChartDatapoint[]) => dataPoints[0].color)
@@ -1217,209 +1134,15 @@ module powerbi.extensibility.visual {
         }
 
         private static parseSettings(dataView: DataView, colorPalette: IColorPalette): RadarChartSettings {
-            let objects: IDataViewObjects = null,
-                defaultSettings: RadarChartSettings = RadarChart.DefaultSettings;
-
-            if (dataView
-                && dataView.metadata
-                && dataView.metadata.columns
-                && dataView.metadata.objects) {
-
-                objects = dataView.metadata.objects;
-            }
-
-            defaultSettings.minValue = d3.min(<number[]>dataView.categorical.values[0].values);
-
-            let minValue: number = DataViewObjects.getValue(
-                objects,
-                RadarChart.Properties.displaySettings.minValue,
-                defaultSettings.minValue);
-
-            if (minValue > defaultSettings.minValue) {
-                minValue = defaultSettings.minValue;
-            }
-
-            return {
-                showLegend: DataViewObjects.getValue(
-                    objects,
-                    RadarChart.Properties.legend.show,
-                    defaultSettings.showLegend),
-                line: DataViewObjects.getValue(
-                    objects,
-                    RadarChart.Properties.line.show,
-                    defaultSettings.line),
-                lineWidth: DataViewObjects.getValue(
-                    objects,
-                    RadarChart.Properties.line.lineWidth,
-                    defaultSettings.lineWidth),
-                axisBeginning: DataViewObjects.getValue(
-                    objects,
-                    RadarChart.Properties.displaySettings.axisBeginning,
-                    defaultSettings.axisBeginning),
-                minValue: minValue,
-                labels: this.parseLabelSettings(
-                    objects,
-                    colorPalette),
-            };
-        }
-
-        private static parseLabelSettings(objects: IDataViewObjects, colorPalette: IColorPalette): RadarChartLabelSettings {
-            let settings: RadarChartLabelSettings = <RadarChartLabelSettings>{},
-                defaultSettings: RadarChartLabelSettings = RadarChart.DefaultLabelSettings;
-
-            settings.show = DataViewObjects.getValue(
-                objects,
-                RadarChart.Properties.labels.show,
-                defaultSettings.show);
-
-            settings.fontSize = DataViewObjects.getValue(
-                objects,
-                RadarChart.Properties.labels.fontSize,
-                defaultSettings.fontSize);
-
-            let colorHelper: ColorHelper = new ColorHelper(
-                colorPalette,
-                RadarChart.Properties.labels.color,
-                defaultSettings.color);
-
-            settings.color = colorHelper.getColorForMeasure(objects, "");
-
+            let settings: RadarChartSettings = RadarChartSettings.parse<RadarChartSettings>(dataView);
             return settings;
         }
 
-        /**
-         * This function returns the values to be displayed in the property pane for each object.
-         * Usually it is a bind pass of what the property pane gave you, but sometimes you may want to do
-         * validation and return other values/defaults
-         *
-         * TODO: We should use SettingsParser instead. Please rewrite it in future versions.
-         */
-        public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
-            let instances: VisualObjectInstance[] = [];
-
-            if (this.radarChartData && this.radarChartData.settings) {
-                let settings: RadarChartSettings = this.radarChartData.settings;
-
-                switch (options.objectName) {
-                    case "legend": {
-                        this.enumerateLegend(settings, instances);
-                        break;
-                    }
-                    case "dataPoint": {
-                        this.enumerateDataPoint(instances);
-                        break;
-                    }
-                    case "line": {
-                        this.enumerateLine(settings, instances);
-                        break;
-                    }
-                    case "displaySettings": {
-                        this.enumerateDisplaySettings(settings, instances);
-                        break;
-                    }
-                    case "labels": {
-                        this.enumerateDataLabels(instances);
-                        break;
-                    }
-                }
-            }
-
-            return instances;
-        }
-
-        private enumerateDataLabels(instances: VisualObjectInstance[]): void {
-            let settings: RadarChartLabelSettings = this.radarChartData.settings.labels;
-
-            instances.push({
-                objectName: "labels",
-                displayName: "labels",
-                selector: null,
-                properties: {
-                    show: settings.show,
-                    color: settings.color,
-                    fontSize: settings.fontSize,
-                }
-            });
-        }
-
-        private enumerateLegend(settings: RadarChartSettings, instances: VisualObjectInstance[]): void {
-            let showTitle: boolean,
-                titleText: string,
-                legend: VisualObjectInstance,
-                labelColor: string,
-                fontSize: number,
-                position: any; // TODO: Power BI doesn"t support the legend position for now. We will implement legend position when PBI supports it.
-
-            showTitle = DataViewObject.getValue(
-                this.legendObjectProperties,
-                legendProps.showTitle,
-                RadarChart.LegendShowTitle);
-
-            titleText = DataViewObject.getValue(
-                this.legendObjectProperties,
-                legendProps.titleText,
-                "");
-
-            labelColor = DataViewObject.getValue(
-                this.legendObjectProperties,
-                legendProps.labelColor,
-                labelColor);
-
-            fontSize = DataViewObject.getValue(
-                this.legendObjectProperties,
-                legendProps.fontSize,
-                RadarChart.LegendFontSize);
-
-            position = DataViewObject.getValue(
-                this.legendObjectProperties,
-                legendProps.position,
-                legendPosition.top);
-
-            legend = {
-                objectName: "legend",
-                displayName: "legend",
-                selector: null,
-                properties: {
-                    show: settings.showLegend,
-                    position: position,
-                    showTitle: showTitle,
-                    titleText: titleText,
-                    labelColor: labelColor,
-                    fontSize: fontSize,
-                }
-            };
-
-            instances.push(legend);
-        }
-
-        private enumerateDisplaySettings(settings: RadarChartSettings, instances: VisualObjectInstance[]): void {
-            instances.push({
-                objectName: RadarChart.Properties.displaySettings.show.objectName,
-                displayName: "Display settings",
-                selector: null,
-                properties: {
-                    minValue: settings.minValue,
-                    axisBeginning: settings.axisBeginning
-                }
-            });
-        }
-
-        private enumerateLine(settings: RadarChartSettings, instances: VisualObjectInstance[]): void {
-            instances.push({
-                objectName: RadarChart.Properties.line.show.objectName,
-                displayName: "Draw Lines",
-                selector: null,
-                properties: {
-                    show: settings.line,
-                    lineWidth: settings.lineWidth
-                }
-            });
-        }
-
-        private enumerateDataPoint(instances: VisualObjectInstance[]): void {
+        private enumerateDataPoint(): VisualObjectInstance[] {
             if (!this.radarChartData || !this.radarChartData.series) {
                 return;
             }
+            let instances: VisualObjectInstance[] = [];
 
             for (let series of this.radarChartData.series) {
                 instances.push({
@@ -1429,10 +1152,27 @@ module powerbi.extensibility.visual {
                         (series.identity as IVisualSelectionId).getSelector(),
                         false),
                     properties: {
-                        fill: {solid: {color: series.fill}}
+                        fill: { solid: { color: series.fill } }
                     }
                 });
             }
+            return instances;
+        }
+         /**
+         * This function returns the values to be displayed in the property pane for each object.
+         * Usually it is a bind pass of what the property pane gave you, but sometimes you may want to do
+         * validation and return other values/defaults
+         */
+        public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
+            let instances: VisualObjectInstanceEnumeration = null;
+            switch (options.objectName) {
+                    case "dataPoint":
+                        return this.enumerateDataPoint();
+                   default:
+                        return RadarChartSettings.enumerateObjectInstances(
+                            this.settings || RadarChartSettings.getDefault(),
+                            options);
+                }
         }
 
         private updateViewport(): void {
@@ -1468,9 +1208,9 @@ module powerbi.extensibility.visual {
         private parseLineWidth(): void {
             let settings: RadarChartSettings = this.radarChartData.settings;
 
-            settings.lineWidth = Math.max(
+            settings.line.lineWidth = Math.max(
                 RadarChart.MinLineWidth,
-                Math.min(RadarChart.MaxLineWidth, settings.lineWidth));
+                Math.min(RadarChart.MaxLineWidth, settings.line.lineWidth));
         }
 
         public destroy(): void {

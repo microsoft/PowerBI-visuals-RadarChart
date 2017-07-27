@@ -1,3 +1,7 @@
+## 1.0.3
+
+* Remove all 'any' or mistyped values
+
 ## 1.0.2
 
 * Upgrade to API 1.7.0
