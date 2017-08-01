@@ -29,7 +29,6 @@ module powerbi.extensibility.visual {
     import LegendPosition = powerbi.extensibility.utils.chart.legend.LegendPosition;
 
     export class RadarChartSettings extends DataViewObjectsParser {
-        public minValue: number = 0;
         public legend: LegendSettings = new LegendSettings();
         public labels: LabelSettings = new LabelSettings();
         public dataPoint: DataPointSettings = new DataPointSettings();

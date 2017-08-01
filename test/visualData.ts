@@ -42,7 +42,7 @@ module powerbi.extensibility.visual.test {
         public valuesY1: number[] = [742731.43, 162066.43, 283085.78, 300263.49, 376074.57, 814724.34, 570921.34, 742731.43, 162066.43, 283085.78, 300263.49, 376074.57, 814724.34, 570921.34, 742731.43, 162066.43, 283085.78, 300263.49, 376074.57, 814724.34, 570921.34, 742731.43, 162066.43, 283085.78, 300263.49, 376074.57, 814724.34, 570921.34];
         public valuesY2: number[] = [123455.43, 40566.43, 200457.78, 5000.49, 320000.57, 450000.34, 140832.67, 123455.43, 40566.43, 200457.78, 5000.49, 320000.57, 450000.34, 140832.67, 123455.43, 40566.43, 200457.78, 5000.49, 320000.57, 450000.34, 140832.67, 123455.43, 40566.43, 200457.78, 5000.49, 320000.57, 450000.34, 140832.67];
 
-        public getDataView(columnNames?: string[]): powerbi.DataView {
+        public getDataView(columnNames?: string[], valuesCategory?: string[] ): powerbi.DataView {
             return this.createCategoricalDataViewBuilder([
                 {
                     source: {
@@ -50,7 +50,7 @@ module powerbi.extensibility.visual.test {
                         queryName: RadarChartData.ColumnCategory,
                         type: ValueType.fromDescriptor({ text: true })
                     },
-                    values: this.valuesCategory
+                    values: valuesCategory ? valuesCategory : this.valuesCategory
                 }
             ], [
                     {
