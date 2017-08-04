@@ -255,7 +255,17 @@ module powerbi.extensibility.visual {
 
             return labelsData;
         }
-
+        public static checkAndUpdateAxis(dataView: DataView, values: DataViewValueColumns) {
+            if (dataView.categorical.categories[0].values.length <= 2) {// add  2-3 categories to make it looks like a rhomb
+                for (let i: number = dataView.categorical.categories[0].values.length; i < RadarChart.minimumAxisCount; i++) {
+                    dataView.categorical.categories[0].values.push(" ");
+                    for (let j: number = 0; j < values.length; j++) {
+                        values[j].values.push(0);
+                    }
+                }
+            }
+        }
+        private static minimumAxisCount: number = 4;
         public static converter(dataView: DataView,
                                 colorPalette: IColorPalette,
                                 visualHost: IVisualHost,
@@ -280,12 +290,12 @@ module powerbi.extensibility.visual {
                     series: [],
                 };
             }
-
             let catDv: DataViewCategorical = dataView.categorical,
                 values: DataViewValueColumns = catDv.values,
                 series: RadarChartSeries[] = [],
                 grouped: DataViewValueColumnGroup[];
             const settings: RadarChartSettings = this.parseSettings(dataView, colorPalette);
+            RadarChart.checkAndUpdateAxis(dataView, values);
             grouped = catDv && catDv.values
                 ? catDv.values.grouped()
                 : null;
@@ -302,7 +312,6 @@ module powerbi.extensibility.visual {
                 dataPoints: [],
                 title: settings.legend.titleText
             };
-
             for (let i: number = 0, iLen: number = values.length; i < iLen; i++) {
                 let color: string = colorPalette.getColor(i.toString()).value,
                     serieIdentity: ISelectionId,
@@ -354,7 +363,7 @@ module powerbi.extensibility.visual {
                         catDv.categories[0].values[k],
                         values[i].values[k],
                         i);
-
+                    let currCatValue = catDv.categories[0].values[k];
                     let labelFormatString: string = valueFormatter.getFormatStringByColumn(catDv.values[i].source),
                         fontSizeInPx: string = PixelConverter.fromPoint(settings.labels.fontSize);
 
@@ -372,7 +381,8 @@ module powerbi.extensibility.visual {
                             value: y,
                             labelFormatString: labelFormatString,
                             labelFontSize: fontSizeInPx,
-                            highlight: hasHighlights && !!(values[0].highlights[k])
+                            highlight: hasHighlights && !!(values[0].highlights[k]),
+                            showPoint: currCatValue === " " ? false : true
                         });
                     }
                 }
@@ -456,7 +466,6 @@ module powerbi.extensibility.visual {
                 return;
             }
             let dataView: DataView = options.dataViews[0];
-
             this.radarChartData = RadarChart.converter(
                 dataView,
                 this.colorPalette,
@@ -635,7 +644,7 @@ module powerbi.extensibility.visual {
                 .remove();
         }
 
-        private isIntersect(y11: number, y12: number, y21: number, y22: number): boolean {
+        public static isIntersect(y11: number, y12: number, y21: number, y22: number): boolean {
             if (y11 <= y21 && y21 <= y12) {
                 return true;
             }
@@ -684,7 +693,7 @@ module powerbi.extensibility.visual {
                 let curTextUpperPoint: number = current.y - currentTextHeight;
                 let labelTextUpperPoint: number = label.y - otherTextHeight;
 
-                if (this.isIntersect(current.y, curTextUpperPoint, label.y, labelTextUpperPoint)) {
+                if (RadarChart.isIntersect(current.y, curTextUpperPoint, label.y, labelTextUpperPoint)) {
                     let shift: number = this.shiftText(current.y, curTextUpperPoint, label.y, labelTextUpperPoint, shiftDown);
                     current.y += shift;
                     if (!shiftDown && current.y - 5 < 0 || shiftDown && current.y + currentTextHeight / 2 + 5 > 0) {
@@ -989,7 +998,7 @@ module powerbi.extensibility.visual {
             let dotsSelection: UpdateSelection<RadarChartDatapoint> = nodeSelection
                 .selectAll(RadarChart.ChartDotSelector.selector)
                 .data((dataPoints: RadarChartDatapoint[]) => {
-                    return dataPoints.filter(d => d.y != null);
+                    return dataPoints.filter(d => d.y != null && d.showPoint);
                 });
 
             dotsSelection
@@ -1050,7 +1059,7 @@ module powerbi.extensibility.visual {
                 return dataPoint.y;
             });
 
-            let minValue: number = this.radarChartData.settings.minValue;
+            let minValue: number = this.radarChartData.settings.displaySettings.minValue;
 
             if (this.isPercentChart(dataPointsList)) {
                 minValue = minValue >= RadarChart.MinDomainValue
@@ -1135,6 +1144,22 @@ module powerbi.extensibility.visual {
 
         private static parseSettings(dataView: DataView, colorPalette: IColorPalette): RadarChartSettings {
             let settings: RadarChartSettings = RadarChartSettings.parse<RadarChartSettings>(dataView);
+            if (dataView && dataView.categorical) {
+                if (dataView.categorical.categories[0].values.length <= 2) {
+                    settings.displaySettings.minValue = 0;
+                } else {
+                    let minValue = d3.min(<number[]>dataView.categorical.values[0].values);
+                    for (let i: number = 0; i < dataView.categorical.values.length; i++) {
+                        let minValueL = d3.min(<number[]>dataView.categorical.values[i].values);
+                        if (minValue > minValueL) {
+                            minValue = minValueL;
+                        }
+                    }
+                    if (settings.displaySettings.minValue > minValue) {
+                        settings.displaySettings.minValue = minValue;
+                    }
+                }
+            }
             return settings;
         }
 

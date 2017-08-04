@@ -49,6 +49,7 @@ module powerbi.extensibility.visual {
         labelFormatString?: string;
         labelFontSize?: string;
         highlight?: boolean;
+        showPoint: boolean;
     }
 
     export interface RadarChartAxesLabel {

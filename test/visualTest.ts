@@ -252,6 +252,34 @@ module powerbi.extensibility.visual.test {
                 });
             });
 
+            describe("Display settings", () => {
+                let dataViewTemp: DataView;
+                beforeEach(() => {
+                    dataViewTemp = defaultDataViewBuilder.getDataView(null, ["Monday"]);
+                    dataViewTemp.metadata.objects = {
+                        line: {
+                            show: true
+                        }
+                    };
+                });
+                it("check and update func", () => {
+                    expect(() => {
+                        VisualClass.checkAndUpdateAxis(dataViewTemp, dataViewTemp.categorical.values);
+                    }).not.toThrow();
+                });
+
+                it("is intersect 1", () => {
+                    let retValue = VisualClass.isIntersect(11, 16, 13, 14);
+                    expect(retValue).toBe(true);
+                });
+
+                it("is intersect 2", () => {
+                    let retValue = VisualClass.isIntersect(100, 10, 4, 2);
+                    expect(retValue).toBe(false);
+                });
+
+            });
+
             describe("Draw lines", () => {
                 beforeEach(() => {
                     dataView.metadata.objects = {

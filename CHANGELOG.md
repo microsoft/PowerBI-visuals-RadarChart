@@ -1,3 +1,7 @@
+## 1.0.4
+* Fix bug: displays only one point with incorrect value tooltip
+* Fix bug: axis settings "Axis start" is not availible
+
 ## 1.0.3
 
 * Remove all 'any' or mistyped values
