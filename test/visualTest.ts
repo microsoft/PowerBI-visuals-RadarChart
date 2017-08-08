@@ -277,7 +277,6 @@ module powerbi.extensibility.visual.test {
                     let retValue = VisualClass.isIntersect(100, 10, 4, 2);
                     expect(retValue).toBe(false);
                 });
-
             });
 
             describe("Draw lines", () => {
@@ -464,6 +463,32 @@ module powerbi.extensibility.visual.test {
             beforeEach(() => {
                 colors = createColorPalette();
                 visualHost = createVisualHost();
+                dataView.metadata.objects = {
+                    labels: {
+                        show: true
+                    },
+                    displaySettings: {
+                        minValue: 1000000
+                    }
+                };
+            });
+
+            it("Parse settings", () => {
+                (dataView.metadata.objects as any).displaySettings.minValue = 1000000;
+                expect(() => {
+                    VisualClass.parseSettings(dataView, colors);
+                }).not.toThrow();
+            });
+
+            it("enumerateObjects", () => {
+                expect(() => {
+                    visualBuilder.instance.enumerateDataPoint();
+                    let settings = VisualClass.parseSettings(dataView, colors);
+                    VisualClass.countMinValueForDisplaySettings(-1, settings);
+                    VisualClass.countMinValueForDisplaySettings(0, settings);
+                    VisualClass.countMinValueForDisplaySettings(1, settings);
+                    VisualClass.countMinValueForDisplaySettings(100, settings);
+                }).not.toThrow();
             });
 
             it("arguments are null", () => {

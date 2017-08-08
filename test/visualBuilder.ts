@@ -41,7 +41,9 @@ module powerbi.extensibility.visual.test {
         protected build(options: VisualConstructorOptions): VisualClass {
             return new VisualClass(options);
         }
-
+        public get instance(): VisualClass {
+            return this.visual;
+        }
         public get mainElement(): JQuery {
             return this.element.children("svg");
         }

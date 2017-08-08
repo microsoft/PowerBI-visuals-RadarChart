@@ -1,3 +1,6 @@
+## 1.0.5
+* Updated asis settings "Axis shift" - added limitations
+
 ## 1.0.4
 * Fix bug: displays only one point with incorrect value tooltip
 * Fix bug: axis settings "Axis start" is not availible
