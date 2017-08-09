@@ -188,7 +188,7 @@
             "properties": {
                 "minValue": {
                   "displayNameKey": "Visual_AxisStart",
-                  "displayName": "Axis start",
+                  "displayName": "Axis shift",
                     "type": {
                         "numeric": true
                     }

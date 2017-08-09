@@ -1142,7 +1142,7 @@ module powerbi.extensibility.visual {
                 {});
         }
 
-        private static parseSettings(dataView: DataView, colorPalette: IColorPalette): RadarChartSettings {
+        public static parseSettings(dataView: DataView, colorPalette: IColorPalette): RadarChartSettings {
             let settings: RadarChartSettings = RadarChartSettings.parse<RadarChartSettings>(dataView);
             if (dataView && dataView.categorical) {
                 if (dataView.categorical.categories[0].values.length <= 2) {
@@ -1155,15 +1155,32 @@ module powerbi.extensibility.visual {
                             minValue = minValueL;
                         }
                     }
-                    if (settings.displaySettings.minValue > minValue) {
-                        settings.displaySettings.minValue = minValue;
-                    }
+
+                    RadarChart.countMinValueForDisplaySettings(minValue, settings);
                 }
             }
             return settings;
         }
 
-        private enumerateDataPoint(): VisualObjectInstance[] {
+        public static countMinValueForDisplaySettings(minValue: any, settings: RadarChartSettings) {
+            if (minValue < 0) { // for negative values
+                if (settings.displaySettings.minValue < minValue) {
+                    settings.displaySettings.minValue = minValue;
+                } else
+                    if (settings.displaySettings.minValue > 0) {
+                        settings.displaySettings.minValue = 0;
+                    }
+            } else {
+                if (settings.displaySettings.minValue > minValue) {
+                    settings.displaySettings.minValue = minValue;
+                }
+                if (settings.displaySettings.minValue < 0) {
+                    settings.displaySettings.minValue = 0;
+                }
+            }
+        }
+
+        public enumerateDataPoint(): VisualObjectInstance[] {
             if (!this.radarChartData || !this.radarChartData.series) {
                 return;
             }
