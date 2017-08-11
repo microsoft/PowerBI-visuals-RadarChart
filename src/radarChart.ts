@@ -255,12 +255,13 @@ module powerbi.extensibility.visual {
 
             return labelsData;
         }
+        private static fakeValue = "fakevalue";
         public static checkAndUpdateAxis(dataView: DataView, values: DataViewValueColumns) {
             if (dataView.categorical.categories[0].values.length <= 2) {// add  2-3 categories to make it looks like a rhomb
                 for (let i: number = dataView.categorical.categories[0].values.length; i < RadarChart.minimumAxisCount; i++) {
                     dataView.categorical.categories[0].values.push(" ");
                     for (let j: number = 0; j < values.length; j++) {
-                        values[j].values.push(0);
+                        values[j].values.push(RadarChart.fakeValue);
                     }
                 }
             }
@@ -368,8 +369,7 @@ module powerbi.extensibility.visual {
                         fontSizeInPx: string = PixelConverter.fromPoint(settings.labels.fontSize);
 
                     let notConvertedValue: PrimitiveValue = values[i].values[k],
-                        y: number = notConvertedValue !== null ? Number(notConvertedValue) : NaN;
-
+                        y: number = notConvertedValue === RadarChart.fakeValue ? 0 : (notConvertedValue !== null ? Number(notConvertedValue) : NaN);
                     if (!isNaN(y)) {
                         dataPoints.push({
                             x: k,
@@ -382,7 +382,7 @@ module powerbi.extensibility.visual {
                             labelFormatString: labelFormatString,
                             labelFontSize: fontSizeInPx,
                             highlight: hasHighlights && !!(values[0].highlights[k]),
-                            showPoint: currCatValue === " " ? false : true
+                            showPoint: currCatValue === " " || notConvertedValue === RadarChart.fakeValue ? false : true
                         });
                     }
                 }
@@ -486,7 +486,6 @@ module powerbi.extensibility.visual {
                 this.clear();
                 return;
             }
-
             this.viewport = {
                 height: options.viewport.height > RadarChart.MinViewport.height
                     ? options.viewport.height
@@ -912,7 +911,6 @@ module powerbi.extensibility.visual {
                 layers: RadarChartDatapoint[][] = d3.layout.stack<RadarChartDatapoint>()(dataPoints),
                 yDomain: Linear<number, number> = this.calculateChartDomain(series);
             let axisBeginning: number = this.radarChartData.settings.displaySettings.axisBeginning;
-
             let calculatePoints = (points) => {
                 return points.map((value) => {
                     let x1: number = yDomain(value.y) * Math.sin(value.x * angle),
@@ -1155,7 +1153,6 @@ module powerbi.extensibility.visual {
                             minValue = minValueL;
                         }
                     }
-
                     RadarChart.countMinValueForDisplaySettings(minValue, settings);
                 }
             }
@@ -1164,12 +1161,7 @@ module powerbi.extensibility.visual {
 
         public static countMinValueForDisplaySettings(minValue: any, settings: RadarChartSettings) {
             if (minValue < 0) { // for negative values
-                if (settings.displaySettings.minValue < minValue) {
                     settings.displaySettings.minValue = minValue;
-                } else
-                    if (settings.displaySettings.minValue > 0) {
-                        settings.displaySettings.minValue = 0;
-                    }
             } else {
                 if (settings.displaySettings.minValue > minValue) {
                     settings.displaySettings.minValue = minValue;

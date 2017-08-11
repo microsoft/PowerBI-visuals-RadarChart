@@ -1,3 +1,6 @@
+## 1.0.6
+* Fix for - fake value appear when all values are NaN
+
 ## 1.0.5
 * Updated asis settings "Axis shift" - added limitations
 
