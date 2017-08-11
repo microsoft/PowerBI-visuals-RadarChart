@@ -370,7 +370,6 @@ module powerbi.extensibility.visual {
 
                     let notConvertedValue: PrimitiveValue = values[i].values[k],
                         y: number = notConvertedValue === RadarChart.fakeValue ? 0 : (notConvertedValue !== null ? Number(notConvertedValue) : NaN);
-                    debugger;
                     if (!isNaN(y)) {
                         dataPoints.push({
                             x: k,
