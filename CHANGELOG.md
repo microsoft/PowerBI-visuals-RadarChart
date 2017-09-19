@@ -1,3 +1,6 @@
+## 1.0.7
+* Fix for - empty data values cause rendering fails in some cases
+
 ## 1.0.6
 * Fix for - fake value appear when all values are NaN
 
