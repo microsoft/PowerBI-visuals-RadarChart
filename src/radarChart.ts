@@ -906,10 +906,9 @@ module powerbi.extensibility.visual {
         }
 
         private drawChart(series: RadarChartSeries[], duration: number): void {
-            let angle: number = this.angle,
-                dataPoints: RadarChartDatapoint[][] = this.getDataPoints(series),
-                layers: RadarChartDatapoint[][] = d3.layout.stack<RadarChartDatapoint>()(dataPoints),
-                yDomain: Linear<number, number> = this.calculateChartDomain(series);
+            let angle: number = this.angle;
+            let layers: RadarChartDatapoint[][] = this.getDataPoints(series);
+            let yDomain: Linear<number, number> = this.calculateChartDomain(series);
             let axisBeginning: number = this.radarChartData.settings.displaySettings.axisBeginning;
             let calculatePoints = (points) => {
                 return points.map((value) => {
