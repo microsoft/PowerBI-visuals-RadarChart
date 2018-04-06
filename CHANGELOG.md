@@ -1,3 +1,6 @@
+## 1.2.0
+* Added localization for all supported languages
+
 ## 1.1.0
 * UPD: powerbi-visuals-tools has been updated to 1.11.0 to support Bookmarks
 * UPD: API has been updated to 1.11.0 to support Bookmarks
