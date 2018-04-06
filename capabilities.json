@@ -1,14 +1,14 @@
 {
     "dataRoles": [
         {
-          "displayName": "Category",
-          "displayNameKey": "Visual_Category",
+            "displayName": "Category",
+            "displayNameKey": "Visual_Category",
             "name": "Category",
             "kind": "Grouping"
         },
         {
-          "displayName": "Y Axis",
-          "displayNameKey": "Visual_YAxis",
+            "displayName": "Y Axis",
+            "displayNameKey": "Visual_YAxis",
             "name": "Y",
             "kind": "Measure"
         }
@@ -46,37 +46,40 @@
     ],
     "objects": {
         "legend": {
-          "displayName": "Legend",
-          "displayNameKey": "Visual_Legend",
+            "displayName": "Legend",
+            "displayNameKey": "Visual_Legend",
             "description": "Display Legend Options",
+            "descriptionKey": "Visual_Description_Legend",
             "properties": {
                 "show": {
-                  "displayName": "Show",
-                  "displayNameKey": "Visual_Show",
+                    "displayName": "Show",
+                    "displayNameKey": "Visual_Show",
                     "type": {
                         "bool": true
                     }
                 },
                 "showTitle": {
-                  "displayName": "Title",
-                  "displayNameKey": "Visual_Title",
+                    "displayName": "Title",
+                    "displayNameKey": "Visual_Title",
                     "description": "Display a title for legend symbols",
+                    "descriptionKey": "Visual_Description_Title",
                     "type": {
                         "bool": true
                     }
                 },
                 "titleText": {
-                  "displayName": "Name",
-                  "displayNameKey": "Visual_Name",
+                    "displayName": "Name",
+                    "displayNameKey": "Visual_Name",
                     "description": "Title Text",
+                    "descriptionKey": "Visual_Description_Name",
                     "type": {
                         "text": true
                     },
                     "suppressFormatPainterCopy": true
                 },
                 "labelColor": {
-                  "displayName": "Color",
-                  "displayNameKey": "Visual_Color",
+                    "displayName": "Color",
+                    "displayNameKey": "Visual_Color",
                     "type": {
                         "fill": {
                             "solid": {
@@ -85,73 +88,74 @@
                         }
                     }
                 },
-              "fontSize": {
-                "displayName": "Text Size",
-                "displayNameKey": "Visual_TextSize",
-                "type": {
-                  "formatting": {
-                    "fontSize": true
-                  }
-                }
-              },
-              "position": {
+                "fontSize": {
+                    "displayName": "Text Size",
+                    "displayNameKey": "Visual_TextSize",
+                    "type": {
+                        "formatting": {
+                            "fontSize": true
+                        }
+                    }
+                },
+                "position": {
                     "type": {
                         "enumeration": [
                             {
-                              "value": "Top",
-                              "displayName": "Top",
-                              "displayNameKey": "Visual_Top"
+                                "value": "Top",
+                                "displayName": "Top",
+                                "displayNameKey": "Visual_Top"
                             },
                             {
                                 "value": "Bottom",
-                              "displayName": "Bottom",
-                              "displayNameKey": "Visual_Bottom"
+                                "displayName": "Bottom",
+                                "displayNameKey": "Visual_Bottom"
                             },
-                          {
-                            "value": "Left",
-                            "displayName": "Left",
-                              "displayNameKey": "Visual_Left"
-                          },
-                          {
+                            {
+                                "value": "Left",
+                                "displayName": "Left",
+                                "displayNameKey": "Visual_Left"
+                            },
+                            {
                                 "value": "Right",
-                            "displayName": "Right",
-                            "displayNameKey": "Visual_Right"
+                                "displayName": "Right",
+                                "displayNameKey": "Visual_Right"
                             },
-                          {
+                            {
                                 "value": "TopCenter",
-                            "displayName": "Top Center",
-                            "displayNameKey": "Visual_TopCenter"
+                                "displayName": "Top Center",
+                                "displayNameKey": "Visual_TopCenter"
                             },
-                          {
+                            {
                                 "value": "BottomCenter",
-                            "displayName": "Bottom Center",
-                            "displayNameKey": "Visual_BottomCenter"
+                                "displayName": "Bottom Center",
+                                "displayNameKey": "Visual_BottomCenter"
                             },
-                          {
+                            {
                                 "value": "LeftCenter",
-                            "displayName": "Left Center",
-                            "displayNameKey": "Visual_LeftCenter"
+                                "displayName": "Left Center",
+                                "displayNameKey": "Visual_LeftCenter"
                             },
-                          {
+                            {
                                 "value": "RightCenter",
-                            "displayName": "Right Center",
-                            "displayNameKey": "Visual_RightCenter"
+                                "displayName": "Right Center",
+                                "displayNameKey": "Visual_RightCenter"
                             }
                         ]
                     },
-                "displayName": "Position",
-                "displayNameKey": "Visual_Position"
+                    "displayName": "Position",
+                    "displayNameKey": "Visual_Position"
                 }
             }
         },
         "dataPoint": {
-          "displayName": "Data colors",
-          "displayNameKey": "Visual_DataColors",
+            "displayName": "Data colors",
+            "displayNameKey": "Visual_DataColors",
             "description": "Display data color options",
+            "descriptionKey": "Visual_Description_DataColors",
             "properties": {
                 "fill": {
-                  "displayName": "Fill",
-                  "displayNameKey": "Visual_Fill",
+                    "displayName": "Fill",
+                    "displayNameKey": "Visual_Fill",
                     "type": {
                         "fill": {
                             "solid": {
@@ -163,19 +167,19 @@
             }
         },
         "line": {
-          "displayName": "Draw Lines",
-          "displayNameKey": "Visual_DrawLines",
+            "displayName": "Draw Lines",
+            "displayNameKey": "Visual_DrawLines",
             "properties": {
                 "show": {
-                  "displayName": "Draw Lines",
-                  "displayNameKey": "Visual_DrawLines",
+                    "displayName": "Draw Lines",
+                    "displayNameKey": "Visual_DrawLines",
                     "type": {
                         "bool": true
                     }
                 },
                 "lineWidth": {
-                  "displayName": "Line Width",
-                  "displayNameKey": "Visual_LineWidth",
+                    "displayName": "Line Width",
+                    "displayNameKey": "Visual_LineWidth",
                     "type": {
                         "numeric": true
                     }
@@ -183,30 +187,30 @@
             }
         },
         "displaySettings": {
-          "displayName": "Display settings",
-          "displayNameKey": "Visual_DisplaySettings",
+            "displayName": "Display settings",
+            "displayNameKey": "Visual_DisplaySettings",
             "properties": {
                 "minValue": {
-                  "displayNameKey": "Visual_AxisStart",
-                  "displayName": "Axis shift",
+                    "displayNameKey": "Visual_AxisStart",
+                    "displayName": "Axis shift",
                     "type": {
                         "numeric": true
                     }
                 },
                 "axisBeginning": {
-                  "displayNameKey": "Visual_AxisStartPosition",
-                  "displayName": "Axis start position",
+                    "displayNameKey": "Visual_AxisStartPosition",
+                    "displayName": "Axis start position",
                     "type": {
                         "enumeration": [
                             {
                                 "value": "-1",
-                              "displayNameKey": "Visual_North", 
-                              "displayName": "North"
+                                "displayNameKey": "Visual_North",
+                                "displayName": "North"
                             },
                             {
                                 "value": "1",
-                              "displayNameKey": "Visual_South", 
-                              "displayName": "South"
+                                "displayNameKey": "Visual_South",
+                                "displayName": "South"
                             }
                         ]
                     }
@@ -214,21 +218,23 @@
             }
         },
         "labels": {
-          "displayNameKey": "Visual_DataLabels",
-          "displayName": "Data Labels",
+            "displayNameKey": "Visual_DataLabels",
+            "displayName": "Data Labels",
             "description": "Display data label options",
+            "descriptionKey": "Visual_Description_DataLabels",
             "properties": {
                 "show": {
-                  "displayNameKey": "Visual_Show", 
-                  "displayName": "Show",
+                    "displayNameKey": "Visual_Show",
+                    "displayName": "Show",
                     "type": {
                         "bool": true
                     }
                 },
                 "color": {
-                  	"displayNameKey": "Visual_Color", 
-                  	"displayName": "Color",
+                    "displayNameKey": "Visual_Color",
+                    "displayName": "Color",
                     "description": "Select color for data labels",
+                    "descriptionKey": "Visual_Description_Color",
                     "type": {
                         "fill": {
                             "solid": {
@@ -238,7 +244,7 @@
                     }
                 },
                 "fontSize": {
-                    "displayNameKey": "Visual_TextSize", 
+                    "displayNameKey": "Visual_TextSize",
                     "displayName": "Text Size",
                     "type": {
                         "formatting": {

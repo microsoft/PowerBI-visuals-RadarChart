@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Axis start position",
 	"Visual_North": "North",
 	"Visual_South": "South",
-	"Visual_DataLabels": "Data Labels"
+	"Visual_DataLabels": "Data Labels",
+	"Visual_Description_Legend": "Display Legend Options",
+	"Visual_Description_Title": "Display a title for legend symbols",
+	"Visual_Description_Name": "Title Text",
+	"Visual_Description_DataColors": "Display data color options",
+	"Visual_Description_DataLabels": "Display data label options",
+	"Visual_Description_Color": "Select color for data labels"
 }
