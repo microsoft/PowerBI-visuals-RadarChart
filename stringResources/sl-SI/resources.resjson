@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Začetni položaj osi",
 	"Visual_North": "Severna Evropa",
 	"Visual_South": "Južna Azija",
-	"Visual_DataLabels": "Oznake podatkov"
+	"Visual_DataLabels": "Oznake podatkov",
+	"Visual_Description_Legend": "Možnosti prikaza legende",
+	"Visual_Description_Title": "Prikaz naslova za simbole legende",
+	"Visual_Description_Name": "Besedilo naslova",
+	"Visual_Description_DataColors": "Prikaz možnosti barve podatkov",
+	"Visual_Description_DataLabels": "Prikaz možnosti oznak podatkov",
+	"Visual_Description_Color": "Izberite barvo za oznake podatkov"
 }

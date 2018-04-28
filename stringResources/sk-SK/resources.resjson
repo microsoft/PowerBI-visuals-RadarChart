@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Počiatočná poloha osi",
 	"Visual_North": "Sever",
 	"Visual_South": "Juh",
-	"Visual_DataLabels": "Označenia údajov"
+	"Visual_DataLabels": "Označenia údajov",
+	"Visual_Description_Legend": "Zobraziť možnosti legendy",
+	"Visual_Description_Title": "Zobraziť názov pre symboly legendy",
+	"Visual_Description_Name": "Text názvu",
+	"Visual_Description_DataColors": "Možnosti zobrazenia farieb údajov",
+	"Visual_Description_DataLabels": "Možnosti zobrazenia označenia údajov",
+	"Visual_Description_Color": "Vyberte farbu pre označenia údajov"
 }

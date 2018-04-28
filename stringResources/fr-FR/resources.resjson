@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Position de départ de l'axe",
 	"Visual_North": "Nord",
 	"Visual_South": "Sud",
-	"Visual_DataLabels": "Étiquettes de données"
+	"Visual_DataLabels": "Étiquettes de données",
+	"Visual_Description_Legend": "Afficher les options des légendes",
+	"Visual_Description_Title": "Afficher un titre pour les symboles de légende",
+	"Visual_Description_Name": "Texte du titre",
+	"Visual_Description_DataColors": "Afficher les options de couleur de données",
+	"Visual_Description_DataLabels": "Afficher les options d'étiquette de données",
+	"Visual_Description_Color": "Sélectionner la couleur des étiquettes de données"
 }

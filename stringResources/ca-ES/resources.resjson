@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Posició inicial de l'eix",
 	"Visual_North": "Nord",
 	"Visual_South": "Sud",
-	"Visual_DataLabels": "Etiquetes de dades"
+	"Visual_DataLabels": "Etiquetes de dades",
+	"Visual_Description_Legend": "Mostra les opcions de llegenda",
+	"Visual_Description_Title": "Mostra un títol per als símbols de la llegenda",
+	"Visual_Description_Name": "Text del títol",
+	"Visual_Description_DataColors": "Mostra les opcions de color per a les dades",
+	"Visual_Description_DataLabels": "Mostra les opcions per a l'etiqueta de dades",
+	"Visual_Description_Color": "Seleccioneu el color de les etiquetes de dades"
 }

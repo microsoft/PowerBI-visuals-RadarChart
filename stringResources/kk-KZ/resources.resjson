@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Осьтің басталу орны",
 	"Visual_North": "Солтүстік",
 	"Visual_South": "Оңтүстік",
-	"Visual_DataLabels": "Деректер белгілері"
+	"Visual_DataLabels": "Деректер белгілері",
+	"Visual_Description_Legend": "Шартты белгілер параметрлерін көрсету",
+	"Visual_Description_Title": "Шартты белгілер таңбалары үшін тақырып таңдау",
+	"Visual_Description_Name": "Тақырып мәтіні",
+	"Visual_Description_DataColors": "Деректер түсі параметрлерін көрсету",
+	"Visual_Description_DataLabels": "Деректер белгілері параметрлерін көрсету",
+	"Visual_Description_Color": "Деректер белгілері үшін түс таңдау"
 }

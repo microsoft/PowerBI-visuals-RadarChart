@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Početni položaj osi",
 	"Visual_North": "Sjever",
 	"Visual_South": "Jug",
-	"Visual_DataLabels": "Oznake podataka"
+	"Visual_DataLabels": "Oznake podataka",
+	"Visual_Description_Legend": "Prikaži mogućnosti legende",
+	"Visual_Description_Title": "Prikaži naslov za simbole legende",
+	"Visual_Description_Name": "Tekst naslova",
+	"Visual_Description_DataColors": "Prikaži mogućnosti boje podataka",
+	"Visual_Description_DataLabels": "Prikaži mogućnosti oznaka podataka",
+	"Visual_Description_Color": "Odaberite boju za oznake podataka"
 }

@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Tengely kezdő pozíciója",
 	"Visual_North": "Észak",
 	"Visual_South": "Dél",
-	"Visual_DataLabels": "Adatfeliratok"
+	"Visual_DataLabels": "Adatfeliratok",
+	"Visual_Description_Legend": "Jelmagyarázati beállítások megjelenítése",
+	"Visual_Description_Title": "Cím megjelenítése a jelmagyarázat szimbólumaihoz",
+	"Visual_Description_Name": "Címszöveg",
+	"Visual_Description_DataColors": "Adatszínek beállításainak megjelentése",
+	"Visual_Description_DataLabels": "Adatfeliratok beállításainak megjelentése",
+	"Visual_Description_Color": "Szín kiválasztása az adatcímkékhez"
 }

@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Počáteční pozice osy",
 	"Visual_North": "Sever",
 	"Visual_South": "Jih",
-	"Visual_DataLabels": "Popisky dat"
+	"Visual_DataLabels": "Popisky dat",
+	"Visual_Description_Legend": "Zobrazit možnosti pro legendu",
+	"Visual_Description_Title": "Zobrazí nadpis pro symboly legendy.",
+	"Visual_Description_Name": "Text nadpisu",
+	"Visual_Description_DataColors": "Zobrazí možnosti pro barvy dat.",
+	"Visual_Description_DataLabels": "Zobrazí možnosti pro popisky dat.",
+	"Visual_Description_Color": "Vyberte barvu pro popisky dat."
 }

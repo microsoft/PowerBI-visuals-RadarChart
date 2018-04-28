@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Startposisjon for akse",
 	"Visual_North": "Nord",
 	"Visual_South": "Sør",
-	"Visual_DataLabels": "Dataetiketter"
+	"Visual_DataLabels": "Dataetiketter",
+	"Visual_Description_Legend": "Vis alternativer for forklaring",
+	"Visual_Description_Title": "Vis en tittel for forklaringssymboler",
+	"Visual_Description_Name": "Titteltekst",
+	"Visual_Description_DataColors": "Vis alternativer for datafarge",
+	"Visual_Description_DataLabels": "Vis alternativer for dataetiketter",
+	"Visual_Description_Color": "Velg farge for dataetiketter"
 }

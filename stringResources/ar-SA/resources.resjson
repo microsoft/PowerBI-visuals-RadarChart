@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "موضع بدء المحور",
 	"Visual_North": "الشمال",
 	"Visual_South": "الجنوب",
-	"Visual_DataLabels": "تسميات البيانات"
+	"Visual_DataLabels": "تسميات البيانات",
+	"Visual_Description_Legend": "عرض خيارات وسيلة الإيضاح",
+	"Visual_Description_Title": "عرض عنوان لرموز وسيلة الإيضاح",
+	"Visual_Description_Name": "نص العنوان",
+	"Visual_Description_DataColors": "عرض خيارات لون البيانات",
+	"Visual_Description_DataLabels": "عرض خيارات بطاقة البيانات",
+	"Visual_Description_Color": "تحديد لون بطاقات البيانات"
 }

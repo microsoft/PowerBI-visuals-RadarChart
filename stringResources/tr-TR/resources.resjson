@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Eksen başlangıç konumu",
 	"Visual_North": "Kuzey",
 	"Visual_South": "Güney",
-	"Visual_DataLabels": "Veri Etiketleri"
+	"Visual_DataLabels": "Veri Etiketleri",
+	"Visual_Description_Legend": "Gösterge Seçeneklerini Görüntüle",
+	"Visual_Description_Title": "Gösterge sembolleri için bir başlık görüntüleyin",
+	"Visual_Description_Name": "Başlık Metni",
+	"Visual_Description_DataColors": "Veri rengi seçeneklerini görüntüle",
+	"Visual_Description_DataLabels": "Veri etiketi seçeneklerini görüntüle",
+	"Visual_Description_Color": "Veri etiketlerine ilişkin rengi seçin"
 }

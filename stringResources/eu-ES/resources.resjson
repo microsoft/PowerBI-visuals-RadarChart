@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Ardatz-hasieraren posizioa",
 	"Visual_North": "Iparraldea",
 	"Visual_South": "Hegoaldea",
-	"Visual_DataLabels": "Datu-etiketak"
+	"Visual_DataLabels": "Datu-etiketak",
+	"Visual_Description_Legend": "Bistaratu legendaren aukerak",
+	"Visual_Description_Title": "Bistaratu legendaren ikurren izena",
+	"Visual_Description_Name": "Izenburuaren testua",
+	"Visual_Description_DataColors": "Bistaratu datuen koloreen aukerak",
+	"Visual_Description_DataLabels": "Bistaratu datuen etiketen aukerak",
+	"Visual_Description_Color": "Hautatu datu-etiketen kolorea"
 }

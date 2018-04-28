@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Αρχική θέση άξονα",
 	"Visual_North": "Βορράς",
 	"Visual_South": "Νότος",
-	"Visual_DataLabels": "Ετικέτες δεδομένων"
+	"Visual_DataLabels": "Ετικέτες δεδομένων",
+	"Visual_Description_Legend": "Εμφάνιση επιλογών υπομνήματος",
+	"Visual_Description_Title": "Εμφάνιση τίτλου για σύμβολα υπομνήματος",
+	"Visual_Description_Name": "Κείμενο τίτλου",
+	"Visual_Description_DataColors": "Εμφάνιση επιλογών χρωμάτων δεδομένων",
+	"Visual_Description_DataLabels": "Εμφάνιση επιλογών ετικετών δεδομένων",
+	"Visual_Description_Color": "Επιλογή χρώματος για ετικέτες δεδομένων"
 }

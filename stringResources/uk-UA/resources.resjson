@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Початкове положення осі",
 	"Visual_North": "Північ",
 	"Visual_South": "Південь",
-	"Visual_DataLabels": "Підписи даних"
+	"Visual_DataLabels": "Підписи даних",
+	"Visual_Description_Legend": "Показати варіанти легенди",
+	"Visual_Description_Title": "Показати назву для символів легенди",
+	"Visual_Description_Name": "Текст назви",
+	"Visual_Description_DataColors": "Показати варіанти кольорів даних",
+	"Visual_Description_DataLabels": "Показати варіанти міток даних",
+	"Visual_Description_Color": "Виберіть колір для міток даних"
 }

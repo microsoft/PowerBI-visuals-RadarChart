@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Ašies pradžia",
 	"Visual_North": "Šiaurė",
 	"Visual_South": "Pietai",
-	"Visual_DataLabels": "Duomenų žymos"
+	"Visual_DataLabels": "Duomenų žymos",
+	"Visual_Description_Legend": "Rodyti legendos parinktis",
+	"Visual_Description_Title": "Rodyti legendos simbolių pavadinimą",
+	"Visual_Description_Name": "Pavadinimo tekstas",
+	"Visual_Description_DataColors": "Rodyti duomenų spalvų parinktis",
+	"Visual_Description_DataLabels": "Rodyti duomenų žymų parinktis",
+	"Visual_Description_Color": "Pasirinkite duomenų žymų spalvą"
 }

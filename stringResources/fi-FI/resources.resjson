@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Akselin aloituskohta",
 	"Visual_North": "Pohjoinen",
 	"Visual_South": "Etelä",
-	"Visual_DataLabels": "Arvopisteiden nimet"
+	"Visual_DataLabels": "Arvopisteiden nimet",
+	"Visual_Description_Legend": "Näytä selitevaihtoehdot",
+	"Visual_Description_Title": "Näytä otsikko selitesymboleille",
+	"Visual_Description_Name": "Otsikkoteksti",
+	"Visual_Description_DataColors": "Näytä tietojen värin vaihtoehdot",
+	"Visual_Description_DataLabels": "Näytä arvopisteiden otsikkovaihtoehdot",
+	"Visual_Description_Color": "Valitse väri arvopisteiden otsikoille"
 }

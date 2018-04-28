@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "轴开始位置",
 	"Visual_North": "北",
 	"Visual_South": "南",
-	"Visual_DataLabels": "数据标签"
+	"Visual_DataLabels": "数据标签",
+	"Visual_Description_Legend": "显示图例选项",
+	"Visual_Description_Title": "显示图例符号的标题",
+	"Visual_Description_Name": "标题文本",
+	"Visual_Description_DataColors": "显示数据颜色选项",
+	"Visual_Description_DataLabels": "显示数据标签选项",
+	"Visual_Description_Color": "选择数据标签的颜色"
 }

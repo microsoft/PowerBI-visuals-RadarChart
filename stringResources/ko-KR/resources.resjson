@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "축 시작 위치",
 	"Visual_North": "북쪽",
 	"Visual_South": "남쪽",
-	"Visual_DataLabels": "데이터 레이블"
+	"Visual_DataLabels": "데이터 레이블",
+	"Visual_Description_Legend": "범례 표시 옵션",
+	"Visual_Description_Title": "범례 기호에 대한 제목 표시",
+	"Visual_Description_Name": "제목 텍스트",
+	"Visual_Description_DataColors": "데이터 색 표시 옵션",
+	"Visual_Description_DataLabels": "데이터 레이블 표시 옵션",
+	"Visual_Description_Color": "데이터 레이블의 색 선택"
 }

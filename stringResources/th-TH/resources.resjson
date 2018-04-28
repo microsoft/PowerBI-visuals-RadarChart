@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "ตำแหน่งเริ่มต้นของแกน",
 	"Visual_North": "เหนือ",
 	"Visual_South": "ใต้",
-	"Visual_DataLabels": "ป้ายชื่อข้อมูล"
+	"Visual_DataLabels": "ป้ายชื่อข้อมูล",
+	"Visual_Description_Legend": "แสดงตัวเลือกคำอธิบายแผนภูมิ",
+	"Visual_Description_Title": "แสดงชื่อเรื่องสำหรับสัญลักษณ์ของคำอธิบาย",
+	"Visual_Description_Name": "ข้อความหัวข้อ",
+	"Visual_Description_DataColors": "แสดงตัวเลือกสีสำหรับข้อมูล",
+	"Visual_Description_DataLabels": "แสดงตัวเลือกป้ายสำหรับข้อมูล",
+	"Visual_Description_Color": "เลือกสีสำหรับป้ายข้อมูล"
 }

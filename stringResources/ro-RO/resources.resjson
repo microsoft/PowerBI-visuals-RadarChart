@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Poziție de start axă",
 	"Visual_North": "Nord",
 	"Visual_South": "Sud",
-	"Visual_DataLabels": "Etichete de date"
+	"Visual_DataLabels": "Etichete de date",
+	"Visual_Description_Legend": "Afișați opțiunile pentru legendă",
+	"Visual_Description_Title": "Afișați un titlu pentru simbolurile legendei",
+	"Visual_Description_Name": "Text titlu",
+	"Visual_Description_DataColors": "Afișați opțiunile pentru culoarea datelor",
+	"Visual_Description_DataLabels": "Afișați opțiunile pentru etichete de date",
+	"Visual_Description_Color": "Selectați culoarea pentru etichetele de date"
 }

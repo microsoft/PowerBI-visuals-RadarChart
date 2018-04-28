@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Posisi awal sumbu",
 	"Visual_North": "Utara",
 	"Visual_South": "Selatan",
-	"Visual_DataLabels": "Label Data"
+	"Visual_DataLabels": "Label Data",
+	"Visual_Description_Legend": "Tampilkan Opsi Legenda",
+	"Visual_Description_Title": "Tampilkan judul untuk simbol legenda",
+	"Visual_Description_Name": "Teks Judul",
+	"Visual_Description_DataColors": "Tampilkan opsi warna data",
+	"Visual_Description_DataLabels": "Tampilkan opsi label data",
+	"Visual_Description_Color": "Pilih warna untuk label data"
 }

@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Axelns startposition",
 	"Visual_North": "Nord",
 	"Visual_South": "Syd",
-	"Visual_DataLabels": "Dataetiketter"
+	"Visual_DataLabels": "Dataetiketter",
+	"Visual_Description_Legend": "Visa teckenförklaringsalternativ",
+	"Visual_Description_Title": "Visa en rubrik för förklaringssymboler",
+	"Visual_Description_Name": "Rubriktext",
+	"Visual_Description_DataColors": "Visa datafärgsalternativ",
+	"Visual_Description_DataLabels": "Visa dataetikettsalternativ",
+	"Visual_Description_Color": "Välj färg för dataetiketter"
 }

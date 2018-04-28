@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Telje algasend",
 	"Visual_North": "Põhi",
 	"Visual_South": "Lõuna",
-	"Visual_DataLabels": "Andmesildid"
+	"Visual_DataLabels": "Andmesildid",
+	"Visual_Description_Legend": "Kuva legendi valikud",
+	"Visual_Description_Title": "Kuva legendi sümbolite pealkiri",
+	"Visual_Description_Name": "Pealkirja tekst",
+	"Visual_Description_DataColors": "Kuva andmete värvide suvandid",
+	"Visual_Description_DataLabels": "Kuva andmesildi suvandid",
+	"Visual_Description_Color": "Valige andmesiltide värv"
 }

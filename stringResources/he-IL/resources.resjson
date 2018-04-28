@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "מיקום התחלת ציר",
 	"Visual_North": "צפון",
 	"Visual_South": "דרום",
-	"Visual_DataLabels": "תוויות נתונים"
+	"Visual_DataLabels": "תוויות נתונים",
+	"Visual_Description_Legend": "הצג אפשרויות מקרא",
+	"Visual_Description_Title": "הצג כותרת לסימני המקרא",
+	"Visual_Description_Name": "טקסט כותרת",
+	"Visual_Description_DataColors": "הצג אפשרויות צבע מידע",
+	"Visual_Description_DataLabels": "הצג אפשרויות תוויות מידע",
+	"Visual_Description_Color": "בחר צבע לתוויות מידע"
 }

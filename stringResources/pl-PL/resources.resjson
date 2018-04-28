@@ -25,5 +25,11 @@
 	"Visual_AxisStartPosition": "Pozycja początkowa osi",
 	"Visual_North": "Północ",
 	"Visual_South": "Południe",
-	"Visual_DataLabels": "Etykiety danych"
+	"Visual_DataLabels": "Etykiety danych",
+	"Visual_Description_Legend": "Wyświetl opcje legendy",
+	"Visual_Description_Title": "Wyświetl tytuł symboli legendy",
+	"Visual_Description_Name": "Tekst tytułu",
+	"Visual_Description_DataColors": "Wyświetl opcje kolorów danych",
+	"Visual_Description_DataLabels": "Wyświetl opcje etykiet danych",
+	"Visual_Description_Color": "Wybierz kolor etykiet danych"
 }
