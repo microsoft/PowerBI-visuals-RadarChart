@@ -1,20 +1,21 @@
 {
   "name": "powerbi-visuals-radarchart",
   "description": "A simple radar chart supporting multiple measures plotted over a categorical axis. Also known as a web chart, spider chart, or star chart. Use to display performance metrics for quality improvement.",
-  "version": "1.0.7",
+  "version": "1.1.0",
   "author": {
     "name": "Microsoft",
     "email": "pbicvsupport@microsoft.com"
   },
   "scripts": {
-    "postinstall": "pbiviz update 1.7.0",
+    "postinstall": "pbiviz update 1.11.0",
     "pbiviz": "pbiviz",
     "start": "pbiviz start",
     "package": "pbiviz package",
     "lint": "node node_modules/tslint/bin/tslint \"+(src|test)/**/*.ts\"",
     "pretest": "pbiviz package --resources --no-minify --no-pbiviz --no-plugin",
     "test": "karma start",
-    "debug": "karma start --browsers=Chrome --single-run=false"
+    "debug": "karma start --browsers=Chrome --single-run=false",
+    "cert": "pbiviz --create-cert"
   },
   "license": "MIT",
   "repository": {
@@ -42,14 +43,15 @@
     "karma-sourcemap-loader": "0.3.7",
     "karma-typescript-preprocessor": "0.3.0",
     "lodash": "4.16.2",
-    "powerbi-visuals-tools": "1.7.1",
+    "powerbi-models": "^1.0.2",
+    "powerbi-visuals-tools": "1.11.0",
     "powerbi-visuals-utils-chartutils": "0.2.3",
     "powerbi-visuals-utils-colorutils": "0.2.1",
     "powerbi-visuals-utils-dataviewutils": "0.3.0",
     "powerbi-visuals-utils-formattingutils": "0.2.2",
-    "powerbi-visuals-utils-interactivityutils": "0.2.1",
+    "powerbi-visuals-utils-interactivityutils": "3.1.0",
     "powerbi-visuals-utils-svgutils": "0.2.1",
-    "powerbi-visuals-utils-testutils": "0.2.2",
+    "powerbi-visuals-utils-testutils": "1.2.0",
     "powerbi-visuals-utils-tooltiputils": "0.3.0",
     "tslint": "3.15.1",
     "typescript": "2.1.4"

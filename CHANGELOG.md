@@ -1,3 +1,9 @@
+## 1.1.0
+* UPD: powerbi-visuals-tools has been updated to 1.11.0 to support Bookmarks
+* UPD: API has been updated to 1.11.0 to support Bookmarks
+* UPD: powerbi-visuals-utils-interactivityutils has been updated to 3.1.0 to support Bookmarks
+* UPD: powerbi-visuals-utils-testutils has been updated to "1.2.0" to support Bookmarks
+
 ## 1.0.7
 * Fix for - empty data values cause rendering fails in some cases
 
