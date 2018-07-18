@@ -65,6 +65,7 @@ module powerbi.extensibility.visual {
         labels: RadarChartLabelsData;
         series: RadarChartSeries[];
         settings: RadarChartSettings;
+        hasDynamicSeries: boolean;
     }
 
     export interface RadarChartLabel extends Arc {
