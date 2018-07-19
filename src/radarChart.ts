@@ -270,11 +270,11 @@ module powerbi.extensibility.visual {
         }
         private static minimumAxisCount: number = 4;
         public static converter(dataView: DataView,
-                                colorPalette: IColorPalette,
-                                ownColorHelper: ColorHelper,
-                                visualHost: IVisualHost,
-                                interactivityService?: IInteractivityService): RadarChartData {
-            
+            colorPalette: IColorPalette,
+            ownColorHelper: ColorHelper,
+            visualHost: IVisualHost,
+            interactivityService?: IInteractivityService): RadarChartData {
+
             if (!dataView
                 || !dataView.categorical
                 || !dataView.categorical.categories
@@ -284,9 +284,9 @@ module powerbi.extensibility.visual {
                 || !(dataView.categorical.values.length > 0)
                 || !colorPalette
                 || !visualHost) {
-                
-                let categorical: DataViewCategorical = dataView.categorical;                
-                let values: DataViewValueColumns = categorical.values;                
+
+                let categorical: DataViewCategorical = dataView.categorical;
+                let values: DataViewValueColumns = categorical.values;
                 let hasDynamicSeries: boolean = !!values.source;
                 return {
                     legendData: {
@@ -442,7 +442,7 @@ module powerbi.extensibility.visual {
 
             this.colorPalette = options.host.colorPalette;
             this.colorHelper = new ColorHelper(this.colorPalette);
-            
+
             let behavior: IInteractiveBehavior = this.colorHelper.isHighContrast ? new OpacityLegendBehavior() : null;
             this.legend = createLegend(
                 options.element,
@@ -581,8 +581,20 @@ module powerbi.extensibility.visual {
                 .selectAll("*")
                 .remove();
 
-            //this.legend.reset();
-            //this.legend.drawLegend({dataPoints: []}, this.viewport);
+            this.legend.reset();
+            this.legend.drawLegend({ dataPoints: [] }, this.viewport);
+        }
+
+        private changeAxesLineColorInHighMode(selectionArray: Selection<any>[]): void {
+            if (this.colorHelper.isHighContrast) {
+                let lineColor: string = this.settings.legend.labelColor;
+
+                selectionArray.forEach((selection) => {
+                    selection.style({
+                        "stroke": lineColor
+                    });
+                });
+            }
         }
 
         private drawCircularSegments(values: PrimitiveValue[]): void {
@@ -624,6 +636,8 @@ module powerbi.extensibility.visual {
                     "y2": (segment: RadarChartCircularSegment) => segment.y2
                 });
 
+            this.changeAxesLineColorInHighMode([selection]);
+
             selection
                 .exit()
                 .remove();
@@ -652,6 +666,8 @@ module powerbi.extensibility.visual {
                     "y2": (d: PrimitiveValue, i: number) => axisBeginning * radius * Math.cos(i * angle)
                 })
                 .classed(RadarChart.AxisNodeSelector.class, true);
+
+            this.changeAxesLineColorInHighMode([axexSelection]);
 
             axexSelection
                 .exit()
@@ -915,6 +931,8 @@ module powerbi.extensibility.visual {
                 })
                 .classed(RadarChart.AxisLabelLinkShortLineSelector.class, true);
 
+            this.changeAxesLineColorInHighMode([labelsShortLineLinkSelection, labelsLongLineLinkSelection]);
+
             labelsShortLineLinkSelection
                 .exit()
                 .remove();
@@ -963,13 +981,12 @@ module powerbi.extensibility.visual {
             if (settings.line.show) {
                 polygonSelection
                     .style("fill", "none")
-                    .style("stroke", (dataPoints: RadarChartDatapoint[]) => 
+                    .style("stroke", (dataPoints: RadarChartDatapoint[]) =>
                         this.colorHelper.getHighContrastColor("foreground", dataPoints[0].color))
                     .style("stroke-width", settings.line.lineWidth);
             } else {
                 polygonSelection
-                    .style("fill", (dataPoints: RadarChartDatapoint[]) => 
-                        this.colorHelper.isHighContrast ? this.colorHelper.getThemeColor() : dataPoints[0].color)
+                    .style("fill", (dataPoints: RadarChartDatapoint[]) => this.colorHelper.getHighContrastColor("foreground", dataPoints[0].color))
                     .style("stroke-width", RadarChart.PolygonStrokeWidth);
             }
 
@@ -1092,13 +1109,13 @@ module powerbi.extensibility.visual {
 
         private renderLegend(): void {
             let radarChartData: RadarChartData = this.radarChartData;
-            
+
             if (!radarChartData.legendData) {
                 console.log("no legend!");
                 return;
             }
 
-            const {height, width} = this.viewport,
+            const { height, width } = this.viewport,
                 legendData: LegendData = radarChartData.legendData;
 
             // // Draw the legend on a viewport with the original height and width
@@ -1120,7 +1137,7 @@ module powerbi.extensibility.visual {
                 this.legend.changeOrientation(LegendPosition.Top);
             }
 
-            this.legend.drawLegend(legendData, {height, width});
+            this.legend.drawLegend(legendData, { height, width });
             LegendModule.positionChartArea(this.svg, this.legend);
         }
 
@@ -1192,7 +1209,7 @@ module powerbi.extensibility.visual {
 
         public static countMinValueForDisplaySettings(minValue: any, settings: RadarChartSettings) {
             if (minValue < 0) { // for negative values
-                    settings.displaySettings.minValue = minValue;
+                settings.displaySettings.minValue = minValue;
             } else {
                 if (settings.displaySettings.minValue > minValue) {
                     settings.displaySettings.minValue = minValue;
@@ -1226,61 +1243,61 @@ module powerbi.extensibility.visual {
 
         private enumerateLegend(): VisualObjectInstance[] {
             let showTitle: boolean = true,
-            titleText: string = "",
-            legend: VisualObjectInstance[],
-            position: string;
+                titleText: string = "",
+                legend: VisualObjectInstance[],
+                position: string;
 
-        showTitle = DataViewObject.getValue<boolean>(
-            this.legendObjectProperties,
-            legendProps.showTitle,
-            showTitle);
+            showTitle = DataViewObject.getValue<boolean>(
+                this.legendObjectProperties,
+                legendProps.showTitle,
+                showTitle);
 
-        titleText = DataViewObject.getValue<string>(
-            this.legendObjectProperties,
-            legendProps.titleText,
-            titleText);
+            titleText = DataViewObject.getValue<string>(
+                this.legendObjectProperties,
+                legendProps.titleText,
+                titleText);
 
-        position = DataViewObject.getValue<string>(
-            this.legendObjectProperties,
-            legendProps.position,
-            legendPosition.top);
+            position = DataViewObject.getValue<string>(
+                this.legendObjectProperties,
+                legendProps.position,
+                legendPosition.top);
 
-        legend = [{
-            objectName: "legend",
-            displayName: "Legend",//this.localizationManager.getDisplayName(VisualizationText.Legend),
-            selector: null,
-            properties: {
-                show: this.settings.legend.show,
-                position: position,
-                showTitle: showTitle,
-                titleText: titleText,
-                fontSize: this.settings.legend.fontSize,
-                labelColor: this.settings.legend.labelColor,
-            }
-        }];
+            legend = [{
+                objectName: "legend",
+                displayName: "Legend",//this.localizationManager.getDisplayName(VisualizationText.Legend),
+                selector: null,
+                properties: {
+                    show: this.settings.legend.show,
+                    position: position,
+                    showTitle: showTitle,
+                    titleText: titleText,
+                    fontSize: this.settings.legend.fontSize,
+                    labelColor: this.settings.legend.labelColor,
+                }
+            }];
 
             return legend;
         }
-         /**
-         * This function returns the values to be displayed in the property pane for each object.
-         * Usually it is a bind pass of what the property pane gave you, but sometimes you may want to do
-         * validation and return other values/defaults
-         */
+        /**
+        * This function returns the values to be displayed in the property pane for each object.
+        * Usually it is a bind pass of what the property pane gave you, but sometimes you may want to do
+        * validation and return other values/defaults
+        */
         public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
             let instances: VisualObjectInstanceEnumeration = null;
             switch (options.objectName) {
-                    case "dataPoint":
-                        return this.enumerateDataPoint();
-                    case "legend": 
-                        if (!this.radarChartData.hasDynamicSeries) {
-                            return [];
-                        }
-                        return this.enumerateLegend();
-                    default:
-                        return RadarChartSettings.enumerateObjectInstances(
-                            this.settings || RadarChartSettings.getDefault(),
-                            options);
-                }
+                case "dataPoint":
+                    return this.enumerateDataPoint();
+                case "legend":
+                    if (!this.radarChartData.hasDynamicSeries) {
+                        return [];
+                    }
+                    return this.enumerateLegend();
+                default:
+                    return RadarChartSettings.enumerateObjectInstances(
+                        this.settings || RadarChartSettings.getDefault(),
+                        options);
+            }
         }
 
         private updateViewport(): void {
