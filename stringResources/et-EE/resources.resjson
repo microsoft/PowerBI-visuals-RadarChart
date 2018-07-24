@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Pealkirja tekst",
 	"Visual_Description_DataColors": "Kuva andmete värvide suvandid",
 	"Visual_Description_DataLabels": "Kuva andmesildi suvandid",
-	"Visual_Description_Color": "Valige andmesiltide värv"
+	"Visual_Description_Color": "Valige andmesiltide värv",
+	"RadarChart_Short_Description": "Mitu mõõtu kategoorilisel teljel. Kasulik atribuutide võrdlemiseks",
+	"RadarChart_Long_Description": "Radiaaldiagramm on graafiline meetod mitme muutujaga andmete kuvamiseks kahemõõtmelise diagrammina, mis sisaldab kolme või rohkemat kvantitatiivset muutujat, mis on esitatud telgedel sama alguspunktiga. Telgede suhteline asukoht ja nurk on tavaliselt mitte midagi ütlevad.\nIgale muutujale antakse telg, mis algab keskpunktist. Kõik teljed on korraldatud radiaalselt, nii et iga telje vahel on võrdne vahemaa, säilitades samas kõigi telgede vahel sama skaalat. Ruudustiku jooni, mis ühendavad telgi, kasutatakse tihti juhisena. Iga muutuja väärtus paigutatakse piki selle individuaalset telge ja kõik muutujad andmekomplektis on ühendatud kokku hulknurgaks.\nRadiaaldiagrammid näitavad, millised muutujad on andmekomplektis kõrge või madala hinnanguga, mis võimaldab selle diagrammiga ideaalselt kuvada jõudlust, nagu töövõtja või sportlase jõudlus, tootevõrdlus jne.\nSee on avatud lähtekoodiga visuaal. Hankige kood GitHubist: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

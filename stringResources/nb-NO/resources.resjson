@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Titteltekst",
 	"Visual_Description_DataColors": "Vis alternativer for datafarge",
 	"Visual_Description_DataLabels": "Vis alternativer for dataetiketter",
-	"Visual_Description_Color": "Velg farge for dataetiketter"
+	"Visual_Description_Color": "Velg farge for dataetiketter",
+	"RadarChart_Short_Description": "Flere målinger tegnet på en kategoriakse. Nyttig for å sammenligne attributter",
+	"RadarChart_Long_Description": "Et radardiagram er en grafisk metode for å vise multivariate data i form av et todimensjonalt diagram med tre eller flere kvantitative variabler på akser som starter i samme punkt. Aksenes relative plassering og vinkel har vanligvis ingen betydning.\nHver variabel får en akse som starter i midten. Alle akser plasseres sirkulært med lik avstand, og beholder samtidig samme skala mellom alle aksene. Rutenettlinjer som kobles fra akse til akse, brukes ofte som guide. Hver variabelverdi tegnes langs de enkelte aksene og alle variabler i et datasett, og kobles sammen for å danne en polygon.\nRadardiagrammer brukes til å vise hvilke variabler i et datasett som får høy eller lav score, og er dermed ideelle til å måle ytelsen til ansatte eller sportsutøvere, i produktsammenligninger osv.\nDette er et visualobjekt med åpen kildekode. Hent koden fra GitHub: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

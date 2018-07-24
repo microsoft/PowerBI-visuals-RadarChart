@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Text nadpisu",
 	"Visual_Description_DataColors": "Zobrazí možnosti pro barvy dat.",
 	"Visual_Description_DataLabels": "Zobrazí možnosti pro popisky dat.",
-	"Visual_Description_Color": "Vyberte barvu pro popisky dat."
+	"Visual_Description_Color": "Vyberte barvu pro popisky dat.",
+	"RadarChart_Short_Description": "Více měřítek vykreslených na ose kategorií. Užitečné k porovnávání atributů",
+	"RadarChart_Long_Description": "Paprskový graf je grafická metoda zobrazení multivariačních dat ve formě dvourozměrného grafu se třemi nebo více kvantitativními proměnnými reprezentovanými na osách, které mají počátek ve stejném bodě. Relativní pozice a úhel os je obvykle neinformativní.\nKaždá proměnná má osu, která začíná od středu. Všechny osy jsou uspořádány radiálně a jsou stejně daleko od sebe. U všech se zachovává stejné měřítko. Čáry mřížky, které spojují osy, často slouží jako vodítko. Hodnoty jednotlivých proměnných jsou vykresleny podél jejich vlastních os a všechny proměnné v datové sadě jsou propojeny tak, že utvářejí mnohoúhelník.\nPaprskové grafy jsou užitečné pro znázornění, které proměnné mají v rámci datové sady vysoké nebo nízké hodnoty, což je ideální pro zobrazování výkonu, například u analýzy dovedností zaměstnanců nebo sportovců, porovnání produktů atd.\nTento vizuál je typu open source. Kód můžete získat z Githubu: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

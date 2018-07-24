@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Titeltext",
 	"Visual_Description_DataColors": "Farboptionen für Daten anzeigen",
 	"Visual_Description_DataLabels": "Optionen für Datenbeschriftungen anzeigen",
-	"Visual_Description_Color": "Farbe für Datenbeschriftungen auswählen"
+	"Visual_Description_Color": "Farbe für Datenbeschriftungen auswählen",
+	"RadarChart_Short_Description": "Mehrere Messwerte werden auf einer Kategorieachse dargestellt. Eignet sich zum Vergleichen von Attributen.",
+	"RadarChart_Long_Description": "Ein Spinnennetzdiagramm ist eine grafische Methode, mehrdimensionale Daten in Form eines zweidimensionalen Diagramms darzustellen, in dem drei oder mehr quantitative Variablen auf Achsen dargestellt werden, die am gleichen Punkt beginnen. Die relative Position und der relative Winkel der Achsen sind in der Regel nicht informativ.\nJeder Variable wird eine Achse zugewiesen, die in der Mitte beginnt. Alle Achsen werden kreisförmig mit gleichen Abständen zueinander angeordnet, und auf alle Achsen wird derselbe Maßstab angelegt. Häufig werden die Achsen über Rasterlinien miteinander verbunden, die als Hilfslinien verwendet werden. Jeder Variablenwert wird auf seiner eigenen Achse dargestellt, und alle Variablen in einem Dataset werden zu einem Polygon miteinander verbunden.\nNetzdiagramme sind hilfreich, um herauszufinden, welche Variablen innerhalb eines Datasets hohe oder niedrige Bewertungen erzielen. Daher eignen sich diese Diagramme ideal zur Darstellung von Leistungen, beispielsweise in Form einer Fähigkeitsanalyse eines Mitarbeiters oder Sportlers, zum Vergleich von Produkten usw.\nDies ist ein Open Source-Visual. Rufen Sie den Code aus GitHub ab: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

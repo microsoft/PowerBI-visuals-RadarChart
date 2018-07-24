@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Texto do Título",
 	"Visual_Description_DataColors": "Apresentar opções de cor de dados",
 	"Visual_Description_DataLabels": "Apresentar opções de etiqueta de dados",
-	"Visual_Description_Color": "Selecionar a cor para os rótulos de dados"
+	"Visual_Description_Color": "Selecionar a cor para os rótulos de dados",
+	"RadarChart_Short_Description": "Várias medidas desenhadas sobre um eixo de categorias. Útil para comparar atributos",
+	"RadarChart_Long_Description": "Um gráfico de radar é um método gráfico para apresentar dados multivariados sob a forma de um gráfico bidimensional de três ou mais variáveis quantitativas, representadas em eixos a partir do mesmo ponto. A posição relativa e o ângulo dos eixos não são, normalmente, informativos.\nCada variável recebe um eixo que começa no centro. Todos os eixos são dispostos de forma radial, com distâncias iguais entre si, mantendo-se a mesma escala entre todos os eixos. As linhas de grelha que ligam de eixo a eixo costumam usar-se como guia. Cada valor de variável é representado ao longo do seu eixo individual e todas as variáveis num conjunto de dados e ligada, formando um polígono.\nOs Gráficos de Radar são úteis para ver quais as variáveis que têm pontuação alta ou baixa dentro de um conjunto de dados, o que faz deles ideais para mostrar o desempenho, tais como Análise de Competências de Empregados ou jogadores, comparação de produtos, etc.\nEste é um visual de código aberto. Obtenha o código do GitHub: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

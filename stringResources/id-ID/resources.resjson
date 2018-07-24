@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Teks Judul",
 	"Visual_Description_DataColors": "Tampilkan opsi warna data",
 	"Visual_Description_DataLabels": "Tampilkan opsi label data",
-	"Visual_Description_Color": "Pilih warna untuk label data"
+	"Visual_Description_Color": "Pilih warna untuk label data",
+	"RadarChart_Short_Description": "Beberapa pengukuran diplot pada sumbu kategori. Berguna untuk membandingkan atribut",
+	"RadarChart_Long_Description": "Bagan radar adalah metode grafis untuk menampilkan data multivariat dalam format bagan dua dimensi dari tiga variabel kuantitatif atau lebih yang ditunjukkan pada sumbu dimulai dari titik yang sama. Posisi dan sudut sumbu relatif biasanya tidak informatif.\nSetiap variabel disediakan sumbu yang dimulai dari tengah. Semua sumbu disusun secara radial, dengan jarak yang sama antara satu sama lain, sekaligus mempertahankan skala yang sama antara semua sumbu. Garis kisi yang terhubung dari sumbu ke sumbu sering digunakan sebagai panduan. Nilai setiap variabel diplot di sepanjang sumbu terpisah dan semua variabel diplot dalam satu himpunan data lalu disambungkan untuk membentuk poligon.\nBagan Radar berguna untuk melihat variabel mana yang memiliki skor tinggi atau rendah dalam himpunan data, sehingga cocok untuk menampilkan kinerja, seperti Analisis Keterampilan Karyawan atau atlet, perbandingan produk, dll.\nIni adalah visual sumber terbuka. Dapatkan kodenya dari GitHub: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "標題文字",
 	"Visual_Description_DataColors": "顯示資料色彩選項",
 	"Visual_Description_DataLabels": "顯示資料標籤選項",
-	"Visual_Description_Color": "選取資料標籤的色彩"
+	"Visual_Description_Color": "選取資料標籤的色彩",
+	"RadarChart_Short_Description": "繪製於類別軸上的多個量值。適用於比較屬性",
+	"RadarChart_Long_Description": "雷達圖是以二維圖表形式呈現多變量資料的圖解方法，在起點相同的軸上表示三個以上的量化變項。軸的相對位置及角度通常沒有含意。\n每個變相都會有從中心開始的軸。每個軸均以放射狀排列，彼此之間的距離相等，而且每個軸上的尺度均保持相同。軸與軸之間相連的格線通常為輔助線用途。每個變項值各自沿著個別的軸繪製，資料集內的所有變數會連在一起，以組成多邊形。\n雷達圖可用於看出資料集內哪些變項分別為高或低，因此很適合用來呈現績效，例如員工和運動員的技能分析、產品比較等。\n這是開放原始碼視覺效果。從 GitHub 取得程式碼: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

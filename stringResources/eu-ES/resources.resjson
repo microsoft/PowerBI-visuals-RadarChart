@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Izenburuaren testua",
 	"Visual_Description_DataColors": "Bistaratu datuen koloreen aukerak",
 	"Visual_Description_DataLabels": "Bistaratu datuen etiketen aukerak",
-	"Visual_Description_Color": "Hautatu datu-etiketen kolorea"
+	"Visual_Description_Color": "Hautatu datu-etiketen kolorea",
+	"RadarChart_Short_Description": "Hainbat neurri, ardatz kategoriko batean antolatuta. Erabilgarria atributuak alderatzeko.",
+	"RadarChart_Long_Description": "Diagrama erradial bat hainbat motatako datu bistaratzeko metodo grafikoa da; bi dimentsiotako diagrama batean bistaratzen da, ardatzeko puntu beretik abiarazten diren hiru aldagai edo kuantitatibo edo gehiagorekin. Ardatzen posizio eta angelu erlatiboak ez dira beharrezkoak izaten.\nAldagai bakoitzak ardatz bat du eta erdigunetik abiarazten da. Ardatz guztiak erradialaren arabera daude kokatuta, elkarren arteko distantzia berarekin, eta ardatzen arteko eskala bera mantenduta. Ardatz batetik bestera konektatzen diren sareta-lerroak erabili ohi dira gida gisa. Aldagai bakoitzaren balioa bere ardatzaren luzeran marrazten da, eta datu multzoko aldagai guztiak elkarren artean konektatzen dira poligono bat eratzeko.\nDiagrama erradialak oso erabilgarriak dira datu multzoko zein aldagaik duen puntuazio altua edo baxua ikusteko; horrela ezin hobeak dira errendimendua bistaratzeko; adibidez, langileen edo kirolarien gaitasunen analisiak egiteko, produktuak konparatzeko, etab..\nKode irekikoa da elementu bisual hau. Eskuratu kodea GitHub-en: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

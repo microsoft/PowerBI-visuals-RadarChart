@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "제목 텍스트",
 	"Visual_Description_DataColors": "데이터 색 표시 옵션",
 	"Visual_Description_DataLabels": "데이터 레이블 표시 옵션",
-	"Visual_Description_Color": "데이터 레이블의 색 선택"
+	"Visual_Description_Color": "데이터 레이블의 색 선택",
+	"RadarChart_Short_Description": "범주 축에 그려진 여러 측정값으로, 특성을 비교하는 데 유용합니다.",
+	"RadarChart_Long_Description": "방사형 차트는 다변량 데이터를 그래픽으로 표시하는 방법으로, 동일한 요소에서 시작된 축에 나타낸 세 개 이상의 계량 변수로 구성된 2차원 차트 형태로 나타냅니다. 축의 상대 위치 및 각도는 일반적으로 정보의 가치가 없습니다.\n가운데에서 시작되는 축에는 각각의 변수가 제공됩니다. 모든 축은 서로 간의 거리는 동일한 방사형으로 배열되며 모든 축 간에 동일한 크기를 유지합니다. 축 간을 연결하는 눈금선은 대개 안내선으로 사용됩니다. 각각의 변수 값은 개별 축을 따라 그려지며 데이터 집합의 모든 변수는 함께 연결되어 다각형을 구성합니다.\n방사형 차트는 데이터 집합 내에서 점수가 높거나 낮은 변수를 확인하는 데 유용하므로, 직원 또는 운동 선수의 기술력 분석, 제품 비교와 같은 성능/성과를 표시하는 데 적합합니다.\n이는 오픈 소스 시각적 개체입니다. GitHub에서 코드를 받아 보세요. https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

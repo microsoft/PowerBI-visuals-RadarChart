@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Başlık Metni",
 	"Visual_Description_DataColors": "Veri rengi seçeneklerini görüntüle",
 	"Visual_Description_DataLabels": "Veri etiketi seçeneklerini görüntüle",
-	"Visual_Description_Color": "Veri etiketlerine ilişkin rengi seçin"
+	"Visual_Description_Color": "Veri etiketlerine ilişkin rengi seçin",
+	"RadarChart_Short_Description": "Tek bir kategorik eksen üzerinde çizilmiş birden çok ölçü. Öznitelikleri karşılaştırmak için yararlıdır",
+	"RadarChart_Long_Description": "Bir radar grafiği, çok değişkenli verileri, aynı noktadan başlayan eksenlerde temsil edilen üç veya daha fazla niceliksel değişkenin iki boyutlu bir grafiği biçiminde görüntüleme yöntemidir. Eksenlerin göreli konumu ve açısı tipik olarak bilgilendirici değildir.\nHer değişkene merkezden başlayan bir eksen verilir. Tüm eksenler, aralarında eşit mesafe bırakılarak ve tüm eksenlerde aynı ölçek korunarak radyal olarak yerleştirilir. Eksenden eksene bağlanan kılavuz çizgileri sıklıkla yönerge olarak kullanılır. Değişkenin her değeri kendi ekseni ve veri kümesindeki tüm değişkenler boyunca yerleştirilir ve bir çokgen oluşturacak şekilde birbirine bağlanır.\nRadar Grafikleri bir veri kümesinde hangi değişkenlerin puanlarının yüksek ya da düşük olduğunu görmek için yararlı olduğundan, Çalışanların veya sporcuların Yetenek Analizi, ürün karşılaştırması vb. performans görüntülemesinde idealdir.\nBu, açık kaynaklı bir görseldir. Kodu GitHub'dan alabilirsiniz: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Text názvu",
 	"Visual_Description_DataColors": "Možnosti zobrazenia farieb údajov",
 	"Visual_Description_DataLabels": "Možnosti zobrazenia označenia údajov",
-	"Visual_Description_Color": "Vyberte farbu pre označenia údajov"
+	"Visual_Description_Color": "Vyberte farbu pre označenia údajov",
+	"RadarChart_Short_Description": "Viaceré miery vykreslené nad osou kategórií. Užitočné na porovnanie atribútov.",
+	"RadarChart_Long_Description": "Radarový graf je grafická metóda zobrazovania multivariačných údajov vo forme dvojrozmerného grafu troch alebo viacerých kvantitatívnych premenných reprezentovaných na osiach začínajúcich od toho istého bodu. Relatívna poloha a uhol osí je typicky neinformačný.\nKaždá premenná má os, ktorá sa začína od stredu. Všetky osi sú usporiadané radiálne s rovnakou vzdialenosťou medzi sebou a so zachovanou rovnakou mierkou medzi všetkými osami. Mriežky, ktoré sa pripájajú od osi k osi, sa často používajú ako vodiace mriežky. Každá premenná hodnota je vykreslená pozdĺž svojej jednotlivej osi a všetky premenné v množine údajov sú navzájom prepojené na vytvorenie mnohouholníka.\nRadarové grafy sú užitočné na zobrazenie toho, ktoré premenné majú v rámci množiny údajov vysoké alebo nízke skóre, čo je ideálne na zobrazenie výkonnosti, napríklad na analýzu zručností zamestnancov alebo športových hráčov, porovnanie produktov atď.\n Tento vizuál je typu open source. Kód získate na stránke GitHub: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

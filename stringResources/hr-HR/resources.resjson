@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Tekst naslova",
 	"Visual_Description_DataColors": "Prikaži mogućnosti boje podataka",
 	"Visual_Description_DataLabels": "Prikaži mogućnosti oznaka podataka",
-	"Visual_Description_Color": "Odaberite boju za oznake podataka"
+	"Visual_Description_Color": "Odaberite boju za oznake podataka",
+	"RadarChart_Short_Description": "Više se mjera iscrtava preko kategorijskih osi. Koristan je za usporedbu atributa",
+	"RadarChart_Long_Description": "Polarni je grafikon grafički način prikaza multivarijatnih podatak u obliku dvodimenzionalnog grafikona s tri ili više kvantitativnih varijabli prikazanih na osima koje počinju od iste točke. Relativni položaj i kut osi obično nije informativan.\nSvaka se varijabla navodi na osi koja počinje u središtu. Sve su osi raspoređene radijalno i jednako udaljene jedna od druge uz zadržavanje istih proporcija između svih osi. Crte rešetke koje međusobno povezuju osi koriste se kao orijentir. Vrijednost svake varijable iscrtava se na pripadajućoj osi i sve se varijable u skupu podataka međusobno povezuju tako da tvore višekutnik.\nPolarni su grafikoni korisni za prikaz varijabli s visokim ili niskim položajem unutar skupa podataka, zbog čega su idealne za prikaz performansi, npr. za analizu vještina zaposlenika ili sportaša, usporedbu proizvoda itd.\nTo je vizual otvorenog koda. Kod preuzmite sa servisa GitHub: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }
