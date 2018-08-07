@@ -418,7 +418,6 @@ module powerbi.extensibility.visual {
 
         constructor(options: VisualConstructorOptions) {
             const element: HTMLElement = options.element;
-            debugger;
 
             this.colorPalette = options.host.colorPalette;
             this.colorHelper = new ColorHelper(this.colorPalette);
@@ -1172,11 +1171,17 @@ module powerbi.extensibility.visual {
                 dataView.metadata.objects,
                 "legend",
                 {});
+
+            if (this.colorHelper.isHighContrast)
+                this.legendObjectProperties["labelColor"] = {
+                    solid: {
+                        color: this.colorHelper.getHighContrastColor("foreground", this.settings.legend.labelColor)
+                    }
+                };
         }
 
         public static parseSettings(dataView: DataView, colorHelper: ColorHelper): RadarChartSettings {
             let settings: RadarChartSettings = RadarChartSettings.parse<RadarChartSettings>(dataView);
-
             if (!colorHelper)
                 return settings;
 

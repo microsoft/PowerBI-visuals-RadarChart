@@ -86,7 +86,7 @@ module powerbi.extensibility.visual.test {
         public get legendItemCircle(): JQuery {
             return this.legendGroup
                 .children(".legendItem")
-                .children("circle")
+                .children("circle");
         }
 
         public get chartDot(): JQuery {
