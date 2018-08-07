@@ -455,19 +455,19 @@ module powerbi.extensibility.visual {
 
             this.labelGraphicsContext = this.mainGroupElement
                 .append("g")
-                .classed(RadarChart.LabelGraphicsContextSelector.class, true);
+                .classed(RadarChart.LabelGraphicsContextSelector.className, true);
 
             this.segments = this.mainGroupElement
                 .append("g")
-                .classed(RadarChart.SegmentsSelector.class, true);
+                .classed(RadarChart.SegmentsSelector.className, true);
 
             this.axis = this.mainGroupElement
                 .append("g")
-                .classed(RadarChart.AxisSelector.class, true);
+                .classed(RadarChart.AxisSelector.className, true);
 
             this.chart = this.mainGroupElement
                 .append("g")
-                .classed(RadarChart.ChartSelector.class, true);
+                .classed(RadarChart.ChartSelector.className, true);
         }
 
         public update(options: VisualUpdateOptions): void {
@@ -552,28 +552,28 @@ module powerbi.extensibility.visual {
 
         private clear(): void {
             this.mainGroupElement
-                .select(RadarChart.AxisSelector.selector)
-                .selectAll(RadarChart.AxisNodeSelector.selector)
+                .select(RadarChart.AxisSelector.selectorName)
+                .selectAll(RadarChart.AxisNodeSelector.selectorName)
                 .remove();
 
             this.mainGroupElement
-                .select(RadarChart.AxisSelector.selector)
-                .selectAll(RadarChart.AxisLabelSelector.selector)
+                .select(RadarChart.AxisSelector.selectorName)
+                .selectAll(RadarChart.AxisLabelSelector.selectorName)
                 .remove();
 
             this.mainGroupElement
-                .select(RadarChart.AxisSelector.selector)
-                .selectAll(RadarChart.AxisLabelLinkShortLineSelector.selector)
+                .select(RadarChart.AxisSelector.selectorName)
+                .selectAll(RadarChart.AxisLabelLinkShortLineSelector.selectorName)
                 .remove();
 
             this.mainGroupElement
-                .select(RadarChart.AxisSelector.selector)
-                .selectAll(RadarChart.AxisLabelLinkLongLineSelector.selector)
+                .select(RadarChart.AxisSelector.selectorName)
+                .selectAll(RadarChart.AxisLabelLinkLongLineSelector.selectorName)
                 .remove();
 
             this.mainGroupElement
-                .select(RadarChart.SegmentsSelector.selector)
-                .selectAll(RadarChart.SegmentNodeSElector.selector)
+                .select(RadarChart.SegmentsSelector.selectorName)
+                .selectAll(RadarChart.SegmentNodeSElector.selectorName)
                 .remove();
 
             this.chart
@@ -618,14 +618,14 @@ module powerbi.extensibility.visual {
             }
 
             let selection: UpdateSelection<RadarChartCircularSegment> = this.mainGroupElement
-                .select(RadarChart.SegmentsSelector.selector)
-                .selectAll(RadarChart.SegmentNodeSElector.selector)
+                .select(RadarChart.SegmentsSelector.selectorName)
+                .selectAll(RadarChart.SegmentNodeSElector.selectorName)
                 .data(data);
 
             selection
                 .enter()
                 .append("svg:line")
-                .classed(RadarChart.SegmentNodeSElector.class, true);
+                .classed(RadarChart.SegmentNodeSElector.className, true);
 
             selection
                 .attr({
@@ -648,8 +648,8 @@ module powerbi.extensibility.visual {
                 radius: number = this.radius;
 
             let selection: Selection<RadarChartCircularSegment> = this.mainGroupElement
-                .select(RadarChart.AxisSelector.selector)
-                .selectAll(RadarChart.AxisNodeSelector.selector);
+                .select(RadarChart.AxisSelector.selectorName)
+                .selectAll(RadarChart.AxisNodeSelector.selectorName);
 
             let axexSelection: UpdateSelection<PrimitiveValue> = selection.data(values);
 
@@ -664,7 +664,7 @@ module powerbi.extensibility.visual {
                     "x2": (d: PrimitiveValue, i: number) => radius * Math.sin(i * angle),
                     "y2": (d: PrimitiveValue, i: number) => axisBeginning * radius * Math.cos(i * angle)
                 })
-                .classed(RadarChart.AxisNodeSelector.class, true);
+                .classed(RadarChart.AxisNodeSelector.className, true);
 
             this.changeAxesLineColorInHighMode([axexSelection]);
 
@@ -844,8 +844,8 @@ module powerbi.extensibility.visual {
             let labelSettings: LabelSettings = this.radarChartData.settings.labels;
 
             let selectionLabelText: d3.Selection<RadarChartLabel> = this.mainGroupElement
-                .select(RadarChart.AxisSelector.selector)
-                .selectAll(RadarChart.AxisLabelSelector.selector);
+                .select(RadarChart.AxisSelector.selectorName)
+                .selectAll(RadarChart.AxisLabelSelector.selectorName);
 
             let filteredData: RadarChartLabel[] = values.filter((label: RadarChartLabel) => labelSettings.show && !label.hide);
 
@@ -879,15 +879,15 @@ module powerbi.extensibility.visual {
                 .style("font-size", () => PixelConverter.fromPoint(labelSettings.fontSize))
                 .style("text-anchor", (label: RadarChartLabel) => label.textAnchor)
                 .style("fill", () => labelSettings.color)
-                .classed(RadarChart.AxisLabelSelector.class, true);
+                .classed(RadarChart.AxisLabelSelector.className, true);
 
             labelsSelection
                 .exit()
                 .remove();
 
             let selectionLongLineLableLink: d3.Selection<RadarChartLabel> = this.mainGroupElement
-                .select(RadarChart.AxisSelector.selector)
-                .selectAll(RadarChart.AxisLabelLinkLongLineSelector.selector);
+                .select(RadarChart.AxisSelector.selectorName)
+                .selectAll(RadarChart.AxisLabelLinkLongLineSelector.selectorName);
 
             let labelsLongLineLinkSelection: UpdateSelection<RadarChartLabel> = selectionLongLineLableLink.data(filteredData);
 
@@ -902,15 +902,15 @@ module powerbi.extensibility.visual {
                     x2: (label: RadarChartLabel) => label.xLinkEnd,
                     y2: (label: RadarChartLabel) => label.yLinkEnd
                 })
-                .classed(RadarChart.AxisLabelLinkLongLineSelector.class, true);
+                .classed(RadarChart.AxisLabelLinkLongLineSelector.className, true);
 
             labelsLongLineLinkSelection
                 .exit()
                 .remove();
 
             let selectionShortLineLableLink: d3.Selection<RadarChartLabel> = this.mainGroupElement
-                .select(RadarChart.AxisSelector.selector)
-                .selectAll(RadarChart.AxisLabelLinkShortLineSelector.selector);
+                .select(RadarChart.AxisSelector.selectorName)
+                .selectAll(RadarChart.AxisLabelLinkShortLineSelector.selectorName);
 
             let labelsShortLineLinkSelection: UpdateSelection<RadarChartLabel> = selectionShortLineLableLink.data(filteredData);
 
@@ -928,7 +928,7 @@ module powerbi.extensibility.visual {
                     },
                     y2: (label: RadarChartLabel) => label.yLinkEnd
                 })
-                .classed(RadarChart.AxisLabelLinkShortLineSelector.class, true);
+                .classed(RadarChart.AxisLabelLinkShortLineSelector.className, true);
 
             this.changeAxesLineColorInHighMode([labelsShortLineLinkSelection, labelsLongLineLinkSelection]);
 
@@ -952,16 +952,16 @@ module powerbi.extensibility.visual {
             };
 
             let areasSelection: UpdateSelection<RadarChartDatapoint[]> = this.chart
-                .selectAll(RadarChart.ChartAreaSelector.selector)
+                .selectAll(RadarChart.ChartAreaSelector.selectorName)
                 .data(layers);
 
             areasSelection
                 .enter()
                 .append("g")
-                .classed(RadarChart.ChartAreaSelector.class, true);
+                .classed(RadarChart.ChartAreaSelector.className, true);
 
             let polygonSelection: UpdateSelection<RadarChartDatapoint[]> = areasSelection
-                .selectAll(RadarChart.ChartPolygonSelector.selector)
+                .selectAll(RadarChart.ChartPolygonSelector.selectorName)
                 .data((dataPoints: RadarChartDatapoint[]) => {
                     if (dataPoints && dataPoints.length > 0) {
                         return [dataPoints];
@@ -973,7 +973,7 @@ module powerbi.extensibility.visual {
             polygonSelection
                 .enter()
                 .append("polygon")
-                .classed(RadarChart.ChartPolygonSelector.class, true);
+                .classed(RadarChart.ChartPolygonSelector.className, true);
 
             let settings: RadarChartSettings = this.radarChartData.settings;
 
@@ -1014,19 +1014,19 @@ module powerbi.extensibility.visual {
                 .remove();
 
             let nodeSelection: UpdateSelection<RadarChartDatapoint[]> = this.chart
-                .selectAll(RadarChart.ChartNodeSelector.selector)
+                .selectAll(RadarChart.ChartNodeSelector.selectorName)
                 .data(layers);
 
             nodeSelection
                 .enter()
                 .append("g")
-                .classed(RadarChart.ChartNodeSelector.class, true);
+                .classed(RadarChart.ChartNodeSelector.className, true);
 
             let hasHighlights: boolean = (series.length > 0) && series[0].hasHighlights,
                 hasSelection: boolean = this.interactivityService && this.interactivityService.hasSelection();
 
             let dotsSelection: UpdateSelection<RadarChartDatapoint> = nodeSelection
-                .selectAll(RadarChart.ChartDotSelector.selector)
+                .selectAll(RadarChart.ChartDotSelector.selectorName)
                 .data((dataPoints: RadarChartDatapoint[]) => {
                     return dataPoints.filter(d => d.y != null && d.showPoint);
                 });
@@ -1034,7 +1034,7 @@ module powerbi.extensibility.visual {
             dotsSelection
                 .enter()
                 .append("svg:circle")
-                .classed(RadarChart.ChartDotSelector.class, true);
+                .classed(RadarChart.ChartDotSelector.className, true);
 
             dotsSelection.attr("r", RadarChart.DotRadius)
                 .attr({
@@ -1229,7 +1229,11 @@ module powerbi.extensibility.visual {
                         (series.identity as IVisualSelectionId).getSelector(),
                         false),
                     properties: {
-                        fill: { solid: { color: series.fill } }
+                        fill: {
+                            solid: {
+                                color: this.colorHelper.isHighContrast ? this.colorHelper.getHighContrastColor("foreground", series.fill) : series.fill
+                            }
+                        }
                     }
                 });
             }
