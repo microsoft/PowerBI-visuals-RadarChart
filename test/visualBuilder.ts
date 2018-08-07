@@ -83,6 +83,12 @@ module powerbi.extensibility.visual.test {
                 .children("text.legendText");
         }
 
+        public get legendItemCircle(): JQuery {
+            return this.legendGroup
+                .children(".legendItem")
+                .children("circle")
+        }
+
         public get chartDot(): JQuery {
             return this.mainElement
                 .find("g.chartNode")
