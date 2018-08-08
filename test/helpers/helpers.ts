@@ -48,6 +48,22 @@ module powerbi.extensibility.visual.test.helpers {
             && firstConvertedColor.B === secondConvertedColor.B;
     }
 
+    export function isColorAppliedToElements(
+        elements: JQuery[],
+        color?: string,
+        colorStyleName: string = "fill"
+    ): boolean {
+        return elements.some((element: JQuery) => {
+            const currentColor: string = element.css(colorStyleName);
+
+            if (!currentColor || !color) {
+                return currentColor === color;
+            }
+
+            return areColorsEqual(currentColor, color);
+        });
+    }
+
     export function getRandomUniqueIntegers(count: number, min: number = 0, max: number): number[] {
         const result: number[] = [];
 

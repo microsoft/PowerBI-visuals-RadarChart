@@ -31,6 +31,7 @@ module powerbi.extensibility.visual.test {
     import RadarChartData = powerbi.extensibility.visual.test.RadarChartData;
     import RadarChartBuilder = powerbi.extensibility.visual.test.RadarChartBuilder;
     import areColorsEqual = powerbi.extensibility.visual.test.helpers.areColorsEqual;
+    import isColorAppliedToElements = powerbi.extensibility.visual.test.helpers.isColorAppliedToElements;
     import getRandomUniqueHexColors = powerbi.extensibility.visual.test.helpers.getRandomUniqueHexColors;
     import getSolidColorStructuralObject = powerbi.extensibility.visual.test.helpers.getSolidColorStructuralObject;
 
@@ -43,6 +44,9 @@ module powerbi.extensibility.visual.test {
 
     // powerbi.extensibility.utils.chart
     import LegendData = powerbi.extensibility.utils.chart.legend.LegendData;
+
+    // powerbi.extensibility.utils.color
+    import ColorHelper = powerbi.extensibility.utils.color.ColorHelper;
 
     // RadarChart1446119667547
     import VisualClass = powerbi.extensibility.visual.RadarChart1446119667547.RadarChart;
@@ -458,10 +462,12 @@ module powerbi.extensibility.visual.test {
 
         describe("converter", () => {
             let colors: IColorPalette,
+                colorHelper: ColorHelper,
                 visualHost: IVisualHost;
 
             beforeEach(() => {
                 colors = createColorPalette();
+                colorHelper = new ColorHelper(colors);
                 visualHost = createVisualHost();
                 dataView.metadata.objects = {
                     labels: {
@@ -476,14 +482,14 @@ module powerbi.extensibility.visual.test {
             it("Parse settings", () => {
                 (dataView.metadata.objects as any).displaySettings.minValue = 1000000;
                 expect(() => {
-                    VisualClass.parseSettings(dataView, colors);
+                    VisualClass.parseSettings(dataView, colorHelper);
                 }).not.toThrow();
             });
 
             it("enumerateObjects", () => {
                 expect(() => {
                     visualBuilder.instance.enumerateDataPoint();
-                    let settings = VisualClass.parseSettings(dataView, colors);
+                    let settings = VisualClass.parseSettings(dataView, colorHelper);
                     VisualClass.countMinValueForDisplaySettings(-1, settings);
                     VisualClass.countMinValueForDisplaySettings(0, settings);
                     VisualClass.countMinValueForDisplaySettings(1, settings);
@@ -492,15 +498,15 @@ module powerbi.extensibility.visual.test {
             });
 
             it("arguments are null", () => {
-                callConverterAndExpectExceptions(null, null, null);
+                callConverterAndExpectExceptions(null, null, null, null);
             });
 
             it("arguments are undefined", () => {
-                callConverterAndExpectExceptions(undefined, undefined, undefined);
+                callConverterAndExpectExceptions(undefined, undefined, undefined, undefined);
             });
 
             it("dataView is correct", () => {
-                callConverterAndExpectExceptions(dataView, colors, visualHost);
+                callConverterAndExpectExceptions(dataView, colors, colorHelper, visualHost);
             });
 
             describe("radarChartData", () => {
@@ -510,6 +516,7 @@ module powerbi.extensibility.visual.test {
                     radarChartData = callConverterAndExpectExceptions(
                         dataView,
                         colors,
+                        colorHelper,
                         visualHost);
                 });
 
@@ -574,12 +581,13 @@ module powerbi.extensibility.visual.test {
             function callConverterAndExpectExceptions(
                 dataView: DataView,
                 colors: IColorPalette,
+                colorHelper: ColorHelper,
                 visualHost: IVisualHost): IRadarChartData {
 
                 let radarChartData: IRadarChartData;
 
                 expect(() => {
-                    radarChartData = VisualClass.converter(dataView, colors, visualHost);
+                    radarChartData = VisualClass.converter(dataView, colors, colorHelper, visualHost);
                 }).not.toThrow();
 
                 return radarChartData;
@@ -607,6 +615,41 @@ module powerbi.extensibility.visual.test {
                 };
 
                 objectsChecker(jsonData);
+            });
+        });
+
+        describe("High contrast mode", () => {
+            const backgroundColor: string = "#000000";
+            const foregroundColor: string = "#ff00ff";
+
+            let chartPolygons: JQuery[],
+                chartDot: JQuery[],
+                legendItemText: JQuery[],
+                dataLabelsText: JQuery[],
+                legendItemCircle: JQuery[];
+
+            beforeEach(() => {
+                visualBuilder.visualHost.colorPalette.isHighContrast = true;
+
+                visualBuilder.visualHost.colorPalette.background = { value: backgroundColor };
+                visualBuilder.visualHost.colorPalette.foreground = { value: foregroundColor };
+
+                chartPolygons = visualBuilder.chartPolygons.toArray().map($);
+                chartDot = visualBuilder.chartDot.toArray().map($);
+                legendItemText = visualBuilder.legendItemText.toArray().map($);
+                dataLabelsText = visualBuilder.dataLabelsText.toArray().map($);
+                legendItemCircle = visualBuilder.legendItemCircle.toArray().map($);
+            });
+
+            it("should use high contrast mode colors", (done) => {
+                visualBuilder.updateRenderTimeout(dataView, () => {
+                    expect(isColorAppliedToElements(chartPolygons, foregroundColor, "fill"));
+                    expect(isColorAppliedToElements(chartDot, foregroundColor, "fill"));
+                    expect(isColorAppliedToElements(legendItemText, foregroundColor, "color"));
+                    expect(isColorAppliedToElements(dataLabelsText, foregroundColor, "color"));
+                    expect(isColorAppliedToElements(legendItemCircle, foregroundColor, "fill"));
+                    done();
+                });
             });
         });
     });
