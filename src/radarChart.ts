@@ -350,9 +350,10 @@ module powerbi.extensibility.visual {
                     }
                 }
 
+                const legendDataPointsColor: string = colorHelper.isHighContrast ? colorHelper.getHighContrastColor("foreground", color) : color;
                 legendData.dataPoints.push(<LegendDataPoint>{
                     label: displayName,
-                    color: colorHelper.isHighContrast ? colorHelper.getHighContrastColor("foreground", color) : color,
+                    color: legendDataPointsColor,
                     icon: LegendIcon.Box,
                     selected: false,
                     identity: serieIdentity
@@ -1182,8 +1183,9 @@ module powerbi.extensibility.visual {
 
         public static parseSettings(dataView: DataView, colorHelper: ColorHelper): RadarChartSettings {
             let settings: RadarChartSettings = RadarChartSettings.parse<RadarChartSettings>(dataView);
-            if (!colorHelper)
+            if (!colorHelper) {
                 return settings;
+            }
 
             if (dataView && dataView.categorical) {
                 if (dataView.categorical.categories[0].values.length <= 2) {
