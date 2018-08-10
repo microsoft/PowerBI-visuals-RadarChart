@@ -663,9 +663,9 @@ module powerbi.extensibility.visual.test {
             });
 
             describe("dataset includes negative values", () => {
-
                 beforeEach(() => {
                     dataView = defaultDataViewBuilder.getDataViewWithNegatives();
+                    debugger;
                     dataView.metadata.objects = {
                         displaySettings: {
                             minValue: 0
@@ -674,17 +674,14 @@ module powerbi.extensibility.visual.test {
                     visualBuilder.update(dataView);
                 });
 
-
                 it("Parse settings", () => {
                     let settings = VisualClass.parseSettings(dataView, colorHelper);
                     let minimumValue = d3.min(defaultDataViewBuilder.withNegativeValuesY1);
                     expect(settings.displaySettings.minValue).toBe(minimumValue);
                 });
-
             });
 
             describe("dataset includes only 2 values", () => {
-
                 let polygon: JQuery[];
                 // the area becames a line
                 beforeEach(() => {
@@ -700,7 +697,7 @@ module powerbi.extensibility.visual.test {
 
                 it("Parse settings", () => {
                     let settings = VisualClass.parseSettings(dataView, colorHelper);
-                    let minimumValue = d3.min(defaultDataViewBuilder.valuesY1);
+                    let minimumValue = d3.min(defaultDataViewBuilder.onlyTwoValuesY1);
                     expect(settings.displaySettings.minValue).toBe(minimumValue);
                 });
 

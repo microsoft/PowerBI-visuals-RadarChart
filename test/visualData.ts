@@ -44,10 +44,6 @@ module powerbi.extensibility.visual.test {
         public static ColumnSales2: string = "sales2";
         public static DefaultDataFormat: string = "$0,000.00";
 
-        // public valuesCategory: string[] = ["Monday", "Tuesday"];
-        // public valuesY1: number[] = [-1, -2];
-        // public valuesY2: number[] = [8, 4,];
-
         public valuesCategory: string[] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Monday1", "Tuesday1", "Wednesday1", "Thursday1", "Friday1", "Saturday1", "Sunday1", "Monday2", "Tuesday2", "Wednesday2", "Thursday2", "Friday2", "Saturday2", "Sunday2", "Monday3", "Tuesday3", "Wednesday3", "Thursday3", "Friday3", "Saturday3", "Sunday3"];
         public valuesY1: number[] = [742731.43, 162066.43, 283085.78, 300263.49, 376074.57, 814724.34, 570921.34, 742731.43, 162066.43, 283085.78, 300263.49, 376074.57, 814724.34, 570921.34, 742731.43, 162066.43, 283085.78, 300263.49, 376074.57, 814724.34, 570921.34, 742731.43, 162066.43, 283085.78, 300263.49, 376074.57, 814724.34, 570921.34];
         public valuesY2: number[] = [123455.43, 40566.43, 200457.78, 5000.49, 320000.57, 450000.34, 140832.67, 123455.43, 40566.43, 200457.78, 5000.49, 320000.57, 450000.34, 140832.67, 123455.43, 40566.43, 200457.78, 5000.49, 320000.57, 450000.34, 140832.67, 123455.43, 40566.43, 200457.78, 5000.49, 320000.57, 450000.34, 140832.67];
@@ -61,14 +57,14 @@ module powerbi.extensibility.visual.test {
         public onlyTwoValuesY2: number[] = [8, 4];
 
         public getDataViewWithNegatives(): powerbi.DataView {
-            return this.getDataView(["column1", "column2"], this.withNegativeValuesCategory, { valuesY1: this.withNegativeValuesY1, valuesY2: this.withNegativeValuesY2 }, "0.00");
+            return this.getDataView(undefined, this.withNegativeValuesCategory, { valuesY1: this.withNegativeValuesY1, valuesY2: this.withNegativeValuesY2 }, "0.00");
         }
 
         public getDataViewWithOnlyTwoValues(): powerbi.DataView {
-            return this.getDataView(["first", "second"], this.onlyTwoValuesCategory, { valuesY1: this.onlyTwoValuesY1, valuesY2: this.onlyTwoValuesY2 }, "0.00");
+            return this.getDataView(undefined, this.onlyTwoValuesCategory, { valuesY1: this.onlyTwoValuesY1, valuesY2: this.onlyTwoValuesY2 }, "0.00");
         }
 
-        public getDataView(columnNames?: string[], valuesCategory?: string[], valuesData?: IValuesInDataView, format?: string, queryName?: string): powerbi.DataView {
+        public getDataView(columnNames?: string[], valuesCategory?: string[], valuesData?: IValuesInDataView, format?: string): powerbi.DataView {
             return this.createCategoricalDataViewBuilder([
                 {
                     source: {
