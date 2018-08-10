@@ -136,6 +136,8 @@ module powerbi.extensibility.visual {
         private static Angle175Degree: number = 175;
         private static Angle220Degree: number = 220;
 
+        private static PoligonBecomesLinePointsCount: number = 2;
+
         private static DefaultMargin: IMargin = {
             top: 10,
             bottom: 10,
@@ -270,7 +272,8 @@ module powerbi.extensibility.visual {
             }
         }
         private static minimumAxisCount: number = 4;
-        public static converter(dataView: DataView,
+        public static converter(
+            dataView: DataView,
             colorPalette: IColorPalette,
             colorHelper: ColorHelper,
             visualHost: IVisualHost,
@@ -944,13 +947,14 @@ module powerbi.extensibility.visual {
             let axisBeginning: number = this.radarChartData.settings.displaySettings.axisBeginning;
             let calculatePoints = (points) => {
                 return points.map((value) => {
-                    let x1: number = yDomain(value.y) * Math.sin(value.x * angle),
-                        y1: number = axisBeginning * yDomain(value.y) * Math.cos(value.x * angle);
+                    if (value.showPoint) {
+                        let x1: number = yDomain(value.y) * Math.sin(value.x * angle),
+                            y1: number = axisBeginning * yDomain(value.y) * Math.cos(value.x * angle);
 
-                    return `${x1},${y1}`;
+                        return `${x1},${y1}`;
+                    }
                 }).join(" ");
             };
-
             let areasSelection: UpdateSelection<RadarChartDatapoint[]> = this.chart
                 .selectAll(RadarChart.ChartAreaSelector.selectorName)
                 .data(layers);
@@ -959,7 +963,6 @@ module powerbi.extensibility.visual {
                 .enter()
                 .append("g")
                 .classed(RadarChart.ChartAreaSelector.className, true);
-
             let polygonSelection: UpdateSelection<RadarChartDatapoint[]> = areasSelection
                 .selectAll(RadarChart.ChartPolygonSelector.selectorName)
                 .data((dataPoints: RadarChartDatapoint[]) => {
@@ -977,18 +980,6 @@ module powerbi.extensibility.visual {
 
             let settings: RadarChartSettings = this.radarChartData.settings;
 
-            if (settings.line.show) {
-                polygonSelection
-                    .style("fill", "none")
-                    .style("stroke", (dataPoints: RadarChartDatapoint[]) =>
-                        this.colorHelper.getHighContrastColor("foreground", dataPoints[0].color))
-                    .style("stroke-width", settings.line.lineWidth);
-            } else {
-                polygonSelection
-                    .style("fill", (dataPoints: RadarChartDatapoint[]) => this.colorHelper.getHighContrastColor("foreground", dataPoints[0].color))
-                    .style("stroke-width", RadarChart.PolygonStrokeWidth);
-            }
-
             polygonSelection
                 .style("opacity", radarChartUtils.DimmedOpacity)
                 .on("mouseover", function () {
@@ -1003,7 +994,30 @@ module powerbi.extensibility.visual {
                         .duration(duration)
                         .style("opacity", radarChartUtils.DimmedOpacity);
                 })
-                .attr("points", calculatePoints);
+                .attr("points", calculatePoints)
+                .attr("points-count", (dataPoints: RadarChartDatapoint[]) => {
+                    let count = 0;
+                    dataPoints.forEach((point) => {
+                        if (point.showPoint) count++;
+                    });
+
+                    return count;
+                });
+
+
+            if (settings.line.show ||
+                polygonSelection.attr("points-count") === RadarChart.PoligonBecomesLinePointsCount.toString()
+            ) {
+                polygonSelection
+                    .style("fill", "none")
+                    .style("stroke", (dataPoints: RadarChartDatapoint[]) =>
+                        this.colorHelper.getHighContrastColor("foreground", dataPoints[0].color))
+                    .style("stroke-width", settings.line.lineWidth);
+            } else {
+                polygonSelection
+                    .style("fill", (dataPoints: RadarChartDatapoint[]) => this.colorHelper.getHighContrastColor("foreground", dataPoints[0].color))
+                    .style("stroke-width", RadarChart.PolygonStrokeWidth);
+            }
 
             polygonSelection
                 .exit()
@@ -1100,7 +1114,6 @@ module powerbi.extensibility.visual {
                     ? RadarChart.MinDomainValue
                     : RadarChart.MaxDomainValue;
             }
-
             return d3.scale.linear()
                 .domain([minValue, maxValue])
                 .range([RadarChart.MinDomainValue, radius]);
@@ -1188,18 +1201,14 @@ module powerbi.extensibility.visual {
             }
 
             if (dataView && dataView.categorical) {
-                if (dataView.categorical.categories[0].values.length <= 2) {
-                    settings.displaySettings.minValue = 0;
-                } else {
-                    let minValue = d3.min(<number[]>dataView.categorical.values[0].values);
-                    for (let i: number = 0; i < dataView.categorical.values.length; i++) {
-                        let minValueL = d3.min(<number[]>dataView.categorical.values[i].values);
-                        if (minValue > minValueL) {
-                            minValue = minValueL;
-                        }
+                let minValue = d3.min(<number[]>dataView.categorical.values[0].values);
+                for (let i: number = 0; i < dataView.categorical.values.length; i++) {
+                    let minValueL = d3.min(<number[]>dataView.categorical.values[i].values);
+                    if (minValue > minValueL) {
+                        minValue = minValueL;
                     }
-                    RadarChart.countMinValueForDisplaySettings(minValue, settings);
                 }
+                RadarChart.countMinValueForDisplaySettings(minValue, settings);
             }
 
             settings.dataPoint.fill = colorHelper.getHighContrastColor("foreground", settings.dataPoint.fill);
