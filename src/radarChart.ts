@@ -272,8 +272,7 @@ module powerbi.extensibility.visual {
             }
         }
         private static minimumAxisCount: number = 4;
-        public static converter(
-            dataView: DataView,
+        public static converter(dataView: DataView,
             colorPalette: IColorPalette,
             colorHelper: ColorHelper,
             visualHost: IVisualHost,
@@ -963,6 +962,7 @@ module powerbi.extensibility.visual {
                 .enter()
                 .append("g")
                 .classed(RadarChart.ChartAreaSelector.className, true);
+
             let polygonSelection: UpdateSelection<RadarChartDatapoint[]> = areasSelection
                 .selectAll(RadarChart.ChartPolygonSelector.selectorName)
                 .data((dataPoints: RadarChartDatapoint[]) => {
