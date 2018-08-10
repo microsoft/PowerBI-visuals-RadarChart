@@ -33,16 +33,42 @@ module powerbi.extensibility.visual.test {
     // powerbi.extensibility.utils.type
     import ValueType = powerbi.extensibility.utils.type.ValueType;
 
+    interface IValuesInDataView {
+        valuesY1: number[];
+        valuesY2: number[];
+    }
+
     export class RadarChartData extends TestDataViewBuilder {
         public static ColumnCategory: string = "category";
         public static ColumnSales1: string = "sales1";
         public static ColumnSales2: string = "sales2";
+        public static DefaultDataFormat: string = "$0,000.00";
+
+        // public valuesCategory: string[] = ["Monday", "Tuesday"];
+        // public valuesY1: number[] = [-1, -2];
+        // public valuesY2: number[] = [8, 4,];
 
         public valuesCategory: string[] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Monday1", "Tuesday1", "Wednesday1", "Thursday1", "Friday1", "Saturday1", "Sunday1", "Monday2", "Tuesday2", "Wednesday2", "Thursday2", "Friday2", "Saturday2", "Sunday2", "Monday3", "Tuesday3", "Wednesday3", "Thursday3", "Friday3", "Saturday3", "Sunday3"];
         public valuesY1: number[] = [742731.43, 162066.43, 283085.78, 300263.49, 376074.57, 814724.34, 570921.34, 742731.43, 162066.43, 283085.78, 300263.49, 376074.57, 814724.34, 570921.34, 742731.43, 162066.43, 283085.78, 300263.49, 376074.57, 814724.34, 570921.34, 742731.43, 162066.43, 283085.78, 300263.49, 376074.57, 814724.34, 570921.34];
         public valuesY2: number[] = [123455.43, 40566.43, 200457.78, 5000.49, 320000.57, 450000.34, 140832.67, 123455.43, 40566.43, 200457.78, 5000.49, 320000.57, 450000.34, 140832.67, 123455.43, 40566.43, 200457.78, 5000.49, 320000.57, 450000.34, 140832.67, 123455.43, 40566.43, 200457.78, 5000.49, 320000.57, 450000.34, 140832.67];
 
-        public getDataView(columnNames?: string[], valuesCategory?: string[] ): powerbi.DataView {
+        public withNegativeValuesCategory: string[] = ["Minus one", "Minus two", "Three"];
+        public withNegativeValuesY1: number[] = [-1, -2, 3];
+        public withNegativeValuesY2: number[] = [-1, -2, -0.5];
+
+        public onlyTwoValuesCategory: string[] = ["Day 1", "Day 2"];
+        public onlyTwoValuesY1: number[] = [-1, -2];
+        public onlyTwoValuesY2: number[] = [8, 4];
+
+        public getDataViewWithNegatives(): powerbi.DataView {
+            return this.getDataView(["column1", "column2"], this.withNegativeValuesCategory, { valuesY1: this.withNegativeValuesY1, valuesY2: this.withNegativeValuesY2 }, "0.00");
+        }
+
+        public getDataViewWithOnlyTwoValues(): powerbi.DataView {
+            return this.getDataView(["first", "second"], this.onlyTwoValuesCategory, { valuesY1: this.onlyTwoValuesY1, valuesY2: this.onlyTwoValuesY2 }, "0.00");
+        }
+
+        public getDataView(columnNames?: string[], valuesCategory?: string[], valuesData?: IValuesInDataView, format?: string, queryName?: string): powerbi.DataView {
             return this.createCategoricalDataViewBuilder([
                 {
                     source: {
@@ -57,22 +83,22 @@ module powerbi.extensibility.visual.test {
                         source: {
                             displayName: "Previous week sales",
                             isMeasure: true,
-                            format: "$0,000.00",
+                            format: format ? format : RadarChartData.DefaultDataFormat,
                             queryName: RadarChartData.ColumnSales1,
                             type: ValueType.fromDescriptor({ numeric: true }),
                             objects: { dataPoint: { fill: { solid: { color: "purple" } } } },
                         },
-                        values: this.valuesY1
+                        values: valuesData && valuesData.valuesY1 ? valuesData.valuesY1 : this.valuesY1
                     },
                     {
                         source: {
                             displayName: "This week sales",
                             isMeasure: true,
-                            format: "$0,000.00",
+                            format: format ? format : RadarChartData.DefaultDataFormat,
                             queryName: RadarChartData.ColumnSales2,
                             type: ValueType.fromDescriptor({ numeric: true })
                         },
-                        values: this.valuesY2
+                        values: valuesData && valuesData.valuesY2 ? valuesData.valuesY2 : this.valuesY2
                     }
                 ], columnNames).build();
         }
