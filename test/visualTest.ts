@@ -695,13 +695,13 @@ module powerbi.extensibility.visual.test {
                     polygon = visualBuilder.chartPolygons.toArray().map($);
                 });
 
-                it("Parse settings", () => {
+                it("Should parse settings.displaySettings.minValue property with 2 or less points in the group as expected", () => {
                     let settings = VisualClass.parseSettings(dataView, colorHelper);
                     let minimumValue = d3.min(defaultDataViewBuilder.onlyTwoValuesY1);
                     expect(settings.displaySettings.minValue).toBe(minimumValue);
                 });
 
-                it("Render polygons with right points count and binded with line", (done) => {// area for 2 point is a line
+                it("Should render a polygon with right points count and bound with a line", (done) => {// area for 2 point is a line
                     const expectedPointCount: number = 2;
 
                     visualBuilder.updateRenderTimeout(dataView, () => {

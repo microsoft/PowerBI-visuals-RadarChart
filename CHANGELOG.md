@@ -1,3 +1,6 @@
+## 1.3.1
+* Fixed for -  wrong chart rendering with 2 or less point in the group
+
 ## 1.3.0
 * High contrast mode
 * API 1.13.0

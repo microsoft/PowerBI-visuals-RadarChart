@@ -967,9 +967,14 @@ module powerbi.extensibility.visual {
                 .selectAll(RadarChart.ChartPolygonSelector.selectorName)
                 .data((dataPoints: RadarChartDatapoint[]) => {
                     if (dataPoints && dataPoints.length > 0) {
-                        return [dataPoints];
+                        let points: RadarChartDatapoint[] = [];
+                        dataPoints.forEach((point) => {
+                            if (point.showPoint) {
+                                points.push(point);
+                            }
+                        });
+                        return [points];
                     }
-
                     return [];
                 });
 
@@ -995,15 +1000,7 @@ module powerbi.extensibility.visual {
                         .style("opacity", radarChartUtils.DimmedOpacity);
                 })
                 .attr("points", calculatePoints)
-                .attr("points-count", (dataPoints: RadarChartDatapoint[]) => {
-                    let count = 0;
-                    dataPoints.forEach((point) => {
-                        if (point.showPoint) count++;
-                    });
-
-                    return count;
-                });
-
+                .attr("points-count", (dataPoints: RadarChartDatapoint[]) => dataPoints.length);
 
             if (settings.line.show ||
                 polygonSelection.attr("points-count") === RadarChart.PoligonBecomesLinePointsCount.toString()
