@@ -652,5 +652,67 @@ module powerbi.extensibility.visual.test {
                 });
             });
         });
+
+        describe("Boundary values test", () => {
+            let colorPalette: IColorPalette,
+                colorHelper: ColorHelper;
+
+            beforeEach(() => {
+                colorPalette = createColorPalette();
+                colorHelper = new ColorHelper(colorPalette);
+            });
+
+            describe("dataset includes negative values", () => {
+                beforeEach(() => {
+                    dataView = defaultDataViewBuilder.getDataViewWithNegatives();
+                    debugger;
+                    dataView.metadata.objects = {
+                        displaySettings: {
+                            minValue: 0
+                        }
+                    };
+                    visualBuilder.update(dataView);
+                });
+
+                it("Should parse settings.displaySettings.minValue with negative values as expected", () => {
+                    let settings = VisualClass.parseSettings(dataView, colorHelper);
+                    let minimumValue = d3.min(defaultDataViewBuilder.withNegativeValuesY1);
+                    expect(settings.displaySettings.minValue).toBe(minimumValue);
+                });
+            });
+
+            describe("dataset includes only 2 values", () => {
+                let polygon: JQuery[];
+                // the area becames a line
+                beforeEach(() => {
+                    dataView = defaultDataViewBuilder.getDataViewWithOnlyTwoValues();
+                    dataView.metadata.objects = {
+                        displaySettings: {
+                            minValue: 0
+                        }
+                    };
+                    visualBuilder.update(dataView);
+                    polygon = visualBuilder.chartPolygons.toArray().map($);
+                });
+
+                it("Should parse settings.displaySettings.minValue property with 2 or less points in the group as expected", () => {
+                    let settings = VisualClass.parseSettings(dataView, colorHelper);
+                    let minimumValue = d3.min(defaultDataViewBuilder.onlyTwoValuesY1);
+                    expect(settings.displaySettings.minValue).toBe(minimumValue);
+                });
+
+                it("Should render a polygon with right points count and bound with a line", (done) => {// area for 2 point is a line
+                    const expectedPointCount: number = 2;
+
+                    visualBuilder.updateRenderTimeout(dataView, () => {
+                        expect(polygon[0].attr("points-count")).toBe(expectedPointCount.toString());
+                        expect(polygon[0].css("fill")).toBe("none");
+                        expect(polygon[0].css("stroke")).toBeTruthy();
+                        expect(polygon[0].css("stroke-width")).toBeTruthy();
+                        done();
+                    });
+                });
+            });
+        });
     });
 }
