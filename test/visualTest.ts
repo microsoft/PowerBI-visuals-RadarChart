@@ -674,7 +674,7 @@ module powerbi.extensibility.visual.test {
                     visualBuilder.update(dataView);
                 });
 
-                it("Parse settings", () => {
+                it("Should parse settings.displaySettings.minValue with negative values as expected", () => {
                     let settings = VisualClass.parseSettings(dataView, colorHelper);
                     let minimumValue = d3.min(defaultDataViewBuilder.withNegativeValuesY1);
                     expect(settings.displaySettings.minValue).toBe(minimumValue);

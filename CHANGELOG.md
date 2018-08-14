@@ -1,5 +1,5 @@
 ## 1.3.1
-* Fixed for -  wrong chart rendering with 2 or less point in the group
+* Fixed wrong chart rendering with 2 or less points in a group
 
 ## 1.3.0
 * High contrast mode
