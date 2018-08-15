@@ -62,7 +62,7 @@ module powerbi.extensibility.visual.test {
 
         public stringDataCategory: string[] = ["Value1", "Value2"];
         public stringValuesY1: string[] = ["Value1", "Value2"];
-        public stringValuesY2 = ["Value1", "Value2"];
+        public stringValuesY2: string[] = ["Value 1", "Value 2"];
 
         public getDataViewWithStringData(): powerbi.DataView {
             return this.getDataView(undefined, this.stringDataCategory, { valuesY1: this.stringValuesY1, valuesY2: this.stringValuesY2 }, "");
