@@ -655,7 +655,9 @@ module powerbi.extensibility.visual.test {
 
         describe("Boundary values test", () => {
             let colorPalette: IColorPalette,
-                colorHelper: ColorHelper;
+                colorHelper: ColorHelper,
+                polygon: JQuery[],
+                chartDot: JQuery[];
 
             beforeEach(() => {
                 colorPalette = createColorPalette();
@@ -682,7 +684,6 @@ module powerbi.extensibility.visual.test {
             });
 
             describe("dataset includes only 2 values", () => {
-                let polygon: JQuery[];
                 // the area becames a line
                 beforeEach(() => {
                     dataView = defaultDataViewBuilder.getDataViewWithOnlyTwoValues();
@@ -709,6 +710,46 @@ module powerbi.extensibility.visual.test {
                         expect(polygon[0].css("fill")).toBe("none");
                         expect(polygon[0].css("stroke")).toBeTruthy();
                         expect(polygon[0].css("stroke-width")).toBeTruthy();
+                        done();
+                    });
+                });
+            });
+
+            describe("empty dataset", () => {
+                beforeEach(() => {
+                    dataView = defaultDataViewBuilder.getDataViewWithBlankData();
+                    visualBuilder.update(dataView);
+
+                    polygon = visualBuilder.chartPolygons.toArray().map($);
+                    chartDot = visualBuilder.chartDot.toArray().map($);
+                });
+
+                it("Should render a polygon with right 0 points count and not to render a dots", (done) => {
+                    const expectedPointCount: number = 0;
+
+                    visualBuilder.updateRenderTimeout(dataView, () => {
+                        expect(polygon[0].attr("points-count")).toBe(expectedPointCount.toString());
+                        expect(chartDot.length).toBe(expectedPointCount);
+                        done();
+                    });
+                });
+            });
+
+            describe("dataset with string data", () => {
+                beforeEach(() => {
+                    dataView = defaultDataViewBuilder.getDataViewWithStringData();
+                    visualBuilder.update(dataView);
+
+                    polygon = visualBuilder.chartPolygons.toArray().map($);
+                    chartDot = visualBuilder.chartDot.toArray().map($);
+                });
+
+                it("Should render a polygon with right 0 points count and not to render a dots", (done) => {
+                    const expectedPointCount: number = 0;
+
+                    visualBuilder.updateRenderTimeout(dataView, () => {
+                        expect(polygon[0].attr("points-count")).toBe(expectedPointCount.toString());
+                        expect(chartDot.length).toBe(expectedPointCount);
                         done();
                     });
                 });

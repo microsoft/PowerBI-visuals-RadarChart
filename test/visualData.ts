@@ -34,8 +34,8 @@ module powerbi.extensibility.visual.test {
     import ValueType = powerbi.extensibility.utils.type.ValueType;
 
     interface IValuesInDataView {
-        valuesY1: number[];
-        valuesY2: number[];
+        valuesY1: any[];
+        valuesY2: any[];
     }
 
     export class RadarChartData extends TestDataViewBuilder {
@@ -55,6 +55,22 @@ module powerbi.extensibility.visual.test {
         public onlyTwoValuesCategory: string[] = ["Day 1", "Day 2"];
         public onlyTwoValuesY1: number[] = [-1, -2];
         public onlyTwoValuesY2: number[] = [8, 4];
+
+        public blankCategory: string[] = [];
+        public blankValuesY1: number[] = [];
+        public blankValuesY2: number[] = [];
+
+        public stringDataCategory: string[] = ["Value1", "Value2"];
+        public stringValuesY1: string[] = ["Value1", "Value2"];
+        public stringValuesY2 = ["Value1", "Value2"];
+
+        public getDataViewWithStringData(): powerbi.DataView {
+            return this.getDataView(undefined, this.stringDataCategory, { valuesY1: this.stringValuesY1, valuesY2: this.stringValuesY2 }, "");
+        }
+
+        public getDataViewWithBlankData(): powerbi.DataView {
+            return this.getDataView(undefined, this.blankCategory, { valuesY1: this.blankValuesY1, valuesY2: this.blankValuesY2 }, "0.00");
+        }
 
         public getDataViewWithNegatives(): powerbi.DataView {
             return this.getDataView(undefined, this.withNegativeValuesCategory, { valuesY1: this.withNegativeValuesY1, valuesY2: this.withNegativeValuesY2 }, "0.00");

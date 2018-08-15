@@ -983,8 +983,6 @@ module powerbi.extensibility.visual {
                 .append("polygon")
                 .classed(RadarChart.ChartPolygonSelector.className, true);
 
-            let settings: RadarChartSettings = this.radarChartData.settings;
-
             polygonSelection
                 .style("opacity", radarChartUtils.DimmedOpacity)
                 .on("mouseover", function () {
@@ -1002,17 +1000,18 @@ module powerbi.extensibility.visual {
                 .attr("points", calculatePoints)
                 .attr("points-count", (dataPoints: RadarChartDatapoint[]) => dataPoints.length);
 
+            let settings: RadarChartSettings = this.radarChartData.settings;
             if (settings.line.show ||
                 polygonSelection.attr("points-count") === RadarChart.PoligonBecomesLinePointsCount.toString()
             ) {
                 polygonSelection
                     .style("fill", "none")
                     .style("stroke", (dataPoints: RadarChartDatapoint[]) =>
-                        this.colorHelper.getHighContrastColor("foreground", dataPoints[0].color))
+                        dataPoints.length ? this.colorHelper.getHighContrastColor("foreground", dataPoints[0].color) : null)
                     .style("stroke-width", settings.line.lineWidth);
             } else {
                 polygonSelection
-                    .style("fill", (dataPoints: RadarChartDatapoint[]) => this.colorHelper.getHighContrastColor("foreground", dataPoints[0].color))
+                    .style("fill", (dataPoints: RadarChartDatapoint[]) => dataPoints.length ? this.colorHelper.getHighContrastColor("foreground", dataPoints[0].color) : null)
                     .style("stroke-width", RadarChart.PolygonStrokeWidth);
             }
 
