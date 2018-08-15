@@ -724,7 +724,7 @@ module powerbi.extensibility.visual.test {
                     chartDot = visualBuilder.chartDot.toArray().map($);
                 });
 
-                it("Should render a polygon with right 0 points count and not to render a dots", (done) => {
+                it("Should render a polygon with right 0 points count and not to render any dots", (done) => {
                     const expectedPointCount: number = 0;
 
                     visualBuilder.updateRenderTimeout(dataView, () => {
@@ -744,7 +744,7 @@ module powerbi.extensibility.visual.test {
                     chartDot = visualBuilder.chartDot.toArray().map($);
                 });
 
-                it("Should render a polygon with right 0 points count and not to render a dots", (done) => {
+                it("Should render a polygon with right 0 points count and not to render any dots", (done) => {
                     const expectedPointCount: number = 0;
 
                     visualBuilder.updateRenderTimeout(dataView, () => {
