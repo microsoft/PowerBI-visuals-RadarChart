@@ -667,7 +667,6 @@ module powerbi.extensibility.visual.test {
             describe("dataset includes negative values", () => {
                 beforeEach(() => {
                     dataView = defaultDataViewBuilder.getDataViewWithNegatives();
-                    debugger;
                     dataView.metadata.objects = {
                         displaySettings: {
                             minValue: 0
