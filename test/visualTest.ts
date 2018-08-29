@@ -59,6 +59,8 @@ module powerbi.extensibility.visual.test {
             defaultDataViewBuilder: RadarChartData,
             dataView: DataView;
 
+        let incr: number = 0;
+
         beforeEach(() => {
             let keyId: number = 0;
 
@@ -68,7 +70,14 @@ module powerbi.extensibility.visual.test {
             dataView = defaultDataViewBuilder.getDataView();
 
             powerbi.extensibility.utils.test.mocks.createSelectionId = () => {
-                return new MockISelectionId(`${++keyId}`);
+                const selId: any = new MockISelectionId(`${++keyId}`);
+                selId.measures = [incr];
+                incr++;
+                selId.compareMeasures = (current, others) => {
+                    return current === others;
+                };
+    
+                return selId;
             };
         });
 
