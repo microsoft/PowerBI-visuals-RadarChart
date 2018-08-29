@@ -1,3 +1,6 @@
+## 1.4.0
+* API 2.1.0
+
 ## 1.3.1
 * Fixed wrong chart rendering with 2 or less points in a group
 * Fixed empty(blank) or non-numeric data wrong selection
