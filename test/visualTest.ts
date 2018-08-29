@@ -76,7 +76,7 @@ module powerbi.extensibility.visual.test {
                 selId.compareMeasures = (current, others) => {
                     return current === others;
                 };
-    
+
                 return selId;
             };
         });
