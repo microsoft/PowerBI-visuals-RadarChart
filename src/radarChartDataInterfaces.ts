@@ -23,84 +23,88 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
+import powerbi from "powerbi-visuals-api";
+import ISelectionId = powerbi.visuals.ISelectionId;
+import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
 
-module powerbi.extensibility.visual {
-    // d3
-    import Arc = d3.svg.arc.Arc;
+// Chart utils
+import {legendInterfaces} from "powerbi-visuals-utils-chartutils";
+import LegendData = legendInterfaces.LegendData;
 
-    // powerbi.extensibility.utils.chart.legend
-    import LegendData = powerbi.extensibility.utils.chart.legend.LegendData;
-    import PrimitiveValue = powerbi.PrimitiveValue;
-    // powerbi.extensibility.utils.formatting
-    import IValueFormatter = powerbi.extensibility.utils.formatting.IValueFormatter;
+// Formatting utils
+import {valueFormatter} from "powerbi-visuals-utils-formattingutils";
+import IValueFormatter = valueFormatter.IValueFormatter;
 
-    // powerbi.extensibility.utils.interactivity
-    import SelectableDataPoint = powerbi.extensibility.utils.interactivity.SelectableDataPoint;
-    import IInteractivityService = powerbi.extensibility.utils.interactivity.IInteractivityService;
-    import TooltipEnabledDataPoint = powerbi.extensibility.utils.tooltip.TooltipEnabledDataPoint;
+// Interactivity utils
+import {interactivityService} from "powerbi-visuals-utils-interactivityutils";
+import SelectableDataPoint = interactivityService.SelectableDataPoint;
 
-    export interface RadarChartDatapoint extends SelectableDataPoint, TooltipEnabledDataPoint {
-        x: number;
-        y: number;
-        y0?: number;
-        color?: string;
-        value?: number;
-        tooltipInfo?: VisualTooltipDataItem[];
-        labelFormatString?: string;
-        labelFontSize?: string;
-        highlight?: boolean;
-        showPoint: boolean;
-    }
+// Tooltips utils
+import {TooltipEnabledDataPoint} from "powerbi-visuals-utils-tooltiputils";
 
-    export interface RadarChartAxesLabel {
-        x: number;
-        y: number;
-        color: string;
-        labelFormatString: string;
-        labelFontSize: string;
-    }
+import {RadarChartSettings} from "./settings";
 
-    export interface RadarChartData {
-        legendData: LegendData;
-        labels: RadarChartLabelsData;
-        series: RadarChartSeries[];
-        settings: RadarChartSettings;
-    }
+export interface RadarChartDatapoint extends SelectableDataPoint, TooltipEnabledDataPoint {
+    x: number;
+    y: number;
+    y0?: number;
+    color?: string;
+    value?: number;
+    tooltipInfo?: VisualTooltipDataItem[];
+    labelFormatString?: string;
+    labelFontSize?: string;
+    highlight?: boolean;
+    showPoint: boolean;
+}
 
-    export interface RadarChartLabel extends Arc {
-        text: string;
-        index: number;
-        x?: number;
-        y?: number;
-        angleInDegree?: number;
-        xLinkBegin?: number;
-        yLinkBegin?: number;
-        xLinkEnd?: number;
-        yLinkEnd?: number;
-        textAnchor?: string;
-        maxWidth?: number;
-        isLabelHasConflict?: boolean;
-        outsidePlacement?: number;
-        hide?: boolean;
-    }
+export interface RadarChartAxesLabel {
+    x: number;
+    y: number;
+    color: string;
+    labelFormatString: string;
+    labelFontSize: string;
+}
 
-    export interface RadarChartLabelsData {
-        labelPoints: RadarChartLabel[];
-        formatter: IValueFormatter;
-    }
+export interface IRadarChartData {
+    legendData: LegendData;
+    labels: RadarChartLabelsData;
+    series: RadarChartSeries[];
+    settings: RadarChartSettings;
+}
 
-    export interface RadarChartSeries {
-        fill: string;
-        name: string;
-        dataPoints: RadarChartDatapoint[];
-        identity: ISelectionId;
-        hasHighlights?: boolean;
-    }
+export interface RadarChartLabel extends d3.Arc<any, d3.DefaultArcObject> {
+    text: string;
+    index: number;
+    x?: number;
+    y?: number;
+    angleInDegree?: number;
+    xLinkBegin?: number;
+    yLinkBegin?: number;
+    xLinkEnd?: number;
+    yLinkEnd?: number;
+    textAnchor?: string;
+    maxWidth?: number;
+    isLabelHasConflict?: boolean;
+    outsidePlacement?: number;
+    hide?: boolean;
+}
 
-    export interface RadarChartCircularSegment {
-        x1: number;
-        y1: number;
-        x2: number;
-        y2: number;
-    }
+export interface RadarChartLabelsData {
+    labelPoints: RadarChartLabel[];
+    formatter: IValueFormatter;
+}
+
+export interface RadarChartSeries {
+    fill: string;
+    name: string;
+    dataPoints: RadarChartDatapoint[];
+    identity: ISelectionId;
+    hasHighlights?: boolean;
+}
+
+export interface RadarChartCircularSegment {
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
 }

@@ -7,10 +7,18 @@
     "target": "ES6",
     "sourceMap": true,
     "outDir": "./.tmp/build/",
+    "sourceRoot": "../../src/",
     "moduleResolution": "node",
-    "declaration": true
+    "declaration": true,
+    "lib": [
+        "es2015",
+        "dom"
+    ]
   },
   "files": [
-    "./src/radarChart.ts"
+    "./test/visualTest.ts"
+  ],
+  "include": [
+      "src/*.ts"
   ]
 }
