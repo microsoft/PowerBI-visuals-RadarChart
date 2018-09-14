@@ -78,8 +78,7 @@ import IInteractiveBehavior = interactivityService.IInteractiveBehavior;
 import createInteractivityService = interactivityService.createInteractivityService;
 
 // Type utils
-import { pixelConverter } from "powerbi-visuals-utils-typeutils";
-import PixelConverter = pixelConverter;
+import { pixelConverter as PixelConverter} from "powerbi-visuals-utils-typeutils";
 
 // Color utils
 import { ColorHelper } from "powerbi-visuals-utils-colorutils";

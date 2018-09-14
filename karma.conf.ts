@@ -33,7 +33,7 @@ const testRecursivePath = "test/visualTest.ts";
 const srcOriginalRecursivePath = "src/**/*.ts";
 const srcRecursivePath = ".tmp/drop/**/*.js";
 const coverageFolder = "coverage";
-const powerbi = "./test/powerbi.ts";
+const globals = "./test/globals.ts";
 
 process.env.CHROME_BIN = require("puppeteer").executablePath();
 
@@ -63,7 +63,7 @@ module.exports = (config: Config) => {
         files: [
             "node_modules/jquery/dist/jquery.min.js",
             "node_modules/jasmine-jquery/lib/jasmine-jquery.js",
-            powerbi,
+            globals,
             srcRecursivePath,
             testRecursivePath,
             {
