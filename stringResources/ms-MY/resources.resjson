@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Teks Tajuk",
 	"Visual_Description_DataColors": "Paparkan opsyen warna data",
 	"Visual_Description_DataLabels": "Paparkan opsyen label data",
-	"Visual_Description_Color": "Pilih warna untuk label data"
+	"Visual_Description_Color": "Pilih warna untuk label data",
+	"RadarChart_Short_Description": "Berbilang ukuran diplotkan di paksi kategori. Berguna untuk membandingkan atribut",
+	"RadarChart_Long_Description": "Carta radar adalah kaedah grafik memaparkan data multivariat dalam bentuk carta dua dimensi dari tiga atau lebih pembolehubah kuantitatif yang diwakili pada paksi bermula dari titik yang sama. Kedudukan relatif dan sudut paksi biasanya tidak diketahui.\nSetiap pemboleh ubah disediakan paksi yang bermula dari pusat. Semua paksi disusun secara rambang, dengan jarak yang sama antara satu sama lain, sambil mengekalkan skala yang sama antara semua paksi. Garis grid yang bersambung dari paksi ke paksi sering digunakan sebagai panduan. Setiap nilai berubah diplot sepanjang paksi masing-masing dan semua pembolehubah dalam dataset dan dihubungkan bersama untuk membentuk poligon.\nRadar Charts berguna untuk melihat pembolehubah mana-mana skor yang tinggi atau rendah dalam dataset, menjadikannya ideal untuk memaparkan prestasi, seperti sebagai Analisis Keterampilan Pekerja atau pemain sukan, perbandingan produk, dll.\nIni adalah visual sumber terbuka. Dapatkan kod dari GitHub: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

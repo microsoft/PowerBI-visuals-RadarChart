@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "标题文本",
 	"Visual_Description_DataColors": "显示数据颜色选项",
 	"Visual_Description_DataLabels": "显示数据标签选项",
-	"Visual_Description_Color": "选择数据标签的颜色"
+	"Visual_Description_Color": "选择数据标签的颜色",
+	"RadarChart_Short_Description": "通过分类轴绘制多个度量值。用于比较属性",
+	"RadarChart_Long_Description": "雷达图这种图形方法以从同一个点开始发散的轴上表示三个或多个定量变量的二维图表的形式显示多变量数据。轴的相对位置和角度通常都不提供任何信息。\n为每个变量提供一个从中心开始的轴。所有轴放射状排列，彼此之间的距离相等，同时所有轴之间保持相同的比例。从轴到轴连接的网格线通常用作引导。每个变量值沿其各自的轴和数据集中的所有变量绘制并连接在一起，形成一个多边形。\n雷达图可用于查看哪些变量在数据集中得分高或得分低，使其成为显示性能的理想之选，例如员工或运动员的技能分析、产品比较等。\n这是一个开放源代码视觉对象。从 GitHub 获取代码: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

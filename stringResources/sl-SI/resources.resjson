@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Besedilo naslova",
 	"Visual_Description_DataColors": "Prikaz možnosti barve podatkov",
 	"Visual_Description_DataLabels": "Prikaz možnosti oznak podatkov",
-	"Visual_Description_Color": "Izberite barvo za oznake podatkov"
+	"Visual_Description_Color": "Izberite barvo za oznake podatkov",
+	"RadarChart_Short_Description": "Več meritev, ki so prikazane na kategorijski osi. Uporabno za primerjavo atributov",
+	"RadarChart_Long_Description": "Polarni grafikon je grafični način prikaza podatkov z več spremenljivkami v obliki dvodimenzionalnega grafikona s tremi ali več kvantitativnimi spremenljivkami, prikazanimi na oseh, ki izhajajo iz iste točke. Relativni položaj in kot osi običajno nista zadosten vir informacij.\nVsaka spremenljivka je predstavljena z osjo, ki izhaja iz središča. Vse osi so razporejene radialno z enako medsebojno razdaljo, za vse osi pa je uporabljeno enako merilo. Mrežne črte, ki povezujejo posamezne osi, so pogosto uporabljene kot vodilo. Posamezne vrednosti spremenljivk so prikazane vzdolž posameznih osi, vse spremenljivke v naboru podatkov pa so medsebojno povezane tako, da tvorijo mnogokotnik.\nPolarni grafikoni so uporabni, ker lahko z njimi prikažete, katere spremenljivke imajo v naboru podatkov visoke rezultate in katere nizke – so odlični za prikazovanje učinkovitosti, kot so analiza sposobnosti zaposlenih ali športnikov, primerjave izdelkov itd.\nTo je odprtokodna ponazoritev. Kodo lahko pridobite na spletnem mestu storitve GitHub: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

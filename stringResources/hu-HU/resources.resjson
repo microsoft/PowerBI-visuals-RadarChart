@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Címszöveg",
 	"Visual_Description_DataColors": "Adatszínek beállításainak megjelentése",
 	"Visual_Description_DataLabels": "Adatfeliratok beállításainak megjelentése",
-	"Visual_Description_Color": "Szín kiválasztása az adatcímkékhez"
+	"Visual_Description_Color": "Szín kiválasztása az adatcímkékhez",
+	"RadarChart_Short_Description": "Több mérték egy kategorikus tengelyen elrendezve. Hasznos különféle attribútumok összehasonlításához",
+	"RadarChart_Long_Description": "A sugárdiagram grafikusan jelenít meg többváltozós adatokat egy kétdimenziós diagramban, amelyben három vagy több kvantitatív változó szerepel azonos pontból kiinduló tengelyekként. A tengelyek egymáshoz mért pozíciója általában nem hordoz információt.\nAz egyes változók tengelyei mind a középpontból indulnak ki. A tengelyek kör alakban vannak elrendezve egymástól egyenlő távolságra, azonos méretezéssel. A megjelenítés gyakran használ a tengelyeket összekötő rácsvonalakat. Minden változó értéke a hozzá tartozó tengelyen jelenik meg, és az adatkészlet összes változója egy vonallal összekötve sokszöget alkot.\nA radardiagramok hasznosak annak felderítésére, mely változók vannak nagyobb vagy kisebb hatással az adatkészletre. Ebből kifolyólag ez a diagram ideális a teljesítmény ábrázolására, például megjeleníthető velük az alkalmazottak vagy sportolók képességeinek elemzése vagy termékek összehasonlítása.\nEz a vizualizáció nyílt forráskódú. A kódot letöltheti a GitHubról: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

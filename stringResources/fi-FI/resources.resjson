@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Otsikkoteksti",
 	"Visual_Description_DataColors": "Näytä tietojen värin vaihtoehdot",
 	"Visual_Description_DataLabels": "Näytä arvopisteiden otsikkovaihtoehdot",
-	"Visual_Description_Color": "Valitse väri arvopisteiden otsikoille"
+	"Visual_Description_Color": "Valitse väri arvopisteiden otsikoille",
+	"RadarChart_Short_Description": "Useita mittoja tulostettuna luokka-akselille. Tästä on hyötyä määritteiden vertailemisessa",
+	"RadarChart_Long_Description": "Säteittäinen kaavio on graafinen menetelmä näyttää usean muuttujan tiedot kaksiulotteisena kaaviona, jossa on vähintään kolme määrällistä muuttujaa edustettuina samasta pisteestä alkavilla akseleilla. Akselien suhteellinen paikka ja kulma eivät ole yleensä informatiivisia.\nKullekin muuttujalle annetaan akseli, joka alkaa keskipisteestä. Kaikki akselit on järjestetty säteittäin niin, että kunkin niistä välissä on sama etäisyys ja sama skaalaus säilytetään kaikkien akseleiden välillä. Ruudukkoviivoja, jotka yhdistävät akselit toisiinsa, käytetään usein ohjeena. Kunkin muuttujan arvo tulostetaan sen yksittäiselle akselille, ja kaikki tietojoukon muuttujat tietojoukossa yhdistetään toisiinsa muodostamaan monikulmio.\nSäteittäisistä kaavioista on hyötyä tarkasteltaessa sitä, mitkä muuttujat saavat suuret tai pienet pisteet tietojoukossa, mikä tekee niistä erinomaisia suoristuskyvyn näyttämiseen, kuten työntekijöiden tai urheilijoiden taitoanalyysiin, tuotevertailuun ja niin edelleen.\nTämä on avoimen lähteen visualisointi. Hanki koodi GitHubista: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

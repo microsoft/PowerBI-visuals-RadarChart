@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Virsraksta teksts",
 	"Visual_Description_DataColors": "Rādīt datu krāsu opcijas",
 	"Visual_Description_DataLabels": "Rādīt datu etiķešu opcijas",
-	"Visual_Description_Color": "Atlasīt krāsu datu etiķetēm"
+	"Visual_Description_Color": "Atlasīt krāsu datu etiķetēm",
+	"RadarChart_Short_Description": "Vairāki mēri, kas ir norādīti uz kategorijas ass. Šī diagramma ir noderīga atribūtu salīdzināšanai.",
+	"RadarChart_Long_Description": "Radar Chart ir grafiska metode daudzvariāciju datu attēlošanai divdimensionālas diagrammas veidā, kurā ir ietverti trīs vai vairāki kvantitatīvie mainīgie uz asīm, kas sākas no viena punkta. Relatīvā asu pozīcija un leņķis parasti nav informatīvi.\nKatram mainīgajam ir sniegta ass, kas sākas no centra. Visas asis ir vērstas radiāli un starp tām ir vienāds attālums, vienlaikus saglabājot vienu mērogu visām asīm. Kā palīglīnija bieži tiek izmantotas režģlīnijas, kas savieno asis savā starpā. Katra mainīgā vērtība ir norādīta uz tās atsevišķās ass, un visi mainīgie datu kopā ir savienoti kopā, veidojot daudzstūri.\nRadar Chart diagrammas ir noderīgas, lai parādītu, kuriem mainīgajiem datu kopā ir augstas vai zemas vērtības, tādēļ tie ir lieliski piemēroti veiktspējas attēlošanai, piemēram, darbinieku vai sporta spēlētāju kompetenču analīzei, produktu salīdzinājumam u.c.\nŠie ir atvērtā pirmkoda vizuālie dati. Iegūstiet kodu no GitHub: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Tekst naslova",
 	"Visual_Description_DataColors": "Prikaži opcije boje podataka",
 	"Visual_Description_DataLabels": "Prikaži opcije oznaka boja podataka",
-	"Visual_Description_Color": "Izaberite boju za oznake podataka"
+	"Visual_Description_Color": "Izaberite boju za oznake podataka",
+	"RadarChart_Short_Description": "Više mera prikazano na kategorijskoj osi. Korisno za poređenje atributa",
+	"RadarChart_Long_Description": "Radarski grafikon predstavlja grafički metod prikazivanja podataka sa više promenljivih u obliku dvodimenzionalnog grafikona sa tri ili više kvantitativne promenljive prikazane na osama koje počinju od iste tačke. Relativni položaj i ugao osa obično nisu informativni.\nSvakoj promenljivoj se obezbeđuje osa koja počinje od centra. Sve ose se raspoređuju radijalno, sa jednakom udaljenošću između svake, uz održavanje iste razmere između svih osa. Koordinatne linije koje povezuju ose često se koriste kao vođica. Svaka vrednost promenljive prikazana je duž svoje pojedinačne ose i sve promenljive u skupu podataka povezane su kako bi oblikovale poligon.\nRadarski grafikoni su korisni da bi se videlo koje promenljive imaju visoke ili niske rezultate u skupu podataka, što ih čini idealnim za prikazivanje performansi, na primer, za analizu veština zaposlenog ili sportista, poređenje proizvoda itd.\nOvo je open source vizuelni element. Preuzmite kôd iz usluge GitHub: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

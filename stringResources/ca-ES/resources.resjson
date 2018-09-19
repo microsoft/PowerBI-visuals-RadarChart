@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Text del títol",
 	"Visual_Description_DataColors": "Mostra les opcions de color per a les dades",
 	"Visual_Description_DataLabels": "Mostra les opcions per a l'etiqueta de dades",
-	"Visual_Description_Color": "Seleccioneu el color de les etiquetes de dades"
+	"Visual_Description_Color": "Seleccioneu el color de les etiquetes de dades",
+	"RadarChart_Short_Description": "Diverses mesures traçades sobre un eix categòric. Resulta útil per comparar atributs.",
+	"RadarChart_Long_Description": "Un gràfic radial es un mètode gràfic per visualitzar dades multivariants en forma de gràfic bidimensional de més de dues variables quantitatives representades en eixos que comencen al mateix punt. La posició relativa i l'angle dels eixos normalment no aporten informació.\nCada variable presenta un eix que comença al centre. Tots els eixos s'organitzen de manera radial, amb distàncies equivalents entre ells, alhora que mantenen la mateixa escala entre tots els eixos. Les línies de la quadrícula que es connecten entre els eixos normalment es fan servir de guia. Cada valor de variable es traça al llarg del seu eix individual, i totes les variables d'un conjunt de dades es connecten per formar un polígon.\nEls gràfics radials són útils per visualitzar les variables amb valors més alts o més baixos en un conjunt de dades, cosa que els fa ideals per mostrar el rendiment, per exemple, en els casos de les anàlisis de les habilitats dels treballadors o dels esportistes, la comparació de productes, etc.\nAquest element visual d'origen és de codi obert. Podeu obtenir el codi al GitHub, a https://github.com/Microsoft/PowerBI-visuals-RadarChart."
 }

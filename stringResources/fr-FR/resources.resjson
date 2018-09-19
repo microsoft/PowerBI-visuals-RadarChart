@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Texte du titre",
 	"Visual_Description_DataColors": "Afficher les options de couleur de données",
 	"Visual_Description_DataLabels": "Afficher les options d'étiquette de données",
-	"Visual_Description_Color": "Sélectionner la couleur des étiquettes de données"
+	"Visual_Description_Color": "Sélectionner la couleur des étiquettes de données",
+	"RadarChart_Short_Description": "Traçage de plusieurs mesures sur un axe de catégorie. Utile pour comparer des attributs",
+	"RadarChart_Long_Description": "Un graphique en radar est une méthode graphique qui permet d'afficher des données multidimensionnelles sous la forme d'un graphique à deux dimensions d'au moins trois variables quantitatives représentées sur des axes à partir du même point. La position et l'angle relatifs des axes donnent généralement peu d'informations.\nChaque variable se voit attribuer un axe qui part du centre. Tous les axes sont disposés radialement et sont séparés par des distances égales, la même échelle étant maintenue entre tous les axes. Le quadrillage qui connecte les axes est souvent utilisé comme guide. Chaque valeur de variable est tracée sur son axe individuel, et toutes les variables dans un jeu de données sont connectées entre elles pour former un polygone.\nLes graphiques en radar sont utiles pour voir les variables associées à des scores élevés ou faibles dans un jeu de données. Ils constituent la solution idéale pour afficher les performances, notamment en ce qui concerne l'analyse des compétences d'employés ou de sportifs, la comparaison de produits, etc.\nCe visuel est open source. Obtenez le code sur GitHub ici : https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

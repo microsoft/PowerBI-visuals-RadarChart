@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Testo titolo",
 	"Visual_Description_DataColors": "Visualizza opzioni per il colore dei dati",
 	"Visual_Description_DataLabels": "Visualizza opzioni per le etichette dati",
-	"Visual_Description_Color": "Selezionare il colore per le etichette dati"
+	"Visual_Description_Color": "Selezionare il colore per le etichette dati",
+	"RadarChart_Short_Description": "Più misure tracciate su un asse categorico. Utile per confrontare gli attributi",
+	"RadarChart_Long_Description": "Un diagramma radar è un metodo grafico per visualizzare dati multivariati sotto forma di un diagramma bidimensionale di tre o più variabili quantitative rappresentate su assi che partono dallo stesso punto. La posizione relativa e l'angolo degli assi forniscono in genere informazioni utili.\nPer ogni variabile viene specificato un asse che parte dal centro. Tutti gli assi sono disposti radialmente, con distanze uguali tra loro, pur mantenendo la stessa scala tra tutti gli assi. Le linee griglia che collegano un asse all'altro sono spesso usate come guida. Ogni valore di variabile viene tracciato lungo il proprio asse e tutte le variabili di un set di dati vengono connesse tra loro in modo da formare un poligono.\nI grafici radar sono utili per individuare le variabili che hanno ottenuto un punteggio alto o basso in un set di dati. Sono quindi ideali per la visualizzazione dei dati relativi alle prestazioni, ad esempio per l'analisi delle abilità di dipendenti o sportivi, per il confronto tra prodotti e così via.\nOggetto visivo open source. Il codice sorgente è disponibile su GitHub all'indirizzo https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

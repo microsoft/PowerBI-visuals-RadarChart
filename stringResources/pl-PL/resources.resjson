@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Tekst tytułu",
 	"Visual_Description_DataColors": "Wyświetl opcje kolorów danych",
 	"Visual_Description_DataLabels": "Wyświetl opcje etykiet danych",
-	"Visual_Description_Color": "Wybierz kolor etykiet danych"
+	"Visual_Description_Color": "Wybierz kolor etykiet danych",
+	"RadarChart_Short_Description": "Wiele miar wykreślonych na osi podzielonej na kategorie. Rozwiązanie przydatne w przypadku porównywania atrybutów",
+	"RadarChart_Long_Description": "Wykres radarowy to graficzna metoda wyświetlania danych z wieloma zmiennymi w postaci dwuwymiarowego wykresu co najmniej trzech zmiennych ilościowych reprezentowanych na osiach, począwszy od tego samego punktu. Względne położenie i kąt osi nie mają przeważnie wartości informacyjnej.\nKażda zmienna ma oś, która zaczyna się w punkcie środkowym. Wszystkie osie są położone poprzecznie w równych odległościach, a na wszystkich osiach jest zachowana taka sama skala. Linie siatki łączące poszczególne osie są często używane jako wytyczne. Każda wartość zmiennej jest wykreślana wzdłuż pojedynczej osi, a wszystkie zmienne w zestawie danych są łączone ze sobą w celu utworzenia wielokąta.\nWykresy radarowe ułatwiają sprawdzanie, które zmienne są oceniane wysoko lub nisko w zestawie danych. Dzięki temu są one idealne w przypadku wyświetlania wydajności, np. analizy umiejętności pracownika lub zawodnika, porównania produktów itp.\nJest to wizualizacja typu open source. Pobierz kod z usługi GitHub: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }

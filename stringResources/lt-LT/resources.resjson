@@ -31,5 +31,7 @@
 	"Visual_Description_Name": "Pavadinimo tekstas",
 	"Visual_Description_DataColors": "Rodyti duomenų spalvų parinktis",
 	"Visual_Description_DataLabels": "Rodyti duomenų žymų parinktis",
-	"Visual_Description_Color": "Pasirinkite duomenų žymų spalvą"
+	"Visual_Description_Color": "Pasirinkite duomenų žymų spalvą",
+	"RadarChart_Short_Description": "Keli matai pažymėti kategorijų ašyje. Naudinga lyginant atributus",
+	"RadarChart_Long_Description": "Spindulinė diagrama yra grafinis metodas rodyti daugiavariantiniams duomenims: dvimatėje diagramoje tame pačiame taške prasidedančiose ašyse vaizduojami trys ar daugiau kiekybinių kintamųjų. Santykinė ašių padėtis ir kampas paprastai nėra informatyvūs.\nKiekvienam kintamajam suteikiama ašis, prasidedanti centre. Visos ašys išdėstomos spinduliais, vienodu atstumu viena nuo kitos, išlaikant tokią pačią visų ašių skalę. Kaip orientyras dažnai naudojamos tinklelio linijos, jungiančios vieną ašį su kita. Kiekviena kintamojo reikšmė pažymima savo atskiroje ašyje ir visi duomenų rinkinio kintamieji sujungiami tarpusavyje, taip suformuojant poligoną.\nSpindulinės diagramos naudingos norint matyti, kurių kintamųjų reikšmės yra didelės ar mažos duomenų rinkinyje, todėl šios diagramos puikiai tinka rodyti efektyvumui, pvz., darbuotojo ar sportininkų įgūdžių analizei, produktams palyginti ir pan.\nTai yra atvirojo kodo vaizdinis elementas. Šį kodą galite gauti iš „GitHub“: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }
