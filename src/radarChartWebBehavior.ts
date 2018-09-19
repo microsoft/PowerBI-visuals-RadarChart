@@ -24,53 +24,57 @@
  *  THE SOFTWARE.
  */
 
-module powerbi.extensibility.visual {
-    // d3
-    import Selection = d3.Selection;
+// d3
+import * as d3 from "d3";
+import Selection = d3.Selection;
 
-    // powerbi.extensibility.utils.interactivity
-    import SelectableDataPoint = powerbi.extensibility.utils.interactivity.SelectableDataPoint;
-    import IInteractivityService = powerbi.extensibility.utils.interactivity.IInteractivityService;
-    import IInteractiveBehavior = powerbi.extensibility.utils.interactivity.IInteractiveBehavior;
-    import ISelectionHandler = powerbi.extensibility.utils.interactivity.ISelectionHandler;
+// Interactivity utils
+import {interactivityService} from "powerbi-visuals-utils-interactivityutils";
+import SelectableDataPoint = interactivityService.SelectableDataPoint;
+import IInteractiveBehavior = interactivityService.IInteractiveBehavior;
+import ISelectionHandler = interactivityService.ISelectionHandler;
 
-    export interface RadarChartBehaviorOptions {
-        selection: Selection<SelectableDataPoint>;
-        clearCatcher: Selection<any>;
-        hasHighlights: boolean;
+import * as radarChartUtils from "./radarChartUtils";
+import {RadarChartDatapoint} from "./radarChartDataInterfaces";
+
+export interface RadarChartBehaviorOptions {
+    selection: d3.Selection<d3.BaseType, SelectableDataPoint, any, any>;
+    clearCatcher: d3.Selection<d3.BaseType, any, any, any>;
+    hasHighlights: boolean;
+}
+
+const getEvent = () => require("d3-selection").event;
+
+export class RadarChartWebBehavior implements IInteractiveBehavior {
+    private selection: d3.Selection<d3.BaseType, SelectableDataPoint, any, any>;
+    private hasHighlights: boolean;
+
+    public bindEvents(options: RadarChartBehaviorOptions, selectionHandler: ISelectionHandler): void {
+        const clearCatcher: d3.Selection<d3.BaseType, any, any, any> = options.clearCatcher;
+
+        this.selection = options.selection;
+        this.hasHighlights = options.hasHighlights;
+
+        this.selection.on("click", (dataPoint: SelectableDataPoint) => {
+            const mouseEvent: MouseEvent = getEvent() as MouseEvent;
+
+            selectionHandler.handleSelection(dataPoint, mouseEvent.ctrlKey);
+
+            mouseEvent.stopPropagation();
+        });
+
+        clearCatcher.on("click", () => {
+            selectionHandler.handleClearSelection();
+        });
     }
 
-    export class RadarChartWebBehavior implements IInteractiveBehavior {
-        private selection: Selection<SelectableDataPoint>;
-        private hasHighlights: boolean;
-
-        public bindEvents(options: RadarChartBehaviorOptions, selectionHandler: ISelectionHandler): void {
-            const clearCatcher: Selection<any> = options.clearCatcher;
-
-            this.selection = options.selection;
-            this.hasHighlights = options.hasHighlights;
-
-            this.selection.on("click", (dataPoint: SelectableDataPoint) => {
-                const mouseEvent: MouseEvent = d3.event as MouseEvent;
-
-                selectionHandler.handleSelection(dataPoint, mouseEvent.ctrlKey);
-
-                mouseEvent.stopPropagation();
-            });
-
-            clearCatcher.on("click", () => {
-                selectionHandler.handleClearSelection();
-            });
-        }
-
-        public renderSelection(hasSelection: boolean): void {
-            this.selection.style("opacity", (dataPoint: RadarChartDatapoint) => {
-                return radarChartUtils.getFillOpacity(
-                    dataPoint.selected,
-                    dataPoint.highlight,
-                    !dataPoint.highlight && hasSelection,
-                    !dataPoint.selected && this.hasHighlights);
-            });
-        }
+    public renderSelection(hasSelection: boolean): void {
+        this.selection.style("opacity", (dataPoint: RadarChartDatapoint) => {
+            return radarChartUtils.getFillOpacity(
+                dataPoint.selected,
+                dataPoint.highlight,
+                !dataPoint.highlight && hasSelection,
+                !dataPoint.selected && this.hasHighlights);
+        });
     }
 }

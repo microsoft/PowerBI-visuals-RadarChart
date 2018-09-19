@@ -24,76 +24,74 @@
  *  THE SOFTWARE.
  */
 
-/// <reference path="_references.ts"/>
+import powerbi from "powerbi-visuals-api";
 
-module powerbi.extensibility.visual.test {
-    // powerbi.extensibility.utils.test
-    import VisualBuilderBase = powerbi.extensibility.utils.test.VisualBuilderBase;
+// powerbi.extensibility.utils.test
+import { VisualBuilderBase } from "powerbi-visuals-utils-testutils";
+import {RadarChart} from "../src/radarChart";
+import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 
-    // RadarChart1446119667547
-    import VisualClass = powerbi.extensibility.visual.RadarChart1446119667547.RadarChart;
+// RadarChart1446119667547
+export class RadarChartBuilder extends VisualBuilderBase<RadarChart> {
+    constructor(width: number, height: number) {
+        super(width, height, "RadarChart1446119667547");
+    }
 
-    export class RadarChartBuilder extends VisualBuilderBase<VisualClass> {
-        constructor(width: number, height: number) {
-            super(width, height, "RadarChart1446119667547");
-        }
+    protected build(options: VisualConstructorOptions): RadarChart {
+        return new RadarChart(options);
+    }
+    public get instance(): RadarChart {
+        return this.visual;
+    }
+    public get mainElement(): JQuery {
+        return this.element.children("svg");
+    }
 
-        protected build(options: VisualConstructorOptions): VisualClass {
-            return new VisualClass(options);
-        }
-        public get instance(): VisualClass {
-            return this.visual;
-        }
-        public get mainElement(): JQuery {
-            return this.element.children("svg");
-        }
+    public get chart(): JQuery {
+        return this.mainElement
+            .children("g")
+            .children("g.chart");
+    }
 
-        public get chart(): JQuery {
-            return this.mainElement
-                .children("g")
-                .children("g.chart");
-        }
+    public get chartPolygons(): JQuery {
+        return this.chart
+            .children("g.chartArea")
+            .children("polygon.chartPolygon");
+    }
 
-        public get chartPolygons(): JQuery {
-            return this.chart
-                .children("g.chartArea")
-                .children("polygon.chartPolygon");
-        }
+    public get dataLabelsText(): JQuery {
+        return this.mainElement
+            .children("g")
+            .children("g.axis")
+            .children("text.axisLabel");
+    }
 
-        public get dataLabelsText(): JQuery {
-            return this.mainElement
-                .children("g")
-                .children("g.axis")
-                .children("text.axisLabel");
-        }
+    public get legendGroup(): JQuery {
+        return this.element
+            .children("svg.legend")
+            .children("g#legendGroup");
+    }
 
-        public get legendGroup(): JQuery {
-            return this.element
-                .children("svg.legend")
-                .children("g#legendGroup");
-        }
+    public get legendTitle(): JQuery {
+        return this.legendGroup.children(".legendTitle");
+    }
 
-        public get legendTitle(): JQuery {
-            return this.legendGroup.children(".legendTitle");
-        }
+    public get legendItemText(): JQuery {
+        return this.legendGroup
+            .children(".legendItem")
+            .children("text.legendText");
+    }
 
-        public get legendItemText(): JQuery {
-            return this.legendGroup
-                .children(".legendItem")
-                .children("text.legendText");
-        }
+    public get legendItemCircle(): JQuery {
+        return this.legendGroup
+            .children(".legendItem")
+            .children("circle");
+    }
 
-        public get legendItemCircle(): JQuery {
-            return this.legendGroup
-                .children(".legendItem")
-                .children("circle");
-        }
-
-        public get chartDot(): JQuery {
-            return this.mainElement
-                .find("g.chartNode")
-                .first()
-                .children("circle.chartDot");
-        }
+    public get chartDot(): JQuery {
+        return this.mainElement
+            .find("g.chartNode")
+            .first()
+            .children("circle.chartDot");
     }
 }

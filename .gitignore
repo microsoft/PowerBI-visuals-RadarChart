@@ -7,3 +7,4 @@ typings
 *.log
 /coverage
 .idea/*
+webpack.statistics.html
