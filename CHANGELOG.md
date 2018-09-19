@@ -1,5 +1,6 @@
 ## 2.0.0
-* WebPack
+* Moved to PowerBI-visuals-tools v3.0.1
+* Migrated to ES6 modules
 
 ## 1.4.0
 * API 2.1.0
