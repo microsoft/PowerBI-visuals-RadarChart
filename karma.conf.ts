@@ -47,18 +47,22 @@ module.exports = (config: Config) => {
         frameworks: ["jasmine"],
         reporters: [
             "progress",
-            "coverage",
-            "karma-remap-istanbul"
+            "coverage-istanbul"
         ],
+        coverageIstanbulReporter: {
+            reports: ["html", "lcovonly", "text-summary"],
+            combineBrowserReports: true,
+            fixWebpackSourcePaths: true
+        },
         singleRun: true,
         plugins: [
-            "karma-remap-istanbul",
             "karma-coverage",
             "karma-typescript",
             "karma-webpack",
             "karma-jasmine",
             "karma-sourcemap-loader",
-            "karma-chrome-launcher"
+            "karma-chrome-launcher",
+            "karma-coverage-istanbul-reporter"
         ],
         files: [
             "node_modules/jquery/dist/jquery.min.js",
@@ -98,6 +102,6 @@ module.exports = (config: Config) => {
         webpack: webpackConfig,
         webpackMiddleware: {
             stats: "errors-only"
-          }
+        }
     });
 };
