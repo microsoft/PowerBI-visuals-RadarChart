@@ -226,7 +226,7 @@ describe("RadarChart", () => {
 
                 visualBuilder.updateFlushAllD3Transitions(dataView);
 
-                const polygons: JQuery[] = visualBuilder.chartPolygons
+                const polygons: JQuery<any>[] = visualBuilder.chartPolygons
                     .toArray()
                     .map($);
 
@@ -606,11 +606,11 @@ describe("RadarChart", () => {
         const backgroundColor: string = "#000000";
         const foregroundColor: string = "#ff00ff";
 
-        let chartPolygons: JQuery[],
-            chartDot: JQuery[],
-            legendItemText: JQuery[],
-            dataLabelsText: JQuery[],
-            legendItemCircle: JQuery[];
+        let chartPolygons: JQuery<any>[],
+            chartDot: JQuery<any>[],
+            legendItemText: JQuery<any>[],
+            dataLabelsText: JQuery<any>[],
+            legendItemCircle: JQuery<any>[];
 
         beforeEach(() => {
             visualBuilder.visualHost.colorPalette.isHighContrast = true;
@@ -640,8 +640,8 @@ describe("RadarChart", () => {
     describe("Boundary values test", () => {
         let colorPalette: IColorPalette,
             colorHelper: ColorHelper,
-            polygon: JQuery[],
-            chartDot: JQuery[];
+            polygon: JQuery<any>[],
+            chartDot: JQuery<any>[];
 
         beforeEach(() => {
             colorPalette = createColorPalette();

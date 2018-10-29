@@ -1,3 +1,7 @@
+## 2.0.1
+* Azure Pipelines integration
+* Visual packages update 
+
 ## 2.0.0
 * Moved to PowerBI-visuals-tools v3.0.1
 * Migrated to ES6 modules
