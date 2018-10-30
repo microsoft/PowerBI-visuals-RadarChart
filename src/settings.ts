@@ -55,7 +55,7 @@ export class LabelSettings {
     public show: boolean = true;
     public color: string = "#000";
     public fontSize: number = 8;
-};
+}
 
 export class LineSettings {
     public show: boolean = false;
