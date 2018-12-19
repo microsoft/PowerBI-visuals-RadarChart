@@ -27,6 +27,7 @@ import "./../style/radarChart.less";
 
 import powerbi from "powerbi-visuals-api";
 import * as _ from "lodash";
+import "@babel/polyfill";
 
 // d3
 import * as d3 from "d3";
@@ -78,7 +79,7 @@ import IInteractiveBehavior = interactivityService.IInteractiveBehavior;
 import createInteractivityService = interactivityService.createInteractivityService;
 
 // Type utils
-import { pixelConverter as PixelConverter} from "powerbi-visuals-utils-typeutils";
+import { pixelConverter as PixelConverter } from "powerbi-visuals-utils-typeutils";
 
 // Color utils
 import { ColorHelper } from "powerbi-visuals-utils-colorutils";
