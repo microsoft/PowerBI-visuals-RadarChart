@@ -163,6 +163,20 @@
                             }
                         }
                     }
+                },
+                "useOpacity": {
+                    "displayName": "Use Opacity",
+                    "displayNameKey": "Visual_UseOpacity",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showDots": {
+                    "displayName": "Show Dots",
+                    "displayNameKey": "Visual_ShowDots",
+                    "type": {
+                        "bool": true
+                    }
                 }
             }
         },

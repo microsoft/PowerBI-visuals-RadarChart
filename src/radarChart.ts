@@ -324,7 +324,9 @@ export class RadarChart implements IVisual {
                 serieIdentity: ISelectionId,
                 queryName: string,
                 displayName: string,
-                dataPoints: RadarChartDatapoint[] = [];
+                dataPoints: RadarChartDatapoint[] = [],
+                opacity: boolean,
+                dot: boolean;
 
             let columnGroup: DataViewValueColumnGroup = grouped && grouped.length > i && grouped[i].values
                 ? grouped[i]
@@ -347,6 +349,13 @@ export class RadarChart implements IVisual {
 
                 if (source.objects) {
                     color = localColorHelper.getColorForMeasure(source.objects, queryName);
+                }
+
+                if (source.objects && source.objects.dataPoint) {
+                    opacity = values[i].source.objects.dataPoint.useOpacity as boolean;
+                }
+                if (source.objects && source.objects.dataPoint) {
+                    dot = values[i].source.objects.dataPoint.showDots as boolean;
                 }
             }
 
@@ -404,7 +413,9 @@ export class RadarChart implements IVisual {
                     name: displayName,
                     dataPoints: dataPoints,
                     identity: <any>serieIdentity,
-                    hasHighlights: hasHighlights
+                    hasHighlights: hasHighlights,
+                    useOpacity: opacity || settings.dataPoint.useOpacity,
+                    showDots: dot || settings.dataPoint.showDots
                 };
 
                 series.push(radarChartSeries);
@@ -933,10 +944,11 @@ export class RadarChart implements IVisual {
                 }
             }).join(" ");
         };
+        const calculateOpacity = (dataPoints: RadarChartDatapoint[], i: number) => series[i].useOpacity ? RadarChartUtils.DimmedOpacity : 1;
 
         let areasSelection: d3.Selection<d3.BaseType, RadarChartDatapoint[], any, any> = this.chart
-            .selectAll(RadarChart.ChartAreaSelector.selectorName)
-            .data(layers);
+        .selectAll(RadarChart.ChartAreaSelector.selectorName)
+        .data(layers);
 
         areasSelection
             .exit()
@@ -946,7 +958,20 @@ export class RadarChart implements IVisual {
             .enter()
             .append("g")
             .classed(RadarChart.ChartAreaSelector.className, true)
-            .merge(areasSelection);
+            .merge(areasSelection)
+            .style("opacity", calculateOpacity)
+            .on("mouseover", function () {
+                d3.select(this)
+                    .transition()
+                    .duration(duration)
+                    .style("opacity", RadarChart.AreaFillOpacity);
+            })
+            .on("mouseout", function (dataPoints, index) {
+                d3.select(this)
+                    .transition()
+                    .duration(duration)
+                    .style("opacity", calculateOpacity(dataPoints, index));
+            });
 
         let polygonSelection: d3.Selection<d3.BaseType, RadarChartDatapoint[], any, any> = areasSelection
             .selectAll(RadarChart.ChartPolygonSelector.selectorName)
@@ -972,19 +997,6 @@ export class RadarChart implements IVisual {
             .append("polygon")
             .classed(RadarChart.ChartPolygonSelector.className, true)
             .merge(polygonSelection)
-            .style("opacity", RadarChartUtils.DimmedOpacity)
-            .on("mouseover", function () {
-                d3.select(this)
-                    .transition()
-                    .duration(duration)
-                    .style("opacity", RadarChart.AreaFillOpacity);
-            })
-            .on("mouseout", function () {
-                d3.select(this)
-                    .transition()
-                    .duration(duration)
-                    .style("opacity", RadarChartUtils.DimmedOpacity);
-            })
             .attr("points", calculatePoints)
             .attr("points-count", (dataPoints: RadarChartDatapoint[]) => dataPoints.length);
 
@@ -1022,9 +1034,9 @@ export class RadarChart implements IVisual {
 
         let dotsSelection: d3.Selection<d3.BaseType, RadarChartDatapoint, any, any> = nodeSelection
             .selectAll(RadarChart.ChartDotSelector.selectorName)
-            .data((dataPoints: RadarChartDatapoint[]) => {
-                return dataPoints.filter(d => d.y != null && d.showPoint);
-            });
+            .data((dataPoints: RadarChartDatapoint[], index) =>
+                dataPoints.filter(d => d.y != null && d.showPoint && series[index].showDots)
+            );
 
         dotsSelection
             .exit()
@@ -1034,7 +1046,8 @@ export class RadarChart implements IVisual {
             .enter()
             .append("svg:circle")
             .classed(RadarChart.ChartDotSelector.className, true)
-            .merge(dotsSelection).attr("r", RadarChart.DotRadius)
+            .merge(dotsSelection)
+            .attr("r", RadarChart.DotRadius)
             .attr("cx", (dataPoint: RadarChartDatapoint) => yDomain(dataPoint.y) * Math.sin(dataPoint.x * angle))
             .attr("cy", (dataPoint: RadarChartDatapoint) => axisBeginning * yDomain(dataPoint.y) * Math.cos(dataPoint.x * angle))
             .style("fill", (dataPoint: RadarChartDatapoint) => this.colorHelper.getHighContrastColor("foreground", dataPoint.color))
@@ -1223,7 +1236,23 @@ export class RadarChart implements IVisual {
                         solid: {
                             color: this.colorHelper.isHighContrast ? this.colorHelper.getHighContrastColor("foreground", series.fill) : series.fill
                         }
-                    }
+                    },
+                }
+            });
+            instances.push({
+                objectName: "dataPoint",
+                displayName: "Use Opacity",
+                selector: (series.identity as IVisualSelectionId).getSelector(),
+                properties: {
+                    useOpacity: series.useOpacity
+                }
+            });
+            instances.push({
+                objectName: "dataPoint",
+                displayName: "Show Dots",
+                selector: (series.identity as IVisualSelectionId).getSelector(),
+                properties: {
+                    showDots: series.showDots
                 }
             });
         }

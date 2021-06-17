@@ -53,6 +53,11 @@ export class RadarChartBuilder extends VisualBuilderBase<RadarChart> {
             .children("g.chart");
     }
 
+    public get chartAreas(): JQuery {
+        return this.chart
+            .children("g.chartArea");
+    }
+
     public get chartPolygons(): JQuery {
         return this.chart
             .children("g.chartArea")
@@ -86,6 +91,11 @@ export class RadarChartBuilder extends VisualBuilderBase<RadarChart> {
         return this.legendGroup
             .children(".legendItem")
             .children("circle");
+    }
+
+    public get chartNodes(): JQuery {
+        return this.mainElement
+            .find("g.chartNode");
     }
 
     public get chartDot(): JQuery {

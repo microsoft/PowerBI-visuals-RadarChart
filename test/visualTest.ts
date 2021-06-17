@@ -238,6 +238,56 @@ describe("RadarChart", () => {
                     expect(doPolygonsContainColor).toBeTruthy();
                 });
             });
+
+            it("opacity", () => {
+                const opacities: boolean[] = [true, false];
+
+                dataView.categorical.values.forEach((column: powerbi.DataViewValueColumn, index) => {
+                    column.source.objects = {
+                        dataPoint: {
+                            useOpacity: opacities[index]
+                        }
+                    };
+                });
+
+                visualBuilder.updateFlushAllD3Transitions(dataView);
+
+                const areas: JQuery<any>[] = visualBuilder.chartAreas
+                    .toArray()
+                    .map($);
+
+                const doPolygonsContainOpacitySetting: boolean = areas.every((element: JQuery, index) => {
+                    const opacity = opacities[index];
+                    return (element.css("opacity") === "1" && !opacity) || opacity;
+                });
+
+                expect(doPolygonsContainOpacitySetting).toBeTruthy();
+            });
+
+            it("dots", () => {
+                const dots: boolean[] = [true, false];
+
+                dataView.categorical.values.forEach((column: powerbi.DataViewValueColumn, index) => {
+                    column.source.objects = {
+                        dataPoint: {
+                            showDots: dots[index]
+                        }
+                    };
+                });
+
+                visualBuilder.updateFlushAllD3Transitions(dataView);
+
+                const chartNodes: JQuery<any>[] = visualBuilder.chartNodes
+                    .toArray()
+                    .map($);
+
+                const doNodesContainDots: boolean = chartNodes.every((node, index) => {
+                    const dot = dots[index];
+                    const visibleDots = node.children().length;
+                    return dot && visibleDots > 0 || !dot;
+                });
+                expect(doNodesContainDots).toBeTruthy();
+            });
         });
 
         describe("Display settings", () => {

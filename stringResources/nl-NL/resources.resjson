@@ -18,6 +18,8 @@
 	"Visual_Position": "Positie",
 	"Visual_DataColors": "Gegevenskleuren",
 	"Visual_Fill": "Opvullen",
+	"Visual_UseOpacity": "Transparantie"
+	"Visual_ShowDots": "Datapunten weergeven"
 	"Visual_DrawLines": "Lijnen tekenen",
 	"Visual_LineWidth": "Lijnbreedte",
 	"Visual_DisplaySettings": "Weergave-instellingen",

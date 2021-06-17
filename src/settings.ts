@@ -49,6 +49,8 @@ export class LegendSettings {
 
 export class DataPointSettings {
     public fill: string = "";
+    public useOpacity: boolean = false;
+    public showDots: boolean = false;
 }
 
 export class LabelSettings {

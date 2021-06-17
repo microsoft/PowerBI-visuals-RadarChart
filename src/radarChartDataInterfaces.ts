@@ -100,6 +100,8 @@ export interface RadarChartSeries {
     dataPoints: RadarChartDatapoint[];
     identity: ISelectionId;
     hasHighlights?: boolean;
+    useOpacity?: boolean;
+    showDots?: boolean;
 }
 
 export interface RadarChartCircularSegment {

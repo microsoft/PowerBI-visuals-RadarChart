@@ -35,7 +35,8 @@ You can select any data point for data filtering and also you can use multi sele
 ### Data colors
 ![Radar chart screenshot 4](assets/RadarDataColors.png)
 - Change color of each of categories
-
+- Toggle opacity of each category
+- Toggle data-dots of each category
 ### Draw lines - To show lines instead of shaded area
 ![Radar chart screenshot 5](assets/RadarDrawLines.png)
 - LineWidth: set the width of lines

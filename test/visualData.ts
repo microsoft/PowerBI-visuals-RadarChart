@@ -97,7 +97,7 @@ export class RadarChartData extends TestDataViewBuilder {
                         format: format ? format : RadarChartData.DefaultDataFormat,
                         queryName: RadarChartData.ColumnSales1,
                         type: ValueType.fromDescriptor({ numeric: true }),
-                        objects: { dataPoint: { fill: { solid: { color: "purple" } } } },
+                        objects: { dataPoint: { showDots: true, useOpacity: true, fill: { solid: { color: "purple" } } } },
                     },
                     values: valuesData && valuesData.valuesY1 ? valuesData.valuesY1 : this.valuesY1
                 },

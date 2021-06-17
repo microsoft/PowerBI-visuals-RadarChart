@@ -18,6 +18,8 @@
 	"Visual_Position": "Position",
 	"Visual_DataColors": "Data colors",
 	"Visual_Fill": "Fill",
+	"Visual_UseOpacity": "Use Opacity"
+	"Visual_ShowDots": "Show Dots"
 	"Visual_DrawLines": "Draw Lines",
 	"Visual_LineWidth": "Line Width",
 	"Visual_DisplaySettings": "Display settings",
