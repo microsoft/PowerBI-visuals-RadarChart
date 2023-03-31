@@ -214,6 +214,28 @@
                             }
                         ]
                     }
+                },
+                "segmentLevels": {
+                    "displayNameKey": "Visual_SegmentLevels",
+                    "displayName": "Segment levels",
+                    "type": {
+                        "numeric": true
+                    
+                }
+                },
+                "showLevelLabels": {
+                    "displayNameKey": "Show_level_labels",
+                    "displayName": "Show Level labels",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "offsetLevelLabels": {
+                    "displayNameKey": "Offset_level_labels",
+                    "displayName": "Offset Level labels",
+                    "type": {
+                        "numeric": true
+                    }
                 }
             }
         },
@@ -251,12 +273,39 @@
                             "fontSize": true
                         }
                     }
+                },
+                "labelPositionFactor": {
+                    "displayNameKey": "Visual_Position",
+                    "displayName": "Position",
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "labelStyle": {
+                    "displayNameKey": "Visual_Label_display_Style",
+                    "displayName": "Label display Style",
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "Automatic",
+                                "displayNameKey": "Visual_Label_display_Style_0",
+                                "displayName": "Automatic"
+                            },
+                            {
+                                "value": "Middle",
+                                "displayNameKey": "Visual_Label_display_Style_1",
+                                "displayName": "Middle"
+                            }
+                        ]
+                    }
                 }
+
             }
         }
     },
     "supportsHighlight": true,
     "sorting": {
         "default": {}
-    }
+    },
+    "privileges": []
 }

@@ -159,12 +159,10 @@ export class RadarChart implements IVisual {
 
     private static ViewportFactor: number = 2;
 
-    private static SegmentLevels: number = 5;
     private static SegmentFactor: number = .9;
     private static Radians: number = 2 * Math.PI;
     private static Scale: number = 0.8;
 
-    private static LabelPositionFactor: number = 1.38;
     private static LabelLinkBeginPositionFactor: number = 1.04;
 
     private static AreaFillOpacity: number = 0.6;
@@ -512,6 +510,7 @@ export class RadarChart implements IVisual {
         this.parseLineWidth();
         this.renderLegend();
         this.updateViewport();
+        this.updateLevelLabelVisibility();
 
         this.svg.attr("height", this.viewport.height);
         this.svg.attr("width", this.viewport.width);
@@ -599,7 +598,7 @@ export class RadarChart implements IVisual {
         let data: RadarChartCircularSegment[] = [],
             angle: number = this.angle,
             factor: number = RadarChart.SegmentFactor,
-            levels: number = RadarChart.SegmentLevels,
+            levels: number = this.radarChartData.settings.displaySettings.segmentLevels,
             radius: number = this.radius;
 
         for (let level: number = 0; level < levels; level++) {
@@ -634,7 +633,46 @@ export class RadarChart implements IVisual {
             .attr("x2", (segment: RadarChartCircularSegment) => segment.x2)
             .attr("y2", (segment: RadarChartCircularSegment) => segment.y2);
 
+        	if (this.radarChartData.settings.displaySettings.showLevelLabels) {
+            let levelLabels = [];
+            for (let level: number = 0; level < levels; level++) {
+                let levelFactor: number = radius * factor * ((level + 1) / levels);
+                levelLabels.push({ x: levelFactor * (Math.sin(0)), y: axisBeginning * levelFactor * (Math.cos(0)), label: level + 1 });
+            }
+        
+            let labelSelection: d3.Selection<d3.BaseType, { x: number; y: number; label: number }, any, any> = this.mainGroupElement
+                .select(RadarChart.SegmentsSelector.selectorName)
+                .selectAll(".level-label")
+                .data(levelLabels);
+        
+            labelSelection
+                .exit()
+                .remove();
+        
+            labelSelection = labelSelection
+                .enter()
+                .append("text")
+                .classed("level-label", true)
+                .merge(labelSelection)
+                .attr("x", (d) => d.x + this.radarChartData.settings.displaySettings.offsetLevelLabels)
+                .attr("y", (d) => d.y)
+                .attr("text-anchor", "middle")
+                .attr("alignment-baseline", "middle")
+                .style("font-size", this.radarChartData.settings.labels.fontSize) // Apply the font size setting
+                .style("fill", this.radarChartData.settings.labels.color) // Apply the color setting
+                .text((d) => d.label);
+
+        }
         this.changeAxesLineColorInHighMode([selection]);
+    }
+
+    private updateLevelLabelVisibility(): void {
+        const showLevelLabels = this.radarChartData.settings.displaySettings.showLevelLabels;
+    
+        this.mainGroupElement
+            .select(RadarChart.SegmentsSelector.selectorName)
+            .selectAll(".level-label")
+            .style("display", showLevelLabels ? null : "none");
     }
 
     private drawAxes(values: PrimitiveValue[]): void {
@@ -801,6 +839,7 @@ export class RadarChart implements IVisual {
             labelPoints: RadarChartLabel[] = this.radarChartData.labels.labelPoints;
 
         let axisBeginning: number = this.radarChartData.settings.displaySettings.axisBeginning;
+        let labelSettings: LabelSettings = this.radarChartData.settings.labels;
 
         for (let i: number = 0; i < labelPoints.length; i++) {
             let angleInRadian: number = i * angle,
@@ -809,8 +848,8 @@ export class RadarChart implements IVisual {
 
             label.angleInDegree = angleInDegree;
 
-            label.x = RadarChart.LabelPositionFactor * radius * Math.sin(angleInRadian);
-            label.y = axisBeginning * RadarChart.LabelPositionFactor * radius * Math.cos(angleInRadian);
+            label.x = labelSettings.labelPositionFactor/10 * radius * Math.sin(angleInRadian);
+            label.y = axisBeginning * labelSettings.labelPositionFactor/10 * radius * Math.cos(angleInRadian);
 
             label.xLinkBegin = radius * RadarChart.LabelLinkBeginPositionFactor * Math.sin(angleInRadian);
             label.yLinkBegin = axisBeginning * radius * RadarChart.LabelLinkBeginPositionFactor * Math.cos(angleInRadian);
@@ -855,7 +894,12 @@ export class RadarChart implements IVisual {
             .attr("dy", `${RadarChart.LabelYOffset}em`)
             .attr("transform", translate(RadarChart.LabelXOffset, -RadarChart.LabelYOffset * labelSettings.fontSize))
             .attr("x", (label: RadarChartLabel) => {
-                let shift: number = label.textAnchor === RadarChart.TextAnchorStart ? +RadarChart.LabelPositionXOffset : -RadarChart.LabelPositionXOffset;
+                let shift: number;
+                if (labelSettings.labelStyle === "Automatic"){
+                    shift = label.textAnchor === RadarChart.TextAnchorStart ? +RadarChart.LabelPositionXOffset : -RadarChart.LabelPositionXOffset;
+                } else {
+                    shift = label.textAnchor === RadarChart.TextAnchorStart ? -label.text.length*4 : +label.text.length*4;
+                }      
                 return label.x + shift;
             })
             .attr("y", (label: RadarChartLabel) => label.y)

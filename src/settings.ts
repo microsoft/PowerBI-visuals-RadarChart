@@ -55,6 +55,8 @@ export class LabelSettings {
     public show: boolean = true;
     public color: string = "#000";
     public fontSize: number = 8;
+    public labelPositionFactor: number = 14;
+    public labelStyle: string = "Automatic";
 }
 
 export class LineSettings {
@@ -65,4 +67,7 @@ export class LineSettings {
 export class DisplaySettings {
     public minValue: number = 0;
     public axisBeginning: number = -1;
+    public segmentLevels: number = 5;
+    public showLevelLabels: boolean = false;
+    public offsetLevelLabels: number = 0;
 }
