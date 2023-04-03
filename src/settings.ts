@@ -68,6 +68,7 @@ export class DisplaySettings {
     public minValue: number = 0;
     public axisBeginning: number = -1;
     public segmentLevels: number = 5;
+    public relativeLevels: boolean = true; 
     public showLevelLabels: boolean = false;
     public offsetLevelLabels: number = 0;
 }

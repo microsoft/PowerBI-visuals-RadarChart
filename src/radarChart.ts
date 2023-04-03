@@ -1116,10 +1116,15 @@ export class RadarChart implements IVisual {
     private calculateChartDomain(series: RadarChartSeries[]): ScaleLinear<number, number> {
         let radius: number = this.radius * RadarChart.SegmentFactor,
             dataPointsList: RadarChartDatapoint[] = this.getAllDataPointsList(series);
+        let maxValue: number;
+        if(this.radarChartData.settings.displaySettings.relativeLevels === true) {
+            maxValue = d3.max(dataPointsList, (dataPoint: RadarChartDatapoint) => {
+                return dataPoint.y;
+            });
+        } else {
+            maxValue = this.radarChartData.settings.displaySettings.segmentLevels;
+        }
 
-        let maxValue: number = d3.max(dataPointsList, (dataPoint: RadarChartDatapoint) => {
-            return dataPoint.y;
-        });
 
         let minValue: number = this.radarChartData.settings.displaySettings.minValue;
 

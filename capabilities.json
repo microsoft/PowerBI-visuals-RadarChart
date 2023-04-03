@@ -223,6 +223,13 @@
                     
                 }
                 },
+                "relativeLevels": {
+                    "displayNameKey": "Relative_levels",
+                    "displayName": "Relative Levels",
+                    "type": {
+                        "bool": true
+                    }
+                },
                 "showLevelLabels": {
                     "displayNameKey": "Show_level_labels",
                     "displayName": "Show Level labels",
