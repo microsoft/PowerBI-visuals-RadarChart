@@ -1,3 +1,11 @@
+## 2.0.3
+* Added Data Labels Visual formatting capability Position, where the position of the label can be manually set
+* Added Data Labels Visual formatting capability Label display style, where the Label display can be switched between Automatic or Middle
+* Added Level Label Visual formatting capability to change how many segments are shown on the chart 
+* Added Level Label Visual formatting capability to change if the segments are shown as absolute or relative to the datapoints
+* Added Level Label Visual formatting capability show labels for each Level
+* Added Level Label Visual formatting capability to offset the labels shown for each Level
+
 ## 2.0.2
 * UPD: powerbi-visuals-tools has been updated to 3.0.9 to add IE11 support
 * UPD: API has been updated to 2.3.0 to add IE11 support

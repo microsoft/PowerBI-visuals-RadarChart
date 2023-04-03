@@ -214,35 +214,6 @@
                             }
                         ]
                     }
-                },
-                "segmentLevels": {
-                    "displayNameKey": "Visual_SegmentLevels",
-                    "displayName": "Segment levels",
-                    "type": {
-                        "numeric": true
-                    
-                }
-                },
-                "relativeLevels": {
-                    "displayNameKey": "Relative_levels",
-                    "displayName": "Relative Levels",
-                    "type": {
-                        "bool": true
-                    }
-                },
-                "showLevelLabels": {
-                    "displayNameKey": "Show_level_labels",
-                    "displayName": "Show Level labels",
-                    "type": {
-                        "bool": true
-                    }
-                },
-                "offsetLevelLabels": {
-                    "displayNameKey": "Offset_level_labels",
-                    "displayName": "Offset Level labels",
-                    "type": {
-                        "numeric": true
-                    }
                 }
             }
         },
@@ -290,7 +261,7 @@
                 },
                 "labelStyle": {
                     "displayNameKey": "Visual_Label_display_Style",
-                    "displayName": "Label display Style",
+                    "displayName": "Label display style",
                     "type": {
                         "enumeration": [
                             {
@@ -306,9 +277,46 @@
                         ]
                     }
                 }
-
+            }
+        },
+                "levelSettings": {
+                    "displayNameKey": "Visual_Levellabels",
+                    "displayName": "Level labels",
+                    "description": "Display level label options",
+                    "descriptionKey": "Visual_Description_LevelLabels",
+                    "properties": {
+                        "segmentLevels": {
+                            "displayNameKey": "Visual_SegmentLevels",
+                            "displayName": "Segment levels",
+                            "type": {
+                                "numeric": true
+                            
+                        }
+                        },
+                        "relativeLevels": {
+                            "displayNameKey": "Relative_levels",
+                            "displayName": "Relative levels",
+                            "type": {
+                                "bool": true
+                            }
+                        },
+                        "showLevelLabels": {
+                            "displayNameKey": "Show_level_labels",
+                            "displayName": "Show level labels",
+                            "type": {
+                                "bool": true
+                            }
+                        },
+                        "offsetLevelLabels": {
+                            "displayNameKey": "Offset_level_labels",
+                            "displayName": "Offset level labels",
+                            "type": {
+                                "numeric": true
+                            }
+                        }
             }
         }
+
     },
     "supportsHighlight": true,
     "sorting": {

@@ -36,6 +36,7 @@ export class RadarChartSettings extends DataViewObjectsParser {
     public dataPoint: DataPointSettings = new DataPointSettings();
     public line: LineSettings = new LineSettings();
     public displaySettings: DisplaySettings = new DisplaySettings();
+    public levelSettings: LevelSettings = new LevelSettings();
 }
 
 export class LegendSettings {
@@ -67,6 +68,8 @@ export class LineSettings {
 export class DisplaySettings {
     public minValue: number = 0;
     public axisBeginning: number = -1;
+}
+export class LevelSettings {
     public segmentLevels: number = 5;
     public relativeLevels: boolean = true; 
     public showLevelLabels: boolean = false;

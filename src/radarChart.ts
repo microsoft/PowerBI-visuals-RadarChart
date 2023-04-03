@@ -598,7 +598,7 @@ export class RadarChart implements IVisual {
         let data: RadarChartCircularSegment[] = [],
             angle: number = this.angle,
             factor: number = RadarChart.SegmentFactor,
-            levels: number = this.radarChartData.settings.displaySettings.segmentLevels,
+            levels: number = this.radarChartData.settings.levelSettings.segmentLevels,
             radius: number = this.radius;
 
         for (let level: number = 0; level < levels; level++) {
@@ -633,7 +633,8 @@ export class RadarChart implements IVisual {
             .attr("x2", (segment: RadarChartCircularSegment) => segment.x2)
             .attr("y2", (segment: RadarChartCircularSegment) => segment.y2);
 
-        	if (this.radarChartData.settings.displaySettings.showLevelLabels) {
+        //Capability to show labels on the Levels of the Radar Chart
+        if (this.radarChartData.settings.levelSettings.showLevelLabels) {
             let levelLabels = [];
             for (let level: number = 0; level < levels; level++) {
                 let levelFactor: number = radius * factor * ((level + 1) / levels);
@@ -654,7 +655,7 @@ export class RadarChart implements IVisual {
                 .append("text")
                 .classed("level-label", true)
                 .merge(labelSelection)
-                .attr("x", (d) => d.x + this.radarChartData.settings.displaySettings.offsetLevelLabels)
+                .attr("x", (d) => d.x + this.radarChartData.settings.levelSettings.offsetLevelLabels) //Apply the offset setting
                 .attr("y", (d) => d.y)
                 .attr("text-anchor", "middle")
                 .attr("alignment-baseline", "middle")
@@ -667,7 +668,7 @@ export class RadarChart implements IVisual {
     }
 
     private updateLevelLabelVisibility(): void {
-        const showLevelLabels = this.radarChartData.settings.displaySettings.showLevelLabels;
+        const showLevelLabels = this.radarChartData.settings.levelSettings.showLevelLabels;
     
         this.mainGroupElement
             .select(RadarChart.SegmentsSelector.selectorName)
@@ -895,10 +896,11 @@ export class RadarChart implements IVisual {
             .attr("transform", translate(RadarChart.LabelXOffset, -RadarChart.LabelYOffset * labelSettings.fontSize))
             .attr("x", (label: RadarChartLabel) => {
                 let shift: number;
+                //Added capability to position the Labels on the left/right or middle
                 if (labelSettings.labelStyle === "Automatic"){
                     shift = label.textAnchor === RadarChart.TextAnchorStart ? +RadarChart.LabelPositionXOffset : -RadarChart.LabelPositionXOffset;
                 } else {
-                    shift = label.textAnchor === RadarChart.TextAnchorStart ? -label.text.length*4 : +label.text.length*4;
+                    shift = label.textAnchor === RadarChart.TextAnchorStart ? -label.text.length * labelSettings.fontSize/3 : +label.text.length * labelSettings.fontSize/3;
                 }      
                 return label.x + shift;
             })
@@ -1117,12 +1119,14 @@ export class RadarChart implements IVisual {
         let radius: number = this.radius * RadarChart.SegmentFactor,
             dataPointsList: RadarChartDatapoint[] = this.getAllDataPointsList(series);
         let maxValue: number;
-        if(this.radarChartData.settings.displaySettings.relativeLevels === true) {
+
+        //Added capability to switch between relative and absolute levels
+        if(this.radarChartData.settings.levelSettings.relativeLevels === true) {
             maxValue = d3.max(dataPointsList, (dataPoint: RadarChartDatapoint) => {
                 return dataPoint.y;
             });
         } else {
-            maxValue = this.radarChartData.settings.displaySettings.segmentLevels;
+            maxValue = this.radarChartData.settings.levelSettings.segmentLevels;
         }
 
 

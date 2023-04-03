@@ -52,6 +52,15 @@ You can select any data point for data filtering and also you can use multi sele
 
 ### Data labels
 - Color: set color of data labels
-- Text size: set text font size of data labels 
+- Text size: set text font size of data labels
+- Position: set the position of the labels
+- Label display style: switch between Automatic or Middle display style 
 
 ![Radar chart screenshot 6](assets/RadarDataLabels.png)
+
+### Level labels
+- Segment levels: set how many segments are shown
+- Relative levels: switch between relative and absolute segmentation
+- Show level labels: On/Off Level labels
+- Offset level labels: offset the position of the level labels 
+
