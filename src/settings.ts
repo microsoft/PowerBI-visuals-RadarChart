@@ -58,6 +58,7 @@ export class LabelSettings {
     public fontSize: number = 8;
     public labelPositionFactor: number = 14;
     public labelStyle: string = "Automatic";
+    public labelMarginFactor: number = 30;
 }
 
 export class LineSettings {

@@ -55,6 +55,7 @@ You can select any data point for data filtering and also you can use multi sele
 - Text size: set text font size of data labels
 - Position: set the position of the labels
 - Label display style: switch between Automatic or Middle display style 
+- Label margin: set the margin of the labels
 
 ![Radar chart screenshot 6](assets/RadarDataLabels.png)
 

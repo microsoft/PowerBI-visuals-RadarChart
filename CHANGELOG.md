@@ -1,3 +1,7 @@
+## 2.0.4
+* Added Data Labels Visual formatting capability Label Margin Factor, where the margin of the label can be set manually, to accommodate for labels that are too long
+* Updated Level Label Visual formatting for relative values. Relative values now show up as percentage. 
+
 ## 2.0.3
 * Added Data Labels Visual formatting capability Position, where the position of the label can be manually set
 * Added Data Labels Visual formatting capability Label display style, where the Label display can be switched between Automatic or Middle

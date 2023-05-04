@@ -276,6 +276,13 @@
                             }
                         ]
                     }
+                },
+                "labelMarginFactor": {
+                    "displayNameKey": "Label_Margin",
+                    "displayName": "Label Margin",
+                    "type": {
+                        "numeric": true
+                    }
                 }
             }
         },

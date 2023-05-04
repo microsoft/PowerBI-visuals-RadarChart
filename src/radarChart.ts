@@ -185,7 +185,6 @@ export class RadarChart implements IVisual {
     private static MaxDomainValue: number = 1;
 
     private static LabelHorizontalShiftStep: number = 5;
-    private static LabelMarginFactor: number = 30;
 
     private svg: d3.Selection<d3.BaseType, {}, null, undefined>;
     private chart: d3.Selection<d3.BaseType, {}, null, undefined>;
@@ -600,6 +599,7 @@ export class RadarChart implements IVisual {
             factor: number = RadarChart.SegmentFactor,
             levels: number = this.radarChartData.settings.levelSettings.segmentLevels,
             radius: number = this.radius;
+        let relative: boolean = this.radarChartData.settings.levelSettings.relativeLevels
 
         for (let level: number = 0; level < levels; level++) {
             let levelFactor: number = radius * factor * ((level + 1) / levels);
@@ -649,20 +649,20 @@ export class RadarChart implements IVisual {
             labelSelection
                 .exit()
                 .remove();
-        
-            labelSelection = labelSelection
-                .enter()
-                .append("text")
-                .classed("level-label", true)
-                .merge(labelSelection)
-                .attr("x", (d) => d.x + this.radarChartData.settings.levelSettings.offsetLevelLabels) //Apply the offset setting
-                .attr("y", (d) => d.y)
-                .attr("text-anchor", "middle")
-                .attr("alignment-baseline", "middle")
-                .style("font-size", this.radarChartData.settings.labels.fontSize) // Apply the font size setting
-                .style("fill", this.radarChartData.settings.labels.color) // Apply the color setting
-                .text((d) => d.label);
 
+            labelSelection = labelSelection
+            .enter()
+            .append("text")
+            .classed("level-label", true)
+            .merge(labelSelection)
+            .attr("x", (d) => d.x + this.radarChartData.settings.levelSettings.offsetLevelLabels) //Apply the offset setting
+            .attr("y", (d) => d.y)
+            .attr("text-anchor", "middle")
+            .attr("alignment-baseline", "middle")
+            .style("font-size", this.radarChartData.settings.labels.fontSize) // Apply the font size setting
+            .style("fill", this.radarChartData.settings.labels.color) // Apply the color setting
+            .text(relative ? (d) => (d.label/levels * 100).toFixed(0) + "%" : (d) => d.label); //When Relative levels, display labels in precentage
+        
         }
         this.changeAxesLineColorInHighMode([selection]);
     }
@@ -773,6 +773,7 @@ export class RadarChart implements IVisual {
         });
 
         let shiftDirrectionIsDown: boolean = this.radarChartData.settings.displaySettings.axisBeginning === 1;
+        let labelSettings: LabelSettings = this.radarChartData.settings.labels;
 
         for (let i: number = 0; i < labelPoints.length; i++) {
             let label: RadarChartLabel = labelPoints[i];
@@ -793,8 +794,9 @@ export class RadarChart implements IVisual {
                     shiftDirrectionIsDown
                 );
             }
-
-            label.maxWidth = this.viewportAvailable.width - Math.abs(label.x) - RadarChart.LabelMarginFactor;
+            
+            //Updated with capability to adjust label margins
+            label.maxWidth = this.viewportAvailable.width - Math.abs(label.x) - labelSettings.labelMarginFactor;
 
             let labelDec: RadarChartLabel = labelPoints[labelPoints.length - 1 - i];
             // from 180 to 90 shift down by Y
