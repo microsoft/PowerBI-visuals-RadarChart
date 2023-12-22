@@ -27,7 +27,7 @@
 import powerbi from "powerbi-visuals-api";
 
 // d3
-import * as d3 from "d3";
+import { min as d3Min} from "d3-array";
 
 // RadarChart1446119667547
 import { RadarChartData } from "./visualData";
@@ -661,7 +661,7 @@ describe("RadarChart", () => {
 
             it("Should parse settings.displaySettings.minValue with negative values as expected", () => {
                 let settings = RadarChart.parseSettings(dataView, colorHelper);
-                let minimumValue = d3.min(defaultDataViewBuilder.withNegativeValuesY1);
+                let minimumValue = d3Min(defaultDataViewBuilder.withNegativeValuesY1);
                 expect(settings.displaySettings.minValue).toBe(minimumValue);
             });
         });
@@ -681,7 +681,7 @@ describe("RadarChart", () => {
 
             it("Should parse settings.displaySettings.minValue property with 2 or less points in the group as expected", () => {
                 let settings = RadarChart.parseSettings(dataView, colorHelper);
-                let minimumValue = d3.min(defaultDataViewBuilder.onlyTwoValuesY1);
+                let minimumValue = d3Min(defaultDataViewBuilder.onlyTwoValuesY1);
                 expect(settings.displaySettings.minValue).toBe(minimumValue);
             });
 

@@ -201,12 +201,12 @@ function createTooltipData(
 export function getFormattedValue(column: DataViewMetadataColumn, value: PrimitiveValue): string {
     const formatString: string = getFormatStringFromColumn(column);
 
-    return valueFormatter.valueFormatter.format(value, formatString);
+    return valueFormatter.format(value, formatString);
 }
 
 function getFormatStringFromColumn(column: DataViewMetadataColumn): string {
     if (column) {
-        const formatString: string = valueFormatter.valueFormatter.getFormatStringByColumn(<any>column, true);
+        const formatString: string = valueFormatter.getFormatStringByColumn(<any>column, true);
 
         return formatString || column.format;
     }

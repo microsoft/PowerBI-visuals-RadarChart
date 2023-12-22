@@ -25,32 +25,41 @@
  */
 
 // d3
-import * as d3 from "d3";
-import Selection = d3.Selection;
+import {
+    select as d3Select,
+    Selection as d3Selection 
+} from "d3-selection";
+type Selection<T> = d3Selection<any, T, any, any>;
 
 // Interactivity utils
-import {interactivityService} from "powerbi-visuals-utils-interactivityutils";
+import { 
+    interactivityBaseService,
+    interactivitySelectionService as interactivityService 
+} from "powerbi-visuals-utils-interactivityutils";
 import SelectableDataPoint = interactivityService.SelectableDataPoint;
-import IInteractiveBehavior = interactivityService.IInteractiveBehavior;
-import ISelectionHandler = interactivityService.ISelectionHandler;
+import IInteractiveBehavior = interactivityBaseService.IInteractiveBehavior;
+import ISelectionHandler = interactivityBaseService.ISelectionHandler;
+import IBehaviorOptionsCommon = interactivityBaseService.IBehaviorOptions;
+
+type IBehaviorOptions = IBehaviorOptionsCommon<RadarChartDatapoint>;
 
 import * as radarChartUtils from "./radarChartUtils";
 import {RadarChartDatapoint} from "./radarChartDataInterfaces";
 
-export interface RadarChartBehaviorOptions {
-    selection: d3.Selection<d3.BaseType, SelectableDataPoint, any, any>;
-    clearCatcher: d3.Selection<d3.BaseType, any, any, any>;
+export interface RadarChartBehaviorOptions extends IBehaviorOptions {
+    selection: Selection<RadarChartDatapoint>;
+    clearCatcher: Selection<any>;
     hasHighlights: boolean;
 }
 
 const getEvent = () => require("d3-selection").event;
 
 export class RadarChartWebBehavior implements IInteractiveBehavior {
-    private selection: d3.Selection<d3.BaseType, SelectableDataPoint, any, any>;
+    private selection: Selection<SelectableDataPoint>;
     private hasHighlights: boolean;
 
     public bindEvents(options: RadarChartBehaviorOptions, selectionHandler: ISelectionHandler): void {
-        const clearCatcher: d3.Selection<d3.BaseType, any, any, any> = options.clearCatcher;
+        const clearCatcher: Selection<any> = options.clearCatcher;
 
         this.selection = options.selection;
         this.hasHighlights = options.hasHighlights;

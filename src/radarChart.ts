@@ -26,11 +26,17 @@
 import "./../style/radarChart.less";
 
 import powerbi from "powerbi-visuals-api";
-import * as _ from "lodash";
-import "@babel/polyfill";
+import clone from "lodash.clone";
 
 // d3
-import * as d3 from "d3";
+import { ScaleLinear as d3LinearScale, scaleLinear as d3ScaleLinear} from "d3-scale";
+import { min as d3Min, max as d3Max} from "d3-array";
+import { arc as d3Arc } from "d3-shape";
+import {
+    select as d3Select,
+    Selection as d3Selection 
+} from "d3-selection";
+type Selection<T> = d3Selection<any, T, any, any>;
 
 // powerbi
 import IDataViewObject = powerbi.DataViewObject;
@@ -67,16 +73,24 @@ import CreateClassAndSelector = SvgUtils.CssConstants.createClassAndSelector;
 
 // Formatting utils
 import * as FormattingUtils from "powerbi-visuals-utils-formattingutils";
-import TextProperties = FormattingUtils.textMeasurementService.TextProperties;
-import valueFormatter = FormattingUtils.valueFormatter.valueFormatter;
+import TextProperties = FormattingUtils.interfaces.TextProperties;
+import valueFormatter = FormattingUtils.valueFormatter;
 import IValueFormatter = FormattingUtils.valueFormatter.IValueFormatter;
-import textMeasurementService = FormattingUtils.textMeasurementService.textMeasurementService;
+import textMeasurementService = FormattingUtils.textMeasurementService;
 
 // Interactivity utils
-import { interactivityService } from "powerbi-visuals-utils-interactivityutils";
-import IInteractivityService = interactivityService.IInteractivityService;
-import IInteractiveBehavior = interactivityService.IInteractiveBehavior;
-import createInteractivityService = interactivityService.createInteractivityService;
+import {
+    interactivityBaseService,
+    interactivitySelectionService as interactivityService
+} from "powerbi-visuals-utils-interactivityutils";
+
+import appendClearCatcher = interactivityBaseService.appendClearCatcher;
+import SelectableDataPoint = interactivityService.SelectableDataPoint;
+import IInteractiveBehavior = interactivityBaseService.IInteractiveBehavior;
+import IInteractivityServiceCommon = interactivityBaseService.IInteractivityService;
+import createInteractivityService = interactivityService.createInteractivitySelectionService;
+
+type IInteractivityService = IInteractivityServiceCommon<SelectableDataPoint>;
 
 // Type utils
 import { pixelConverter as PixelConverter } from "powerbi-visuals-utils-typeutils";
@@ -89,7 +103,6 @@ import { TooltipEventArgs, ITooltipServiceWrapper, createTooltipServiceWrapper }
 
 // Dataview utils
 import { dataViewObjects } from "powerbi-visuals-utils-dataviewutils";
-import DataViewObjects = dataViewObjects.DataViewObjects;
 
 // Chart utils
 import * as ChartUtils from "powerbi-visuals-utils-chartutils";
@@ -98,7 +111,7 @@ import ILegend = ChartUtils.legendInterfaces.ILegend;
 import LegendData = ChartUtils.legendInterfaces.LegendData;
 import LegendDataPoint = ChartUtils.legendInterfaces.LegendDataPoint;
 import LegendDataModule = ChartUtils.legendData;
-import LegendIcon = ChartUtils.legendInterfaces.LegendIcon;
+// import LegendIcon = ChartUtils.legendInterfaces.LegendIcon;
 import legendProps = ChartUtils.legendInterfaces.legendProps;
 import createLegend = ChartUtils.legend.createLegend;
 import LegendPosition = ChartUtils.legendInterfaces.LegendPosition;
@@ -109,7 +122,6 @@ import { RadarChartSeries, RadarChartCircularSegment, RadarChartLabel, RadarChar
 import { LabelSettings, RadarChartSettings } from "./settings";
 import * as RadarChartUtils from "./radarChartUtils";
 import * as TooltipBuilder from "./tooltipBuilder";
-import { ScaleLinear } from "d3";
 
 export class RadarChart implements IVisual {
     private static VisualClassName: string = "radarChart";
@@ -189,10 +201,10 @@ export class RadarChart implements IVisual {
     private static LabelHorizontalShiftStep: number = 5;
     private static LabelMarginFactor: number = 30;
 
-    private svg: d3.Selection<d3.BaseType, {}, null, undefined>;
-    private chart: d3.Selection<d3.BaseType, {}, null, undefined>;
+    private svg: Selection<any>;
+    private chart: Selection<any>;
 
-    private mainGroupElement: d3.Selection<d3.BaseType, {}, null, undefined>;
+    private mainGroupElement: Selection<any>;
     private colorPalette: IColorPalette;
     private colorHelper: ColorHelper;
     private viewport: IViewport;
@@ -244,7 +256,7 @@ export class RadarChart implements IVisual {
         };
 
         for (let i: number = 0, iLen: number = categoryValues.length; i < iLen; i++) {
-            const radarChartLabel: RadarChartLabel = d3.arc() as RadarChartLabel;
+            const radarChartLabel: RadarChartLabel = d3Arc() as RadarChartLabel;
             radarChartLabel.text = categoryValues[i] as string;
             radarChartLabel.startAngle = null;
             radarChartLabel.endAngle = null;
@@ -354,7 +366,7 @@ export class RadarChart implements IVisual {
             legendData.dataPoints.push(<LegendDataPoint>{
                 label: displayName,
                 color: legendDataPointsColor,
-                icon: LegendIcon.Box,
+                // icon: LegendIcon.Box,
                 selected: false,
                 identity: serieIdentity
             });
@@ -426,12 +438,12 @@ export class RadarChart implements IVisual {
         this.colorHelper = new ColorHelper(this.colorPalette);
 
         if (!this.svg) {
-            this.svg = d3.select(element).append("svg");
+            this.svg = d3Select(element).append("svg");
             this.svg.style("position", "absolute");
         }
 
         if (!this.margin) {
-            this.margin = _.clone(RadarChart.DefaultMargin);
+            this.margin = clone(RadarChart.DefaultMargin);
         }
 
         this.svg.classed(RadarChart.VisualClassName, true);
@@ -581,10 +593,10 @@ export class RadarChart implements IVisual {
             .remove();
 
         this.legend.reset();
-        this.legend.drawLegend({ dataPoints: [] }, _.clone(this.viewport));
+        this.legend.drawLegend({ dataPoints: [] }, clone(this.viewport));
     }
 
-    private changeAxesLineColorInHighMode(selectionArray: d3.Selection<d3.BaseType, any, any, any>[]): void {
+    private changeAxesLineColorInHighMode(selectionArray: Selection<any>[]): void {
         if (this.colorHelper.isHighContrast) {
             let lineColor: string = this.settings.legend.labelColor;
 
@@ -615,7 +627,7 @@ export class RadarChart implements IVisual {
             }
         }
 
-        let selection: d3.Selection<d3.BaseType, RadarChartCircularSegment, any, any> = this.mainGroupElement
+        let selection: Selection<RadarChartCircularSegment> = this.mainGroupElement
             .select(RadarChart.SegmentsSelector.selectorName)
             .selectAll(RadarChart.SegmentNodeSElector.selectorName)
             .data(data);
@@ -642,11 +654,11 @@ export class RadarChart implements IVisual {
         const angle: number = this.angle,
             radius: number = this.radius;
 
-        let selection: d3.Selection<d3.BaseType, RadarChartCircularSegment, any, any> = this.mainGroupElement
+        let selection: Selection<RadarChartCircularSegment> = this.mainGroupElement
             .select(RadarChart.AxisSelector.selectorName)
             .selectAll(RadarChart.AxisNodeSelector.selectorName);
 
-        let axexSelection: d3.Selection<d3.BaseType, PrimitiveValue, any, any> = selection.data(values);
+        let axexSelection: Selection<PrimitiveValue> = selection.data(values);
 
         axexSelection
             .exit()
@@ -835,13 +847,13 @@ export class RadarChart implements IVisual {
     private drawAxesLabels(values: RadarChartLabel[], dataViewMetadataColumn?: DataViewMetadataColumn): void {
         let labelSettings: LabelSettings = this.radarChartData.settings.labels;
 
-        let selectionLabelText: d3.Selection<d3.BaseType, RadarChartLabel, any, any> = this.mainGroupElement
+        let selectionLabelText: Selection<RadarChartLabel> = this.mainGroupElement
             .select(RadarChart.AxisSelector.selectorName)
             .selectAll(RadarChart.AxisLabelSelector.selectorName);
 
         let filteredData: RadarChartLabel[] = values.filter((label: RadarChartLabel) => labelSettings.show && !label.hide);
 
-        let labelsSelection: d3.Selection<d3.BaseType, RadarChartLabel, any, any> = selectionLabelText.data(filteredData);
+        let labelsSelection: Selection<RadarChartLabel> = selectionLabelText.data(filteredData);
 
         labelsSelection
             .exit()
@@ -872,11 +884,11 @@ export class RadarChart implements IVisual {
             .style("text-anchor", (label: RadarChartLabel) => label.textAnchor)
             .style("fill", () => labelSettings.color);
 
-        let selectionLongLineLableLink: d3.Selection<d3.BaseType, RadarChartLabel, any, any> = this.mainGroupElement
+        let selectionLongLineLableLink: Selection<RadarChartLabel> = this.mainGroupElement
             .select(RadarChart.AxisSelector.selectorName)
             .selectAll(RadarChart.AxisLabelLinkLongLineSelector.selectorName);
 
-        let labelsLongLineLinkSelection: d3.Selection<d3.BaseType, RadarChartLabel, any, any> = selectionLongLineLableLink.data(filteredData);
+        let labelsLongLineLinkSelection: Selection<RadarChartLabel> = selectionLongLineLableLink.data(filteredData);
 
         labelsLongLineLinkSelection
             .exit()
@@ -892,11 +904,11 @@ export class RadarChart implements IVisual {
             .attr("x2", (label: RadarChartLabel) => label.xLinkEnd)
             .attr("y2", (label: RadarChartLabel) => label.yLinkEnd);
 
-        let selectionShortLineLableLink: d3.Selection<d3.BaseType, RadarChartLabel, any, any> = this.mainGroupElement
+        let selectionShortLineLableLink: Selection<RadarChartLabel> = this.mainGroupElement
             .select(RadarChart.AxisSelector.selectorName)
             .selectAll(RadarChart.AxisLabelLinkShortLineSelector.selectorName);
 
-        let labelsShortLineLinkSelection: d3.Selection<d3.BaseType, RadarChartLabel, any, any> = selectionShortLineLableLink.data(filteredData);
+        let labelsShortLineLinkSelection: Selection<RadarChartLabel> = selectionShortLineLableLink.data(filteredData);
 
         labelsShortLineLinkSelection
             .exit()
@@ -921,7 +933,7 @@ export class RadarChart implements IVisual {
     private drawChart(series: RadarChartSeries[], duration: number): void {
         let angle: number = this.angle;
         let layers: RadarChartDatapoint[][] = this.getDataPoints(series);
-        let yDomain: ScaleLinear<number, number> = this.calculateChartDomain(series);
+        let yDomain: d3LinearScale<number, number> = this.calculateChartDomain(series);
         let axisBeginning: number = this.radarChartData.settings.displaySettings.axisBeginning;
         let calculatePoints = (points) => {
             return points.map((value) => {
@@ -934,7 +946,7 @@ export class RadarChart implements IVisual {
             }).join(" ");
         };
 
-        let areasSelection: d3.Selection<d3.BaseType, RadarChartDatapoint[], any, any> = this.chart
+        let areasSelection: Selection<RadarChartDatapoint[]> = this.chart
             .selectAll(RadarChart.ChartAreaSelector.selectorName)
             .data(layers);
 
@@ -948,7 +960,7 @@ export class RadarChart implements IVisual {
             .classed(RadarChart.ChartAreaSelector.className, true)
             .merge(areasSelection);
 
-        let polygonSelection: d3.Selection<d3.BaseType, RadarChartDatapoint[], any, any> = areasSelection
+        let polygonSelection: Selection<RadarChartDatapoint[]> = areasSelection
             .selectAll(RadarChart.ChartPolygonSelector.selectorName)
             .data((dataPoints: RadarChartDatapoint[]) => {
                 if (dataPoints && dataPoints.length > 0) {
@@ -974,13 +986,13 @@ export class RadarChart implements IVisual {
             .merge(polygonSelection)
             .style("opacity", RadarChartUtils.DimmedOpacity)
             .on("mouseover", function () {
-                d3.select(this)
+                d3Select(this)
                     .transition()
                     .duration(duration)
                     .style("opacity", RadarChart.AreaFillOpacity);
             })
             .on("mouseout", function () {
-                d3.select(this)
+                d3Select(this)
                     .transition()
                     .duration(duration)
                     .style("opacity", RadarChartUtils.DimmedOpacity);
@@ -1003,7 +1015,7 @@ export class RadarChart implements IVisual {
                 .style("stroke-width", RadarChart.PolygonStrokeWidth);
         }
 
-        let nodeSelection: d3.Selection<d3.BaseType, RadarChartDatapoint[], any, any> = this.chart
+        let nodeSelection: Selection<RadarChartDatapoint[]> = this.chart
             .selectAll(RadarChart.ChartNodeSelector.selectorName)
             .data(layers);
 
@@ -1020,7 +1032,7 @@ export class RadarChart implements IVisual {
         let hasHighlights: boolean = (series.length > 0) && series[0].hasHighlights,
             hasSelection: boolean = this.interactivityService && this.interactivityService.hasSelection();
 
-        let dotsSelection: d3.Selection<d3.BaseType, RadarChartDatapoint, any, any> = nodeSelection
+        let dotsSelection: Selection<RadarChartDatapoint> = nodeSelection
             .selectAll(RadarChart.ChartDotSelector.selectorName)
             .data((dataPoints: RadarChartDatapoint[]) => {
                 return dataPoints.filter(d => d.y != null && d.showPoint);
@@ -1062,18 +1074,20 @@ export class RadarChart implements IVisual {
             behaviorOptions = {
                 selection: dotsSelection,
                 clearCatcher: this.svg,
-                hasHighlights: hasHighlights
+                hasHighlights: hasHighlights,
+                behavior: this.behavior,
+                dataPoints: dataPointsToBind
             };
 
-            this.interactivityService.bind(dataPointsToBind, this.behavior, behaviorOptions);
+            this.interactivityService.bind(behaviorOptions);
         }
     }
 
-    private calculateChartDomain(series: RadarChartSeries[]): ScaleLinear<number, number> {
+    private calculateChartDomain(series: RadarChartSeries[]): d3LinearScale<number, number> {
         let radius: number = this.radius * RadarChart.SegmentFactor,
             dataPointsList: RadarChartDatapoint[] = this.getAllDataPointsList(series);
 
-        let maxValue: number = d3.max(dataPointsList, (dataPoint: RadarChartDatapoint) => {
+        let maxValue: number = d3Max(dataPointsList, (dataPoint: RadarChartDatapoint) => {
             return dataPoint.y;
         });
 
@@ -1088,7 +1102,7 @@ export class RadarChart implements IVisual {
                 ? RadarChart.MinDomainValue
                 : RadarChart.MaxDomainValue;
         }
-        return d3.scaleLinear()
+        return d3ScaleLinear()
             .domain([minValue, maxValue])
             .range([RadarChart.MinDomainValue, radius]);
     }
@@ -1155,7 +1169,7 @@ export class RadarChart implements IVisual {
             return;
         }
 
-        this.legendObjectProperties = DataViewObjects.getObject(
+        this.legendObjectProperties = dataViewObjects.getObject(
             dataView.metadata.objects,
             "legend",
             {});
@@ -1175,9 +1189,9 @@ export class RadarChart implements IVisual {
         }
 
         if (dataView && dataView.categorical) {
-            let minValue = d3.min(<number[]>dataView.categorical.values[0].values);
+            let minValue = d3Min(<number[]>dataView.categorical.values[0].values);
             for (let i: number = 0; i < dataView.categorical.values.length; i++) {
-                let minValueL = d3.min(<number[]>dataView.categorical.values[i].values);
+                let minValueL = d3Min(<number[]>dataView.categorical.values[i].values);
                 if (minValue > minValueL) {
                     minValue = minValueL;
                 }
