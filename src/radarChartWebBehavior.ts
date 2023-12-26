@@ -55,7 +55,7 @@ export interface RadarChartBehaviorOptions extends IBehaviorOptions {
 const getEvent = () => require("d3-selection").event;
 
 export class RadarChartWebBehavior implements IInteractiveBehavior {
-    private selection: Selection<SelectableDataPoint>;
+    private selection: Selection<RadarChartDatapoint>;
     private hasHighlights: boolean;
 
     public bindEvents(options: RadarChartBehaviorOptions, selectionHandler: ISelectionHandler): void {
@@ -64,16 +64,42 @@ export class RadarChartWebBehavior implements IInteractiveBehavior {
         this.selection = options.selection;
         this.hasHighlights = options.hasHighlights;
 
-        this.selection.on("click", (dataPoint: SelectableDataPoint) => {
-            const mouseEvent: MouseEvent = getEvent() as MouseEvent;
+        this.selection.on("click", (event: PointerEvent, dataPoint: RadarChartDatapoint) => {
+            selectionHandler.handleSelection(dataPoint, event.ctrlKey || event.metaKey || event.shiftKey);
 
-            selectionHandler.handleSelection(dataPoint, mouseEvent.ctrlKey);
-
-            mouseEvent.stopPropagation();
+            event.stopPropagation();
         });
+
+        this.selection.on("keypress", (event : KeyboardEvent, dataPoint: RadarChartDatapoint) => {
+            if(event?.code == "Enter" || event?.code == "Space")
+            {
+                selectionHandler.handleSelection(
+                    dataPoint,
+                    event.ctrlKey || event.metaKey || event.shiftKey);
+            }
+        });
+
+        this.selection.on("contextmenu", (event: PointerEvent, dataPoint: RadarChartDatapoint) => {
+            selectionHandler.handleContextMenu(dataPoint,
+                {
+                    x: event.clientX,
+                    y: event.clientY
+                }
+            );
+            event.preventDefault(); 
+        })
 
         clearCatcher.on("click", () => {
             selectionHandler.handleClearSelection();
+        });
+
+        clearCatcher.on("contextmenu", (event: PointerEvent) => {
+            selectionHandler.handleContextMenu({"selected" : false},
+            {
+                x: event.clientX,
+                y: event.clientY
+            });
+            event.preventDefault(); 
         });
     }
 

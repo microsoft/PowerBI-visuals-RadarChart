@@ -111,7 +111,6 @@ import ILegend = ChartUtils.legendInterfaces.ILegend;
 import LegendData = ChartUtils.legendInterfaces.LegendData;
 import LegendDataPoint = ChartUtils.legendInterfaces.LegendDataPoint;
 import LegendDataModule = ChartUtils.legendData;
-// import LegendIcon = ChartUtils.legendInterfaces.LegendIcon;
 import legendProps = ChartUtils.legendInterfaces.legendProps;
 import createLegend = ChartUtils.legend.createLegend;
 import LegendPosition = ChartUtils.legendInterfaces.LegendPosition;
@@ -366,7 +365,6 @@ export class RadarChart implements IVisual {
             legendData.dataPoints.push(<LegendDataPoint>{
                 label: displayName,
                 color: legendDataPointsColor,
-                // icon: LegendIcon.Box,
                 selected: false,
                 identity: serieIdentity
             });
@@ -1056,12 +1054,12 @@ export class RadarChart implements IVisual {
                     dataPoint.highlight,
                     !dataPoint.highlight && hasSelection,
                     !dataPoint.selected && hasHighlights);
-            });
-
+            })
+            .attr("tabindex", 0);
         this.tooltipServiceWrapper.addTooltip(
             dotsSelection,
-            (eventArgs: TooltipEventArgs<RadarChartDatapoint>) => {
-                return eventArgs.data.tooltipInfo;
+            (eventArgs: RadarChartDatapoint) => {
+                return eventArgs.tooltipInfo;
             },
             null,
             true);
