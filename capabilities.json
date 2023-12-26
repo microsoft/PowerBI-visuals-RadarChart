@@ -258,5 +258,6 @@
     "supportsHighlight": true,
     "sorting": {
         "default": {}
-    }
+    },
+    "privileges": []
 }
