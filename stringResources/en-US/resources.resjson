@@ -26,6 +26,8 @@
 	"Visual_North": "North",
 	"Visual_South": "South",
 	"Visual_DataLabels": "Data Labels",
+	"Visual_Font": "Font",
+	"Visual_Text": "Text",
 	"Visual_Description_Legend": "Display Legend Options",
 	"Visual_Description_Title": "Display a title for legend symbols",
 	"Visual_Description_Name": "Title Text",

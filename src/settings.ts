@@ -32,15 +32,18 @@ import LegendPosition = legendInterfaces.LegendPosition;
 
 import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
 import FormattingSettingsSimpleCard = formattingSettings.SimpleCard;
+import FormattingSettingsCompositeCard = formattingSettings.CompositeCard;
 import FormattingSettingsCard = formattingSettings.Cards;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
+import FormattingSettingsGroup = formattingSettings.Group;
 
 import { RadarChartSeries } from "./radarChartDataInterfaces";
 import { ColorHelper } from "powerbi-visuals-utils-colorutils";
 
 import IEnumMember = powerbi.IEnumMember;
 import ILocalizationManager = powerbi.extensibility.ILocalizationManager;
+
 interface IEnumMemberWithDisplayNameKey extends IEnumMember{
     key: string;
 }
@@ -62,15 +65,48 @@ const axisBeginningOptions : IEnumMemberWithDisplayNameKey[] = [
 ];
 
 
-export class LegendSettingsCard extends FormattingSettingsSimpleCard {
-    topLevelSlice = new formattingSettings.ToggleSwitch({
-        name: "show",
-        displayName: "Show",
-        displayNameKey: "Visual_Show",
-        value: true
+class BaseFontCardSettings extends FormattingSettingsSimpleCard {
+    font = new formattingSettings.FontControl({
+        name: "font",
+        displayName: "Font",
+        displayNameKey: "Visual_Font",
+        fontFamily: new formattingSettings.FontPicker({
+            name: "fontFamily",
+            value: "Arial, sans-serif"
+        }),
+        fontSize: new formattingSettings.NumUpDown({
+            name: "fontSize",
+            displayName: "Text Size",
+            displayNameKey: "Visual_TextSize",
+            value: 8,
+            options: {
+                minValue: {
+                    type: powerbi.visuals.ValidatorType.Min,
+                    value: 8
+                },
+                maxValue: {
+                    type: powerbi.visuals.ValidatorType.Max,
+                    value: 60
+                }
+            }
+        }),
+        bold: new formattingSettings.ToggleSwitch({
+            name: "fontBold",
+            value: false
+        }),
+        italic: new formattingSettings.ToggleSwitch({
+            name: "fontItalic",
+            value: false
+        }),
+        underline: new formattingSettings.ToggleSwitch({
+            name: "fontUnderline",
+            value: false
+        })
     });
+}
 
-    showTitle = new formattingSettings.ToggleSwitch({
+export class LegendTitleGroup extends FormattingSettingsSimpleCard {
+    topLevelSlice = new formattingSettings.ToggleSwitch({
         name: "showTitle",
         displayName: "Title",
         displayNameKey: "Visual_Title",
@@ -89,28 +125,18 @@ export class LegendSettingsCard extends FormattingSettingsSimpleCard {
         placeholder:""
     });
 
+    name: string = "legendTitleGroup";
+    displayName: string = "Title";
+    displayNameKey: string = "Visual_Title";
+    slices: FormattingSettingsSlice[] = [this.titleText];
+}
+
+export class LegendTextGroup extends BaseFontCardSettings {
     labelColor = new formattingSettings.ColorPicker({
         name: "labelColor",
         displayName: "Color",
         displayNameKey: "Visual_Color",
         value: {value: "black"}
-    });
-
-    fontSize = new formattingSettings.NumUpDown({
-        name: "fontSize",
-        displayName: "Text Size",
-        displayNameKey: "Visual_TextSize",
-        value: 8,
-        options: {
-            minValue: {
-                type: powerbi.visuals.ValidatorType.Min,
-                value: 8
-            },
-            maxValue: {
-                type: powerbi.visuals.ValidatorType.Max,
-                value: 60
-            }
-        }
     });
 
     positionDropdown = new formattingSettings.ItemDropdown({
@@ -121,12 +147,29 @@ export class LegendSettingsCard extends FormattingSettingsSimpleCard {
         displayNameKey: "Visual_Position"
     });
 
+    name: string = "legendTextGroup";
+    displayName?: string = "Text";
+    displayNameKey?: string = "Visual_Text"
+    slices: FormattingSettingsSlice[] = [this.font, this.labelColor, this.positionDropdown];
+}
+
+export class LegendSettingsCard extends FormattingSettingsCompositeCard {
+    topLevelSlice = new formattingSettings.ToggleSwitch({
+        name: "show",
+        displayName: "Show",
+        displayNameKey: "Visual_Show",
+        value: true
+    });
+
+    text: LegendTextGroup = new LegendTextGroup();
+    title: LegendTitleGroup = new LegendTitleGroup();
+
     name: string = "legend";
     displayName: string = "Legend";
     displayNameKey: string = "Visual_Legend";
     description: string = "Display Legend Options";
     descriptionKey: string = "Visual_Description_Legend";
-    slices: FormattingSettingsSlice[] = [this.showTitle, this.titleText, this.labelColor, this.fontSize, this.positionDropdown];
+    groups: FormattingSettingsGroup[] = [this.title, this.text];
 }
 
 export class DataPointSettingsCard extends FormattingSettingsSimpleCard {
@@ -198,7 +241,7 @@ export class DisplaySettingsCard extends FormattingSettingsSimpleCard {
     slices: FormattingSettingsSlice[] = [this.minValue, this.axisBeginning];
 }
 
-export class LabelsSettingsCard extends FormattingSettingsSimpleCard {
+export class LabelsSettingsCard extends BaseFontCardSettings {
     topLevelSlice = new formattingSettings.ToggleSwitch({
         name: "show",
         displayNameKey: "Visual_Show",
@@ -215,29 +258,12 @@ export class LabelsSettingsCard extends FormattingSettingsSimpleCard {
         value : {value: "#000"}
     });
 
-    fontSize = new formattingSettings.NumUpDown({
-        name: "fontSize",
-        displayNameKey: "Visual_TextSize",
-        displayName: "Text Size",
-        value: 8,
-        options: {
-            minValue: {
-                type: powerbi.visuals.ValidatorType.Min,
-                value: 8
-            },
-            maxValue: {
-                type: powerbi.visuals.ValidatorType.Max,
-                value: 60
-            }
-        }
-    });
-
     name: string = "labels";
     displayNameKey: string = "Visual_DataLabels";
     displayName: string = "Data Labels";
     description: string = "Display data label options";
     descriptionKey: string = "Visual_Description_DataLabels";
-    slices: FormattingSettingsSlice[] = [this.color, this.fontSize];
+    slices: FormattingSettingsSlice[] = [this.color, this.font];
 }
 
 export class RadarChartSettingsModel extends FormattingSettingsModel {
@@ -284,7 +310,7 @@ export class RadarChartSettingsModel extends FormattingSettingsModel {
         const isVisible: boolean = !colorHelper.isHighContrast;
         this.dataPoint.visible = isVisible;
         this.labels.color.visible = isVisible;
-        this.legend.labelColor.visible = isVisible;
+        this.legend.text.labelColor.visible = isVisible;
     }
 
     public setMinMaxValuesForDisplay(minValue: number): void {

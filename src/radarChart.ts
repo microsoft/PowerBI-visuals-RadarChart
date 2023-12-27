@@ -200,6 +200,7 @@ export class RadarChart implements IVisual {
     private static LabelHorizontalShiftStep: number = 5;
     private static LabelMarginFactor: number = 30;
 
+    private root: Selection<any>;
     private svg: Selection<any>;
     private chart: Selection<any>;
 
@@ -320,10 +321,11 @@ export class RadarChart implements IVisual {
         let hasHighlights: boolean = !!(values.length > 0 && values[0].highlights);
 
         let legendData: LegendData = {
-            fontSize: settings.legend.fontSize.value,
+            fontSize: settings.legend.text.font.fontSize.value,
             dataPoints: [],
-            title: settings.legend.titleText.value,
-            labelColor: settings.legend.labelColor.value.value
+            title: settings.legend.title.titleText.value,
+            labelColor: settings.legend.text.labelColor.value.value,
+            fontFamily: settings.legend.text.font.fontFamily.value
         };
         for (let i: number = 0, iLen: number = values.length; i < iLen; i++) {
             let dataPointFillColor: string,
@@ -384,7 +386,7 @@ export class RadarChart implements IVisual {
                     i);
                 let currCatValue = catDv.categories[0].values[k];
                 let labelFormatString: string = valueFormatter.getFormatStringByColumn(catDv.values[i].source),
-                    fontSizeInPx: string = PixelConverter.fromPoint(settings.labels.fontSize.value);
+                    fontSizeInPx: string = PixelConverter.fromPoint(settings.labels.font.fontSize.value);
 
                 let notConvertedValue: PrimitiveValue = values[i].values[k],
                     y: number = notConvertedValue === RadarChart.fakeValue ? 0 : (notConvertedValue !== null ? Number(notConvertedValue) : NaN);
@@ -434,6 +436,7 @@ export class RadarChart implements IVisual {
 
         this.colorPalette = options.host.colorPalette;
         this.colorHelper = new ColorHelper(this.colorPalette);
+        this.root = d3Select(options.element);
 
         if (!this.svg) {
             this.svg = d3Select(element).append("svg");
@@ -540,7 +543,7 @@ export class RadarChart implements IVisual {
             "transform",
             translate(this.viewport.width / 2, this.viewport.height / 2));
 
-        let labelsFontSize: number = this.formattingSettings.labels.fontSize.value;
+        let labelsFontSize: number = this.formattingSettings.labels.font.fontSize.value;
 
         this.margin.top = Math.max(RadarChart.DefaultMargin.top, labelsFontSize);
         this.margin.left = Math.max(RadarChart.DefaultMargin.left, labelsFontSize);
@@ -621,7 +624,7 @@ export class RadarChart implements IVisual {
 
     private changeAxesLineColorInHighMode(selectionArray: Selection<any>[]): void {
         if (this.colorHelper.isHighContrast) {
-            let lineColor: string = this.formattingSettings.legend.labelColor.value.value;
+            let lineColor: string = this.formattingSettings.legend.text.labelColor.value.value;
 
             selectionArray.forEach((selection) => {
                 selection.style("stroke", lineColor);
@@ -734,7 +737,7 @@ export class RadarChart implements IVisual {
 
         let properties: TextProperties = {
             fontFamily: RadarChart.AxesLabelsFontFamily,
-            fontSize: PixelConverter.fromPoint(labelSettings.fontSize.value),
+            fontSize: PixelConverter.fromPoint(labelSettings.font.fontSize.value),
             text: this.radarChartData.labels.formatter.format(current.text)
         };
 
@@ -888,7 +891,7 @@ export class RadarChart implements IVisual {
             .classed(RadarChart.AxisLabelSelector.className, true)
             .merge(labelsSelection)
             .attr("dy", `${RadarChart.LabelYOffset}em`)
-            .attr("transform", translate(RadarChart.LabelXOffset, -RadarChart.LabelYOffset * labelSettings.fontSize.value))
+            .attr("transform", translate(RadarChart.LabelXOffset, -RadarChart.LabelYOffset * labelSettings.font.fontSize.value))
             .attr("x", (label: RadarChartLabel) => {
                 let shift: number = label.textAnchor === RadarChart.TextAnchorStart ? +RadarChart.LabelPositionXOffset : -RadarChart.LabelPositionXOffset;
                 return label.x + shift;
@@ -897,13 +900,17 @@ export class RadarChart implements IVisual {
             .text((label: RadarChartLabel) => {
                 let properties: TextProperties = {
                     fontFamily: RadarChart.AxesLabelsFontFamily,
-                    fontSize: PixelConverter.fromPoint(labelSettings.fontSize.value),
+                    fontSize: PixelConverter.fromPoint(labelSettings.font.fontSize.value),
                     text: this.radarChartData.labels.formatter.format(label.text)
                 };
 
                 return textMeasurementService.getTailoredTextOrDefault(properties, label.maxWidth);
             })
-            .style("font-size", () => PixelConverter.fromPoint(labelSettings.fontSize.value))
+            .style("font-size", () => PixelConverter.fromPoint(labelSettings.font.fontSize.value))
+            .style("font-family", () => labelSettings.font.fontFamily.value)
+            .style("font-weight", () => labelSettings.font.bold.value ? "bold" : "normal")
+            .style("font-style", () => labelSettings.font.italic.value ? "italic" : "normal")
+            .style("text-decoration", () => labelSettings.font.underline.value ? "underline" : "none")
             .style("text-anchor", (label: RadarChartLabel) => label.textAnchor)
             .style("fill", () => labelSettings.color.value.value);
 
@@ -1142,7 +1149,7 @@ export class RadarChart implements IVisual {
         if (this.legendObjectProperties) {
             LegendDataModule.update(legendData, this.legendObjectProperties);
 
-            const position = this.formattingSettings.legend.positionDropdown.value.value;
+            const position = this.formattingSettings.legend.text.positionDropdown.value.value;
 
             if (position) {
                 this.legend.changeOrientation(LegendPosition[position]);
@@ -1153,6 +1160,11 @@ export class RadarChart implements IVisual {
 
         this.legend.drawLegend(legendData, { height, width });
         LegendModule.positionChartArea(this.svg, this.legend);
+
+        d3Select(this.root.node()).selectAll("g#legendGroup text")
+            .style("font-weight",  () => this.formattingSettings.legend.text.font.bold.value ? "bold" : "normal")
+            .style("font-style",  () => this.formattingSettings.legend.text.font.italic.value ? "italic" : "normal")
+            .style("text-decoration", () => this.formattingSettings.legend.text.font.underline.value ? "underline" : "none");
     }
 
     private getDataPoints(seriesList: RadarChartSeries[]): RadarChartDatapoint[][] {
@@ -1200,7 +1212,7 @@ export class RadarChart implements IVisual {
         if (colorHelper.isHighContrast) {
             legendObjectProperties["labelColor"] = {
                 solid: {
-                    color: colorHelper.getHighContrastColor("foreground", formattingSettings.legend.labelColor.value.value)
+                    color: colorHelper.getHighContrastColor("foreground", formattingSettings.legend.text.labelColor.value.value)
                 }
             };
         }
@@ -1217,7 +1229,7 @@ export class RadarChart implements IVisual {
 
         settings.dataPoint.fill.value.value = colorHelper.getHighContrastColor("foreground", settings.dataPoint.fill.value.value);
         settings.labels.color.value.value = colorHelper.getHighContrastColor("foreground", settings.labels.color.value.value);
-        settings.legend.labelColor.value.value = colorHelper.getHighContrastColor("foreground", settings.legend.labelColor.value.value);
+        settings.legend.text.labelColor.value.value = colorHelper.getHighContrastColor("foreground", settings.legend.text.labelColor.value.value);
 
         return settings;
     }
@@ -1226,7 +1238,7 @@ export class RadarChart implements IVisual {
         let legendMargins: IViewport = this.legend.getMargins(),
             legendPosition: LegendPosition;
 
-        legendPosition = LegendPosition[this.formattingSettings.legend.positionDropdown.value.value];
+        legendPosition = LegendPosition[this.formattingSettings.legend.text.positionDropdown.value.value];
 
         switch (legendPosition) {
             case LegendPosition.Top:
