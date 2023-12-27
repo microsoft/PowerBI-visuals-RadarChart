@@ -27,42 +27,292 @@
 import {dataViewObjectsParser} from "powerbi-visuals-utils-dataviewutils";
 import DataViewObjectsParser = dataViewObjectsParser.DataViewObjectsParser;
 
-import {legendInterfaces} from "powerbi-visuals-utils-chartutils";
+import {interactiveLegend, legendInterfaces} from "powerbi-visuals-utils-chartutils";
 import LegendPosition = legendInterfaces.LegendPosition;
 
-export class RadarChartSettings extends DataViewObjectsParser {
-    public legend: LegendSettings = new LegendSettings();
-    public labels: LabelSettings = new LabelSettings();
-    public dataPoint: DataPointSettings = new DataPointSettings();
-    public line: LineSettings = new LineSettings();
-    public displaySettings: DisplaySettings = new DisplaySettings();
+import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
+import FormattingSettingsSimpleCard = formattingSettings.SimpleCard;
+import FormattingSettingsCard = formattingSettings.Cards;
+import FormattingSettingsSlice = formattingSettings.Slice;
+import FormattingSettingsModel = formattingSettings.Model;
+
+import { RadarChartSeries } from "./radarChartDataInterfaces";
+import { ColorHelper } from "powerbi-visuals-utils-colorutils";
+
+import IEnumMember = powerbi.IEnumMember;
+import ILocalizationManager = powerbi.extensibility.ILocalizationManager;
+interface IEnumMemberWithDisplayNameKey extends IEnumMember{
+    key: string;
 }
 
-export class LegendSettings {
-    public show: boolean = true;
-    public showTitle: boolean = true;
-    public titleText: string = "";
-    public labelColor: string = "black";
-    public fontSize: number = 8;
-    public position: string = LegendPosition[LegendPosition.Top];
+const positionOptions : IEnumMemberWithDisplayNameKey[] = [
+    {value : LegendPosition[LegendPosition.Top], displayName : "Top", key: "Visual_Top"}, 
+    {value : LegendPosition[LegendPosition.Bottom], displayName : "Bottom", key: "Visual_Bottom"},
+    {value : LegendPosition[LegendPosition.Left], displayName : "Left", key: "Visual_Left"}, 
+    {value : LegendPosition[LegendPosition.Right], displayName : "Right", key: "Visual_Right"}, 
+    {value : LegendPosition[LegendPosition.TopCenter], displayName : "Top Center", key: "Visual_TopCenter"}, 
+    {value : LegendPosition[LegendPosition.BottomCenter], displayName : "Bottom Center", key: "Visual_BottomCenter"}, 
+    {value : LegendPosition[LegendPosition.LeftCenter], displayName : "Left Center", key: "Visual_LeftCenter"}, 
+    {value : LegendPosition[LegendPosition.RightCenter], displayName : "Right Center", key: "Visual_RightCenter"}, 
+];
+
+const axisBeginningOptions : IEnumMemberWithDisplayNameKey[] = [
+    {value : -1, displayName : "North", key: "Visual_North"}, 
+    {value : 1, displayName : "South", key: "Visual_South"}
+];
+
+
+export class LegendSettingsCard extends FormattingSettingsSimpleCard {
+    topLevelSlice = new formattingSettings.ToggleSwitch({
+        name: "show",
+        displayName: "Show",
+        displayNameKey: "Visual_Show",
+        value: true
+    });
+
+    showTitle = new formattingSettings.ToggleSwitch({
+        name: "showTitle",
+        displayName: "Title",
+        displayNameKey: "Visual_Title",
+        description: "Display a title for legend symbols",
+        descriptionKey: "Visual_Description_Title",
+        value: true
+    });
+
+    titleText = new formattingSettings.TextInput({
+        name: "titleText",
+        displayName: "Name",
+        displayNameKey: "Visual_Name",
+        description: "Title Text",
+        descriptionKey: "Visual_Description_Name",
+        value: "",
+        placeholder:""
+    });
+
+    labelColor = new formattingSettings.ColorPicker({
+        name: "labelColor",
+        displayName: "Color",
+        displayNameKey: "Visual_Color",
+        value: {value: "black"}
+    });
+
+    fontSize = new formattingSettings.NumUpDown({
+        name: "fontSize",
+        displayName: "Text Size",
+        displayNameKey: "Visual_TextSize",
+        value: 8,
+        options: {
+            minValue: {
+                type: powerbi.visuals.ValidatorType.Min,
+                value: 8
+            },
+            maxValue: {
+                type: powerbi.visuals.ValidatorType.Max,
+                value: 60
+            }
+        }
+    });
+
+    positionDropdown = new formattingSettings.ItemDropdown({
+        name: "position",
+        items: positionOptions,
+        value: positionOptions[0],
+        displayName: "Position",
+        displayNameKey: "Visual_Position"
+    });
+
+    name: string = "legend";
+    displayName: string = "Legend";
+    displayNameKey: string = "Visual_Legend";
+    description: string = "Display Legend Options";
+    descriptionKey: string = "Visual_Description_Legend";
+    slices: FormattingSettingsSlice[] = [this.showTitle, this.titleText, this.labelColor, this.fontSize, this.positionDropdown];
 }
 
-export class DataPointSettings {
-    public fill: string = "";
+export class DataPointSettingsCard extends FormattingSettingsSimpleCard {
+    fill = new formattingSettings.ColorPicker({
+        name: "fill",
+        displayName: "Fill",
+        displayNameKey: "Visual_Fill",
+        value: {value: ""}
+    })
+
+    name: string = "dataPoint";
+    displayName: string =  "Data colors";
+    displayNameKey: string = "Visual_DataColors";
+    description: string = "Display data color options";
+    descriptionKey: string = "Visual_Description_DataColors";
+    slices: FormattingSettingsSlice[] = [this.fill];
 }
 
-export class LabelSettings {
-    public show: boolean = true;
-    public color: string = "#000";
-    public fontSize: number = 8;
+export class LineSettingsCard extends FormattingSettingsSimpleCard {
+    topLevelSlice = new formattingSettings.ToggleSwitch({
+        name: "show",
+        displayName: "Draw Lines",
+        displayNameKey: "Visual_DrawLines",
+        value: false
+    });
+
+    lineWidth = new formattingSettings.NumUpDown({
+        name: "lineWidth",
+        displayName: "Line Width",
+        displayNameKey: "Visual_LineWidth",
+        value: 5,
+        options: {
+            minValue: {
+                type: powerbi.visuals.ValidatorType.Min,
+                value: 1,
+            },
+            maxValue: {
+                type: powerbi.visuals.ValidatorType.Max,
+                value: 10,
+            }
+        }
+    });
+
+    name: string = "line";
+    displayName: string = "Draw Lines";
+    displayNameKey: string = "Visual_DrawLines";
+    slices: FormattingSettingsSlice[] = [this.lineWidth]
 }
 
-export class LineSettings {
-    public show: boolean = false;
-    public lineWidth: number = 5;
+export class DisplaySettingsCard extends FormattingSettingsSimpleCard {
+    minValue = new formattingSettings.NumUpDown({
+        name: "minValue",
+        displayNameKey: "Visual_AxisStart",
+        displayName: "Axis shift",
+        value: 0
+    });
+
+    axisBeginning = new formattingSettings.ItemDropdown({
+        name: "axisBeginning",
+        displayNameKey: "Visual_AxisStartPosition",
+        displayName: "Axis start position",
+        items: axisBeginningOptions,
+        value: axisBeginningOptions[0],
+    });
+
+    name: string = "displaySettings";
+    displayName: string = "Display settings";
+    displayNameKey: string = "Visual_DisplaySettings";
+    slices: FormattingSettingsSlice[] = [this.minValue, this.axisBeginning];
 }
 
-export class DisplaySettings {
-    public minValue: number = 0;
-    public axisBeginning: number = -1;
+export class LabelsSettingsCard extends FormattingSettingsSimpleCard {
+    topLevelSlice = new formattingSettings.ToggleSwitch({
+        name: "show",
+        displayNameKey: "Visual_Show",
+        displayName: "Show",
+        value: true
+    });
+
+    color = new formattingSettings.ColorPicker({
+        name: "color",
+        displayNameKey: "Visual_Color",
+        displayName: "Color",
+        description: "Select color for data labels",
+        descriptionKey: "Visual_Description_Color",
+        value : {value: "#000"}
+    });
+
+    fontSize = new formattingSettings.NumUpDown({
+        name: "fontSize",
+        displayNameKey: "Visual_TextSize",
+        displayName: "Text Size",
+        value: 8,
+        options: {
+            minValue: {
+                type: powerbi.visuals.ValidatorType.Min,
+                value: 8
+            },
+            maxValue: {
+                type: powerbi.visuals.ValidatorType.Max,
+                value: 60
+            }
+        }
+    });
+
+    name: string = "labels";
+    displayNameKey: string = "Visual_DataLabels";
+    displayName: string = "Data Labels";
+    description: string = "Display data label options";
+    descriptionKey: string = "Visual_Description_DataLabels";
+    slices: FormattingSettingsSlice[] = [this.color, this.fontSize];
+}
+
+export class RadarChartSettingsModel extends FormattingSettingsModel {
+    legend: LegendSettingsCard = new LegendSettingsCard();
+    dataPoint: DataPointSettingsCard = new DataPointSettingsCard();
+    line: LineSettingsCard = new LineSettingsCard();
+    display: DisplaySettingsCard = new DisplaySettingsCard();
+    labels: LabelsSettingsCard = new LabelsSettingsCard();
+
+    cards: FormattingSettingsCard[] = [
+        this.legend,
+        this.dataPoint,
+        this.line,
+        this.display,
+        this.labels
+    ]
+
+    setLocalizedOptions(localizationManager: ILocalizationManager): void {
+        this.setLocalizedDisplayName(positionOptions, localizationManager);
+        this.setLocalizedDisplayName(axisBeginningOptions, localizationManager);
+    }   
+
+    public setLocalizedDisplayName(options: IEnumMemberWithDisplayNameKey[], localizationManager: ILocalizationManager): void {
+        options.forEach(option => {
+            option.displayName = localizationManager.getDisplayName(option.key)
+        });
+    }
+
+    public populateDataPointSlice(series: RadarChartSeries[]): void {
+        this.dataPoint.slices = [];
+        for (let dataPoint of series) {
+            this.dataPoint.slices.push(
+                new formattingSettings.ColorPicker({
+                    name: "fill",
+                    displayName: dataPoint.name,
+                    selector: ColorHelper.normalizeSelector(dataPoint.identity.getSelector(), false),
+                    value: { value: dataPoint.fill }
+                })
+            )
+        }
+    }
+
+    public setVisibilityOfColorSlices(colorHelper: ColorHelper): void {
+        const isVisible: boolean = !colorHelper.isHighContrast;
+        this.dataPoint.visible = isVisible;
+        this.labels.color.visible = isVisible;
+        this.legend.labelColor.visible = isVisible;
+    }
+
+    public setMinMaxValuesForDisplay(minValue: number): void {
+        if (minValue < 0){
+            this.display.minValue.options = {
+                minValue: {
+                    type: powerbi.visuals.ValidatorType.Min,
+                    value: minValue
+                },
+                maxValue: {
+                    type: powerbi.visuals.ValidatorType.Max,
+                    value: minValue
+                }
+            };
+            this.display.minValue.value = minValue;
+        }
+        else {
+            this.display.minValue.options = {
+                minValue: {
+                    type: powerbi.visuals.ValidatorType.Min,
+                    value: 0
+                },
+                maxValue: {
+                    type: powerbi.visuals.ValidatorType.Max,
+                    value: minValue
+                }
+            };
+            this.display.minValue.value = this.display.minValue.value > minValue ? minValue : 0;
+        }
+    }
 }

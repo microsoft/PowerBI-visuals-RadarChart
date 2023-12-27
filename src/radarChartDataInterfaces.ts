@@ -42,8 +42,6 @@ import SelectableDataPoint = interactivityService.SelectableDataPoint;
 // Tooltips utils
 import {TooltipEnabledDataPoint} from "powerbi-visuals-utils-tooltiputils";
 
-import {RadarChartSettings} from "./settings";
-
 // d3
 import { Arc as d3Arc, DefaultArcObject as d3DefaultArcObject} from "d3-shape";
 
@@ -72,7 +70,6 @@ export interface IRadarChartData {
     legendData: LegendData;
     labels: RadarChartLabelsData;
     series: RadarChartSeries[];
-    settings: RadarChartSettings;
 }
 
 export interface RadarChartLabel extends d3Arc<any, d3DefaultArcObject> {
