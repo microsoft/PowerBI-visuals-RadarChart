@@ -70,7 +70,7 @@ export class RadarChartWebBehavior implements IInteractiveBehavior {
             event.stopPropagation();
         });
 
-        this.selection.on("keypress", (event : KeyboardEvent, dataPoint: RadarChartDatapoint) => {
+        this.selection.on("keydown", (event : KeyboardEvent, dataPoint: RadarChartDatapoint) => {
             if(event?.code == "Enter" || event?.code == "Space")
             {
                 selectionHandler.handleSelection(
@@ -110,6 +110,10 @@ export class RadarChartWebBehavior implements IInteractiveBehavior {
                 dataPoint.highlight,
                 !dataPoint.highlight && hasSelection,
                 !dataPoint.selected && this.hasHighlights);
+        });
+
+        this.selection.attr("aria-selected",(dataPoint: RadarChartDatapoint) =>{
+            return (hasSelection && dataPoint.selected);
         });
     }
 }

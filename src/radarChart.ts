@@ -225,7 +225,7 @@ export class RadarChart implements IVisual {
     private angle: number;
     private radius: number;
 
-    private formattingSettings: RadarChartSettingsModel;
+    public formattingSettings: RadarChartSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
 
     private static getLabelsData(dataView: DataView): RadarChartLabelsData {
@@ -1056,6 +1056,7 @@ export class RadarChart implements IVisual {
             .enter()
             .append("g")
             .classed(RadarChart.ChartNodeSelector.className, true)
+            .attr("role", "listbox")
             .merge(nodeSelection);
 
         let hasHighlights: boolean = (series.length > 0) && series[0].hasHighlights,
@@ -1086,7 +1087,11 @@ export class RadarChart implements IVisual {
                     !dataPoint.highlight && hasSelection,
                     !dataPoint.selected && hasHighlights);
             })
-            .attr("tabindex", 0);
+            .attr("tabindex", 0)
+            .attr("role", "option")
+            .attr("aria-selected", "false")
+            .attr("aria-label", (dataPoint: RadarChartDatapoint) => this.getDataPointAriaLabel(dataPoint.tooltipInfo));
+
         this.tooltipServiceWrapper.addTooltip(
             dotsSelection,
             (eventArgs: RadarChartDatapoint) => {
@@ -1110,6 +1115,10 @@ export class RadarChart implements IVisual {
 
             this.interactivityService.bind(behaviorOptions);
         }
+    }
+
+    private getDataPointAriaLabel(tooltipInfo: VisualTooltipDataItem[]): string {
+        return `${tooltipInfo[0].displayName}:${tooltipInfo[0].value}-${tooltipInfo[1].displayName}:${tooltipInfo[1].value}`;
     }
 
     private calculateChartDomain(series: RadarChartSeries[]): d3LinearScale<number, number> {
