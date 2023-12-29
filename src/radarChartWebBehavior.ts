@@ -26,17 +26,14 @@
 
 // d3
 import {
-    select as d3Select,
     Selection as d3Selection 
 } from "d3-selection";
 type Selection<T> = d3Selection<any, T, any, any>;
 
 // Interactivity utils
 import { 
-    interactivityBaseService,
-    interactivitySelectionService as interactivityService 
+    interactivityBaseService
 } from "powerbi-visuals-utils-interactivityutils";
-import SelectableDataPoint = interactivityService.SelectableDataPoint;
 import IInteractiveBehavior = interactivityBaseService.IInteractiveBehavior;
 import ISelectionHandler = interactivityBaseService.ISelectionHandler;
 import IBehaviorOptionsCommon = interactivityBaseService.IBehaviorOptions;
@@ -51,8 +48,6 @@ export interface RadarChartBehaviorOptions extends IBehaviorOptions {
     clearCatcher: Selection<any>;
     hasHighlights: boolean;
 }
-
-const getEvent = () => require("d3-selection").event;
 
 export class RadarChartWebBehavior implements IInteractiveBehavior {
     private selection: Selection<RadarChartDatapoint>;

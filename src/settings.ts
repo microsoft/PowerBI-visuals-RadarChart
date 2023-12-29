@@ -23,11 +23,7 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
-
-import {dataViewObjectsParser} from "powerbi-visuals-utils-dataviewutils";
-import DataViewObjectsParser = dataViewObjectsParser.DataViewObjectsParser;
-
-import {interactiveLegend, legendInterfaces} from "powerbi-visuals-utils-chartutils";
+import {legendInterfaces} from "powerbi-visuals-utils-chartutils";
 import LegendPosition = legendInterfaces.LegendPosition;
 
 import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
@@ -294,7 +290,7 @@ export class RadarChartSettingsModel extends FormattingSettingsModel {
 
     public populateDataPointSlice(series: RadarChartSeries[]): void {
         this.dataPoint.slices = [];
-        for (let dataPoint of series) {
+        for (const dataPoint of series) {
             this.dataPoint.slices.push(
                 new formattingSettings.ColorPicker({
                     name: "fill",

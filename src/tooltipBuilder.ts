@@ -58,16 +58,16 @@ export function createTooltipInfo(
     seriesIndex?: number): VisualTooltipDataItem[] {
 
     let categorySource: TooltipCategoryDataItem,
-        seriesSource: TooltipSeriesDataItem[] = [],
         valuesSource: DataViewMetadataColumn = undefined;
+    const seriesSource: TooltipSeriesDataItem[] = [];
 
     seriesIndex = seriesIndex | DefaultSeriesIndex;
 
-    let categoriesData: DataViewCategoricalColumn[] = dataViewCat && dataViewCat.categories;
+    const categoriesData: DataViewCategoricalColumn[] = dataViewCat && dataViewCat.categories;
 
     if (categoriesData && categoriesData.length > 0) {
         if (categoriesData.length > 1) {
-            let compositeCategoriesData: DataViewMetadataColumn[] = [];
+            const compositeCategoriesData: DataViewMetadataColumn[] = [];
 
             for (let i: number = 0, ilen: number = categoriesData.length; i < ilen; i++) {
                 compositeCategoriesData.push(categoriesData[i].source);
@@ -127,7 +127,7 @@ function createTooltipData(
                 displayName += categoryValue.metadata[i].displayName;
             }
 
-            let categoryFormattedValue: string = getFormattedValue(
+            const categoryFormattedValue: string = getFormattedValue(
                 categoryValue.metadata[0],
                 categoryValue.value);
 
@@ -137,7 +137,7 @@ function createTooltipData(
             });
         }
         else {
-            let categoryFormattedValue: string = getFormattedValue(
+            const categoryFormattedValue: string = getFormattedValue(
                 categoryValue.metadata[0],
                 categoryValue.value);
 
@@ -152,7 +152,7 @@ function createTooltipData(
         let dynamicValue: string;
 
         if (seriesValues.length > 0) {
-            let dynamicValueMetadata: DataViewMetadataColumn = seriesValues[0].metadata.source;
+            const dynamicValueMetadata: DataViewMetadataColumn = seriesValues[0].metadata.source;
 
             dynamicValue = getFormattedValue(
                 valuesSource,
@@ -166,15 +166,15 @@ function createTooltipData(
     }
 
     for (let i: number = 0; i < seriesValues.length; i++) {
-        let seriesData: TooltipSeriesDataItem = seriesValues[i];
+        const seriesData: TooltipSeriesDataItem = seriesValues[i];
 
         if (seriesData && seriesData.metadata) {
-            let seriesMetadataColumn: DataViewMetadataColumn = seriesData.metadata.source,
+            const seriesMetadataColumn: DataViewMetadataColumn = seriesData.metadata.source,
                 value: PrimitiveValue = seriesData.value,
                 highlightedValue: PrimitiveValue = seriesData.highlightedValue;
 
             if (value || value === 0) {
-                let formattedValue: string = getFormattedValue(seriesMetadataColumn, value);
+                const formattedValue: string = getFormattedValue(seriesMetadataColumn, value);
 
                 items.push({
                     displayName: seriesMetadataColumn.displayName,
@@ -183,7 +183,7 @@ function createTooltipData(
             }
 
             if (highlightedValue || highlightedValue === 0) {
-                let formattedHighlightedValue: string = getFormattedValue(
+                const formattedHighlightedValue: string = getFormattedValue(
                     seriesMetadataColumn,
                     highlightedValue);
 

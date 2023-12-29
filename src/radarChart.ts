@@ -81,7 +81,6 @@ import {
     interactivitySelectionService as interactivityService
 } from "powerbi-visuals-utils-interactivityutils";
 
-import appendClearCatcher = interactivityBaseService.appendClearCatcher;
 import SelectableDataPoint = interactivityService.SelectableDataPoint;
 import IInteractiveBehavior = interactivityBaseService.IInteractiveBehavior;
 import IInteractivityServiceCommon = interactivityBaseService.IInteractivityService;
@@ -96,7 +95,7 @@ import { pixelConverter as PixelConverter } from "powerbi-visuals-utils-typeutil
 import { ColorHelper } from "powerbi-visuals-utils-colorutils";
 
 // Tooltips utils
-import { TooltipEventArgs, ITooltipServiceWrapper, createTooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
+import { ITooltipServiceWrapper, createTooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
 
 // Dataview utils
 import { dataViewObjects } from "powerbi-visuals-utils-dataviewutils";
@@ -111,14 +110,13 @@ import ILegend = ChartUtils.legendInterfaces.ILegend;
 import LegendData = ChartUtils.legendInterfaces.LegendData;
 import LegendDataPoint = ChartUtils.legendInterfaces.LegendDataPoint;
 import LegendDataModule = ChartUtils.legendData;
-import legendProps = ChartUtils.legendInterfaces.legendProps;
 import createLegend = ChartUtils.legend.createLegend;
 import LegendPosition = ChartUtils.legendInterfaces.LegendPosition;
 import OutsidePlacement = ChartUtils.dataLabelInterfaces.OutsidePlacement;
 import OpacityLegendBehavior = ChartUtils.OpacityLegendBehavior;
 import { RadarChartWebBehavior, RadarChartBehaviorOptions } from "./radarChartWebBehavior";
 import { RadarChartSeries, RadarChartCircularSegment, RadarChartLabel, RadarChartDatapoint, IRadarChartData, RadarChartLabelsData } from "./radarChartDataInterfaces";
-import { DisplaySettingsCard, LabelsSettingsCard, RadarChartSettingsModel } from "./settings";
+import { LabelsSettingsCard, RadarChartSettingsModel } from "./settings";
 import * as RadarChartUtils from "./radarChartUtils";
 import * as TooltipBuilder from "./tooltipBuilder";
 
@@ -241,16 +239,15 @@ export class RadarChart implements IVisual {
             return null;
         }
 
-        let categoryValues: PrimitiveValue[] = dataView.categorical.categories[0].values,
-            formatter: IValueFormatter;
+        const categoryValues: PrimitiveValue[] = dataView.categorical.categories[0].values;
 
-        formatter = valueFormatter.create({
+        const formatter: IValueFormatter = valueFormatter.create({
             format: valueFormatter.getFormatStringByColumn(
                 dataView.metadata.columns[0],
                 true),
         });
 
-        let labelsData: RadarChartLabelsData = {
+        const labelsData: RadarChartLabelsData = {
             labelPoints: [],
             formatter: formatter,
         };
@@ -282,6 +279,7 @@ export class RadarChart implements IVisual {
         }
     }
     private static minimumAxisCount: number = 4;
+    // eslint-disable-next-line max-lines-per-function
     public static converter(dataView: DataView,
         colorPalette: IColorPalette,
         colorHelper: ColorHelper,
@@ -308,19 +306,18 @@ export class RadarChart implements IVisual {
                 series: []
             };
         }
-        let catDv: DataViewCategorical = dataView.categorical,
+        const catDv: DataViewCategorical = dataView.categorical,
             values: DataViewValueColumns = catDv.values,
-            series: RadarChartSeries[] = [],
-            grouped: DataViewValueColumnGroup[];
+            series: RadarChartSeries[] = [];
 
         RadarChart.checkAndUpdateAxis(dataView, values);
-        grouped = catDv && catDv.values
+        const grouped: DataViewValueColumnGroup[] = catDv && catDv.values
             ? catDv.values.grouped()
             : null;
 
-        let hasHighlights: boolean = !!(values.length > 0 && values[0].highlights);
+        const hasHighlights: boolean = !!(values.length > 0 && values[0].highlights);
 
-        let legendData: LegendData = {
+        const legendData: LegendData = {
             fontSize: settings.legend.text.font.fontSize.value,
             dataPoints: [],
             title: settings.legend.title.titleText.value,
@@ -331,15 +328,15 @@ export class RadarChart implements IVisual {
             let dataPointFillColor: string,
                 serieIdentity: ISelectionId,
                 queryName: string,
-                displayName: string,
-                dataPoints: RadarChartDatapoint[] = [];
+                displayName: string;
+            const dataPoints: RadarChartDatapoint[] = [];
 
-            let columnGroup: DataViewValueColumnGroup = grouped && grouped.length > i && grouped[i].values
+            const columnGroup: DataViewValueColumnGroup = grouped && grouped.length > i && grouped[i].values
                 ? grouped[i]
                 : null;
 
             if (values[i].source) {
-                let source: DataViewMetadataColumn = values[i].source;
+                const source: DataViewMetadataColumn = values[i].source;
 
                 if (source.queryName) {
                     queryName = source.queryName;
@@ -373,22 +370,22 @@ export class RadarChart implements IVisual {
             });
 
             for (let k: number = 0, kLen: number = values[i].values.length; k < kLen; k++) {
-                let dataPointIdentity: ISelectionId = visualHost.createSelectionIdBuilder()
+                const dataPointIdentity: ISelectionId = visualHost.createSelectionIdBuilder()
                     .withMeasure(queryName)
                     .withCategory(catDv.categories[0], k)
                     .withSeries(dataView.categorical.values, columnGroup)
                     .createSelectionId();
 
-                let tooltipInfo: VisualTooltipDataItem[] = TooltipBuilder.createTooltipInfo(
+                const tooltipInfo: VisualTooltipDataItem[] = TooltipBuilder.createTooltipInfo(
                     <any>catDv,
                     catDv.categories[0].values[k],
                     values[i].values[k],
                     i);
-                let currCatValue = catDv.categories[0].values[k];
-                let labelFormatString: string = valueFormatter.getFormatStringByColumn(catDv.values[i].source),
+                const currCatValue = catDv.categories[0].values[k];
+                const labelFormatString: string = valueFormatter.getFormatStringByColumn(catDv.values[i].source),
                     fontSizeInPx: string = PixelConverter.fromPoint(settings.labels.font.fontSize.value);
 
-                let notConvertedValue: PrimitiveValue = values[i].values[k],
+                const notConvertedValue: PrimitiveValue = values[i].values[k],
                     y: number = notConvertedValue === RadarChart.fakeValue ? 0 : (notConvertedValue !== null ? Number(notConvertedValue) : NaN);
                 if (!isNaN(y)) {
                     dataPoints.push({
@@ -492,7 +489,7 @@ export class RadarChart implements IVisual {
             this.clear();
             return;
         }
-        let dataView: DataView = options.dataViews[0];
+        const dataView: DataView = options.dataViews[0];
 
         this.formattingSettings = RadarChart.parseSettings(dataView, this.colorHelper, this.formattingSettingsService);
         this.formattingSettings.setLocalizedOptions(this.localizationManager);
@@ -506,8 +503,8 @@ export class RadarChart implements IVisual {
             this.formattingSettings,
             this.interactivityService);
 
-        let categories: PrimitiveValue[] = [],
-            series: RadarChartSeries[] = this.radarChartData.series;
+        let categories: PrimitiveValue[] = [];
+        const series: RadarChartSeries[] = this.radarChartData.series;
 
         if (dataView.categorical
             && dataView.categorical.categories
@@ -543,14 +540,14 @@ export class RadarChart implements IVisual {
             "transform",
             translate(this.viewport.width / 2, this.viewport.height / 2));
 
-        let labelsFontSize: number = this.formattingSettings.labels.font.fontSize.value;
+        const labelsFontSize: number = this.formattingSettings.labels.font.fontSize.value;
 
         this.margin.top = Math.max(RadarChart.DefaultMargin.top, labelsFontSize);
         this.margin.left = Math.max(RadarChart.DefaultMargin.left, labelsFontSize);
         this.margin.right = Math.max(RadarChart.DefaultMargin.right, labelsFontSize);
         this.margin.bottom = Math.max(RadarChart.DefaultMargin.bottom, labelsFontSize);
 
-        let width: number = this.viewport.width - this.margin.left - this.margin.right,
+        const width: number = this.viewport.width - this.margin.left - this.margin.right,
             height: number = this.viewport.height - this.margin.top - this.margin.bottom;
 
         if ((width < RadarChart.MinViewportToRender.width) || (height < RadarChart.MinViewportToRender.height)) {
@@ -576,7 +573,7 @@ export class RadarChart implements IVisual {
     public getMinValue(dataView: DataView) : number {
         let minValue = d3Min(<number[]>dataView.categorical.values[0].values);
         for (let i: number = 0; i < dataView.categorical.values.length; i++) {
-            let minValueL = d3Min(<number[]>dataView.categorical.values[i].values);
+            const minValueL = d3Min(<number[]>dataView.categorical.values[i].values);
             if (minValue > minValueL) {
                 minValue = minValueL;
             }
@@ -624,7 +621,7 @@ export class RadarChart implements IVisual {
 
     private changeAxesLineColorInHighMode(selectionArray: Selection<any>[]): void {
         if (this.colorHelper.isHighContrast) {
-            let lineColor: string = this.formattingSettings.legend.text.labelColor.value.value;
+            const lineColor: string = this.formattingSettings.legend.text.labelColor.value.value;
 
             selectionArray.forEach((selection) => {
                 selection.style("stroke", lineColor);
@@ -633,15 +630,15 @@ export class RadarChart implements IVisual {
     }
 
     private drawCircularSegments(values: PrimitiveValue[]): void {
-        let axisBeginning: number = +this.formattingSettings.display.axisBeginning.value.value;
-        let data: RadarChartCircularSegment[] = [],
+        const axisBeginning: number = +this.formattingSettings.display.axisBeginning.value.value;
+        const data: RadarChartCircularSegment[] = [],
             angle: number = this.angle,
             factor: number = RadarChart.SegmentFactor,
             levels: number = RadarChart.SegmentLevels,
             radius: number = this.radius;
 
         for (let level: number = 0; level < levels; level++) {
-            let levelFactor: number = radius * factor * ((level + 1) / levels);
+            const levelFactor: number = radius * factor * ((level + 1) / levels);
 
             for (let i: number = 0; i <= values.length; i++) {
                 data.push({
@@ -676,11 +673,11 @@ export class RadarChart implements IVisual {
     }
 
     private drawAxes(values: PrimitiveValue[]): void {
-        let axisBeginning: number = +this.formattingSettings.display.axisBeginning.value.value;
+        const axisBeginning: number = +this.formattingSettings.display.axisBeginning.value.value;
         const angle: number = this.angle,
             radius: number = this.radius;
 
-        let selection: Selection<RadarChartCircularSegment> = this.mainGroupElement
+        const selection: Selection<RadarChartCircularSegment> = this.mainGroupElement
             .select(RadarChart.AxisSelector.selectorName)
             .selectAll(RadarChart.AxisNodeSelector.selectorName);
 
@@ -733,27 +730,27 @@ export class RadarChart implements IVisual {
     }
 
     private shiftIntersectText(current: RadarChartLabel, others: RadarChartLabel[], shiftDown: boolean): void {
-        let labelSettings: LabelsSettingsCard = this.formattingSettings.labels;
+        const labelSettings: LabelsSettingsCard = this.formattingSettings.labels;
 
-        let properties: TextProperties = {
+        const properties: TextProperties = {
             fontFamily: RadarChart.AxesLabelsFontFamily,
             fontSize: PixelConverter.fromPoint(labelSettings.font.fontSize.value),
             text: this.radarChartData.labels.formatter.format(current.text)
         };
 
-        let currentTextHeight: number = textMeasurementService.estimateSvgTextHeight(properties);
+        const currentTextHeight: number = textMeasurementService.estimateSvgTextHeight(properties);
 
         for (let i: number = 0; i < others.length; i++) {
-            let label: RadarChartLabel = others[i];
+            const label: RadarChartLabel = others[i];
 
             properties.text = label.text;
-            let otherTextHeight: number = textMeasurementService.estimateSvgTextHeight(properties);
+            const otherTextHeight: number = textMeasurementService.estimateSvgTextHeight(properties);
 
-            let curTextUpperPoint: number = current.y - currentTextHeight;
-            let labelTextUpperPoint: number = label.y - otherTextHeight;
+            const curTextUpperPoint: number = current.y - currentTextHeight;
+            const labelTextUpperPoint: number = label.y - otherTextHeight;
 
             if (RadarChart.isIntersect(current.y, curTextUpperPoint, label.y, labelTextUpperPoint)) {
-                let shift: number = this.shiftText(current.y, curTextUpperPoint, label.y, labelTextUpperPoint, shiftDown);
+                const shift: number = this.shiftText(current.y, curTextUpperPoint, label.y, labelTextUpperPoint, shiftDown);
                 current.y += shift;
                 if (!shiftDown && current.y - 5 < 0 || shiftDown && current.y + currentTextHeight / 2 + 5 > 0) {
                     current.hide = true;
@@ -771,10 +768,10 @@ export class RadarChart implements IVisual {
             }
         });
 
-        let shiftDirrectionIsDown: boolean = this.formattingSettings.display.axisBeginning.value.value === 1;
+        const shiftDirrectionIsDown: boolean = this.formattingSettings.display.axisBeginning.value.value === 1;
 
         for (let i: number = 0; i < labelPoints.length; i++) {
-            let label: RadarChartLabel = labelPoints[i];
+            const label: RadarChartLabel = labelPoints[i];
 
             // from 0 to 90 shift up by Y
             if (label.angleInDegree > RadarChart.Angle0Degree && label.angleInDegree < RadarChart.Angle90Degree) {
@@ -795,7 +792,7 @@ export class RadarChart implements IVisual {
 
             label.maxWidth = this.viewportAvailable.width - Math.abs(label.x) - RadarChart.LabelMarginFactor;
 
-            let labelDec: RadarChartLabel = labelPoints[labelPoints.length - 1 - i];
+            const labelDec: RadarChartLabel = labelPoints[labelPoints.length - 1 - i];
             // from 180 to 90 shift down by Y
             if (labelDec.angleInDegree > RadarChart.Angle90Degree && labelDec.angleInDegree < RadarChart.Angle180Degree) {
                 this.shiftIntersectText(
@@ -834,14 +831,14 @@ export class RadarChart implements IVisual {
             return;
         }
 
-        let angle: number = this.angle,
+        const angle: number = this.angle,
             radius: number = this.radius,
             labelPoints: RadarChartLabel[] = this.radarChartData.labels.labelPoints;
 
-        let axisBeginning: number = +this.formattingSettings.display.axisBeginning.value.value;
+        const axisBeginning: number = +this.formattingSettings.display.axisBeginning.value.value;
 
         for (let i: number = 0; i < labelPoints.length; i++) {
-            let angleInRadian: number = i * angle,
+            const angleInRadian: number = i * angle,
                 label: RadarChartLabel = labelPoints[i],
                 angleInDegree: number = angleInRadian * RadarChart.Angle180Degree / Math.PI;
 
@@ -861,7 +858,7 @@ export class RadarChart implements IVisual {
         this.shiftCollidedLabels(labelPoints as RadarChartLabel[]);
 
         for (let i: number = 0; i < labelPoints.length; i++) {
-            let label: RadarChartLabel = labelPoints[i];
+            const label: RadarChartLabel = labelPoints[i];
             label.outsidePlacement = OutsidePlacement.Allowed;
             label.xLinkEnd = label.x;
             label.yLinkEnd = label.y;
@@ -870,14 +867,14 @@ export class RadarChart implements IVisual {
         this.drawAxesLabels(labelPoints as RadarChartLabel[]);
     }
 
-    private drawAxesLabels(values: RadarChartLabel[], dataViewMetadataColumn?: DataViewMetadataColumn): void {
-        let labelSettings: LabelsSettingsCard = this.formattingSettings.labels;
+    private drawAxesLabels(values: RadarChartLabel[]): void {
+        const labelSettings: LabelsSettingsCard = this.formattingSettings.labels;
 
-        let selectionLabelText: Selection<RadarChartLabel> = this.mainGroupElement
+        const selectionLabelText: Selection<RadarChartLabel> = this.mainGroupElement
             .select(RadarChart.AxisSelector.selectorName)
             .selectAll(RadarChart.AxisLabelSelector.selectorName);
 
-        let filteredData: RadarChartLabel[] = values.filter((label: RadarChartLabel) => labelSettings.topLevelSlice.value && !label.hide);
+        const filteredData: RadarChartLabel[] = values.filter((label: RadarChartLabel) => labelSettings.topLevelSlice.value && !label.hide);
 
         let labelsSelection: Selection<RadarChartLabel> = selectionLabelText.data(filteredData);
 
@@ -893,12 +890,12 @@ export class RadarChart implements IVisual {
             .attr("dy", `${RadarChart.LabelYOffset}em`)
             .attr("transform", translate(RadarChart.LabelXOffset, -RadarChart.LabelYOffset * labelSettings.font.fontSize.value))
             .attr("x", (label: RadarChartLabel) => {
-                let shift: number = label.textAnchor === RadarChart.TextAnchorStart ? +RadarChart.LabelPositionXOffset : -RadarChart.LabelPositionXOffset;
+                const shift: number = label.textAnchor === RadarChart.TextAnchorStart ? +RadarChart.LabelPositionXOffset : -RadarChart.LabelPositionXOffset;
                 return label.x + shift;
             })
             .attr("y", (label: RadarChartLabel) => label.y)
             .text((label: RadarChartLabel) => {
-                let properties: TextProperties = {
+                const properties: TextProperties = {
                     fontFamily: RadarChart.AxesLabelsFontFamily,
                     fontSize: PixelConverter.fromPoint(labelSettings.font.fontSize.value),
                     text: this.radarChartData.labels.formatter.format(label.text)
@@ -914,7 +911,7 @@ export class RadarChart implements IVisual {
             .style("text-anchor", (label: RadarChartLabel) => label.textAnchor)
             .style("fill", () => labelSettings.color.value.value);
 
-        let selectionLongLineLableLink: Selection<RadarChartLabel> = this.mainGroupElement
+        const selectionLongLineLableLink: Selection<RadarChartLabel> = this.mainGroupElement
             .select(RadarChart.AxisSelector.selectorName)
             .selectAll(RadarChart.AxisLabelLinkLongLineSelector.selectorName);
 
@@ -934,7 +931,7 @@ export class RadarChart implements IVisual {
             .attr("x2", (label: RadarChartLabel) => label.xLinkEnd)
             .attr("y2", (label: RadarChartLabel) => label.yLinkEnd);
 
-        let selectionShortLineLableLink: Selection<RadarChartLabel> = this.mainGroupElement
+        const selectionShortLineLableLink: Selection<RadarChartLabel> = this.mainGroupElement
             .select(RadarChart.AxisSelector.selectorName)
             .selectAll(RadarChart.AxisLabelLinkShortLineSelector.selectorName);
 
@@ -952,7 +949,7 @@ export class RadarChart implements IVisual {
             .attr("x1", (label: RadarChartLabel) => label.xLinkEnd)
             .attr("y1", (label: RadarChartLabel) => label.yLinkEnd)
             .attr("x2", (label: RadarChartLabel) => {
-                let shift: number = label.textAnchor === RadarChart.TextAnchorStart ? +(RadarChart.LabelPositionXOffset - 2) : -(RadarChart.LabelPositionXOffset - 2);
+                const shift: number = label.textAnchor === RadarChart.TextAnchorStart ? +(RadarChart.LabelPositionXOffset - 2) : -(RadarChart.LabelPositionXOffset - 2);
                 return label.xLinkEnd + shift;
             })
             .attr("y2", (label: RadarChartLabel) => label.yLinkEnd);
@@ -960,15 +957,16 @@ export class RadarChart implements IVisual {
         this.changeAxesLineColorInHighMode([labelsShortLineLinkSelection, labelsLongLineLinkSelection]);
     }
 
+    // eslint-disable-next-line max-lines-per-function
     private drawChart(series: RadarChartSeries[], duration: number): void {
-        let angle: number = this.angle;
-        let layers: RadarChartDatapoint[][] = this.getDataPoints(series);
-        let yDomain: d3LinearScale<number, number> = this.calculateChartDomain(series);
-        let axisBeginning: number = +this.formattingSettings.display.axisBeginning.value.value;
-        let calculatePoints = (points) => {
+        const angle: number = this.angle;
+        const layers: RadarChartDatapoint[][] = this.getDataPoints(series);
+        const yDomain: d3LinearScale<number, number> = this.calculateChartDomain(series);
+        const axisBeginning: number = +this.formattingSettings.display.axisBeginning.value.value;
+        const calculatePoints = (points) => {
             return points.map((value) => {
                 if (value.showPoint) {
-                    let x1: number = yDomain(value.y) * Math.sin(value.x * angle),
+                    const x1: number = yDomain(value.y) * Math.sin(value.x * angle),
                         y1: number = axisBeginning * yDomain(value.y) * Math.cos(value.x * angle);
 
                     return `${x1},${y1}`;
@@ -994,7 +992,7 @@ export class RadarChart implements IVisual {
             .selectAll(RadarChart.ChartPolygonSelector.selectorName)
             .data((dataPoints: RadarChartDatapoint[]) => {
                 if (dataPoints && dataPoints.length > 0) {
-                    let points: RadarChartDatapoint[] = [];
+                    const points: RadarChartDatapoint[] = [];
                     dataPoints.forEach((point) => {
                         if (point.showPoint) {
                             points.push(point);
@@ -1059,7 +1057,7 @@ export class RadarChart implements IVisual {
             .attr("role", "listbox")
             .merge(nodeSelection);
 
-        let hasHighlights: boolean = (series.length > 0) && series[0].hasHighlights,
+        const hasHighlights: boolean = (series.length > 0) && series[0].hasHighlights,
             hasSelection: boolean = this.interactivityService && this.interactivityService.hasSelection();
 
         let dotsSelection: Selection<RadarChartDatapoint> = nodeSelection
@@ -1102,10 +1100,8 @@ export class RadarChart implements IVisual {
 
         if (this.interactivityService) {
             // Register interactivity
-            let dataPointsToBind: RadarChartDatapoint[] = this.getAllDataPointsList(series),
-                behaviorOptions: RadarChartBehaviorOptions;
-
-            behaviorOptions = {
+            const dataPointsToBind: RadarChartDatapoint[] = this.getAllDataPointsList(series);
+            const behaviorOptions: RadarChartBehaviorOptions = {
                 selection: dotsSelection,
                 clearCatcher: this.svg,
                 hasHighlights: hasHighlights,
@@ -1122,7 +1118,7 @@ export class RadarChart implements IVisual {
     }
 
     private calculateChartDomain(series: RadarChartSeries[]): d3LinearScale<number, number> {
-        let radius: number = this.radius * RadarChart.SegmentFactor,
+        const radius: number = this.radius * RadarChart.SegmentFactor,
             dataPointsList: RadarChartDatapoint[] = this.getAllDataPointsList(series);
 
         let maxValue: number = d3Max(dataPointsList, (dataPoint: RadarChartDatapoint) => {
@@ -1146,7 +1142,7 @@ export class RadarChart implements IVisual {
     }
 
     private renderLegend(): void {
-        let radarChartData: IRadarChartData = this.radarChartData;
+        const radarChartData: IRadarChartData = this.radarChartData;
 
         if (!radarChartData.legendData) {
             return;
@@ -1177,9 +1173,9 @@ export class RadarChart implements IVisual {
     }
 
     private getDataPoints(seriesList: RadarChartSeries[]): RadarChartDatapoint[][] {
-        let dataPoints: RadarChartDatapoint[][] = [];
+        const dataPoints: RadarChartDatapoint[][] = [];
 
-        for (let series of seriesList) {
+        for (const series of seriesList) {
             dataPoints.push(series.dataPoints);
         }
 
@@ -1189,7 +1185,7 @@ export class RadarChart implements IVisual {
     private getAllDataPointsList(seriesList: RadarChartSeries[]): RadarChartDatapoint[] {
         let dataPoints: RadarChartDatapoint[] = [];
 
-        for (let series of seriesList) {
+        for (const series of seriesList) {
             dataPoints = dataPoints.concat(series.dataPoints);
         }
 
@@ -1197,7 +1193,7 @@ export class RadarChart implements IVisual {
     }
 
     private isPercentChart(dataPointsList: RadarChartDatapoint[]): boolean {
-        for (let dataPoint of dataPointsList) {
+        for (const dataPoint of dataPointsList) {
             if (!dataPoint.labelFormatString || dataPoint.labelFormatString.indexOf("%") === -1) {
                 return false;
             }
@@ -1230,7 +1226,7 @@ export class RadarChart implements IVisual {
     }
 
     public static parseSettings(dataView: DataView, colorHelper: ColorHelper, formattingSettingsService: FormattingSettingsService): RadarChartSettingsModel {
-        let settings: RadarChartSettingsModel = formattingSettingsService.populateFormattingSettingsModel(RadarChartSettingsModel, dataView);
+        const settings: RadarChartSettingsModel = formattingSettingsService.populateFormattingSettingsModel(RadarChartSettingsModel, dataView);
 
         if (!colorHelper) {
             return settings;
@@ -1244,10 +1240,8 @@ export class RadarChart implements IVisual {
     }
 
     private updateViewport(): void {
-        let legendMargins: IViewport = this.legend.getMargins(),
-            legendPosition: LegendPosition;
-
-        legendPosition = LegendPosition[this.formattingSettings.legend.text.positionDropdown.value.value];
+        const legendMargins: IViewport = this.legend.getMargins();
+        const legendPosition = LegendPosition[this.formattingSettings.legend.text.positionDropdown.value.value];
 
         switch (legendPosition) {
             case LegendPosition.Top:
