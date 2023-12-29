@@ -86,7 +86,8 @@ export class RadarChartWebBehavior implements IInteractiveBehavior {
                     y: event.clientY
                 }
             );
-            event.preventDefault(); 
+            event.preventDefault();
+            event.stopPropagation(); 
         })
 
         clearCatcher.on("click", () => {

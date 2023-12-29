@@ -34,6 +34,7 @@
 .radarChart {
     @defaultColor: grey;
     @labelLinkColor: #e1e1e1;
+    @dotRadius: 5px;
 
     .pathStyle(@strokeWidth) {
         fill: none;
@@ -75,6 +76,18 @@
         text {
             .pathStyle(1px);
             font-size: 10px;
+        }
+    }
+
+    .chartDot {
+        &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
+            outline: auto 1px;
+            border-radius: @dotRadius;
+            outline-color: -webkit-focus-ring-color;
         }
     }
 }
