@@ -24,7 +24,7 @@
  *  THE SOFTWARE.
  */
 
-import * as _ from "lodash";
+import range from "lodash.range";
 import { RgbColor, parseColorString } from "powerbi-visuals-utils-colorutils";
 import { getRandomNumber } from "powerbi-visuals-utils-testutils";
 
@@ -45,12 +45,12 @@ export function areColorsEqual(firstColor: string, secondColor: string): boolean
 }
 
 export function isColorAppliedToElements(
-    elements: JQuery[],
+    elements: NodeListOf<HTMLElement>,
     color?: string,
     colorStyleName: string = "fill"
 ): boolean {
-    return elements.some((element: JQuery) => {
-        const currentColor: string = element.css(colorStyleName);
+    return Array.from(elements).some((element: HTMLElement) => {
+        const currentColor: string = element.style.getPropertyValue(colorStyleName);
 
         if (!currentColor || !color) {
             return currentColor === color;
@@ -81,7 +81,7 @@ export function getHexColorFromNumber(value: number): string {
     const hexColor: string = value.toString(16).toUpperCase(),
         color: string = hexColor.length === 6
             ? hexColor
-            : `${_.range(0, 6 - hexColor.length, 0).join("")}${hexColor}`;
+            : `${range(0, 6 - hexColor.length, 0).join("")}${hexColor}`;
 
     return `#${color}`;
 }
