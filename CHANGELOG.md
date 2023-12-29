@@ -1,3 +1,10 @@
+## 3.0.0.0
+* API 5.7.0
+* Updated outdated packages
+* Added keyboard navigation
+* Migrated to formatting model
+* Added context menu support
+
 ## 2.0.2
 * UPD: powerbi-visuals-tools has been updated to 3.0.9 to add IE11 support
 * UPD: API has been updated to 2.3.0 to add IE11 support
