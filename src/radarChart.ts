@@ -874,7 +874,7 @@ export class RadarChart implements IVisual {
             .select(RadarChart.AxisSelector.selectorName)
             .selectAll(RadarChart.AxisLabelSelector.selectorName);
 
-        const filteredData: RadarChartLabel[] = values.filter((label: RadarChartLabel) => labelSettings.topLevelSlice.value && !label.hide);
+        const filteredData: RadarChartLabel[] = values.filter((label: RadarChartLabel) => labelSettings.show.value && !label.hide);
 
         let labelsSelection: Selection<RadarChartLabel> = selectionLabelText.data(filteredData);
 
@@ -1028,7 +1028,7 @@ export class RadarChart implements IVisual {
             .attr("points", calculatePoints)
             .attr("points-count", (dataPoints: RadarChartDatapoint[]) => dataPoints.length);
 
-        if (this.formattingSettings.line.topLevelSlice.value ||
+        if (this.formattingSettings.line.show.value ||
             polygonSelection.attr("points-count") === RadarChart.PoligonBecomesLinePointsCount.toString()
         ) {
             polygonSelection

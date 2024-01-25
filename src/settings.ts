@@ -102,7 +102,7 @@ class BaseFontCardSettings extends FormattingSettingsSimpleCard {
 }
 
 export class LegendTitleGroup extends FormattingSettingsSimpleCard {
-    topLevelSlice = new formattingSettings.ToggleSwitch({
+    showTitle = new formattingSettings.ToggleSwitch({
         name: "showTitle",
         displayName: "Title",
         displayNameKey: "Visual_Title",
@@ -110,6 +110,8 @@ export class LegendTitleGroup extends FormattingSettingsSimpleCard {
         descriptionKey: "Visual_Description_Title",
         value: true
     });
+
+    topLevelSlice = this.showTitle;
 
     titleText = new formattingSettings.TextInput({
         name: "titleText",
@@ -150,12 +152,14 @@ export class LegendTextGroup extends BaseFontCardSettings {
 }
 
 export class LegendSettingsCard extends FormattingSettingsCompositeCard {
-    topLevelSlice = new formattingSettings.ToggleSwitch({
+    show = new formattingSettings.ToggleSwitch({
         name: "show",
         displayName: "Show",
         displayNameKey: "Visual_Show",
         value: true
     });
+
+    topLevelSlice = this.show;
 
     text: LegendTextGroup = new LegendTextGroup();
     title: LegendTitleGroup = new LegendTitleGroup();
@@ -185,12 +189,14 @@ export class DataPointSettingsCard extends FormattingSettingsSimpleCard {
 }
 
 export class LineSettingsCard extends FormattingSettingsSimpleCard {
-    topLevelSlice = new formattingSettings.ToggleSwitch({
+    show = new formattingSettings.ToggleSwitch({
         name: "show",
         displayName: "Draw Lines",
         displayNameKey: "Visual_DrawLines",
         value: false
     });
+
+    topLevelSlice = this.show;
 
     lineWidth = new formattingSettings.NumUpDown({
         name: "lineWidth",
@@ -238,12 +244,14 @@ export class DisplaySettingsCard extends FormattingSettingsSimpleCard {
 }
 
 export class LabelsSettingsCard extends BaseFontCardSettings {
-    topLevelSlice = new formattingSettings.ToggleSwitch({
+    show = new formattingSettings.ToggleSwitch({
         name: "show",
         displayNameKey: "Visual_Show",
         displayName: "Show",
         value: true
     });
+
+    topLevelSlice = this.show;
 
     color = new formattingSettings.ColorPicker({
         name: "color",
