@@ -80,6 +80,9 @@
     }
 
     .chartDot {
+        stroke-width: 0px;
+        transition: stroke-width 100ms;
+
         &:focus {
             outline: none;
         }
@@ -88,6 +91,10 @@
             outline: auto 1px;
             border-radius: @dotRadius;
             outline-color: -webkit-focus-ring-color;
+        }
+
+        &:hover {
+            stroke-width: @dotRadius;
         }
     }
 }

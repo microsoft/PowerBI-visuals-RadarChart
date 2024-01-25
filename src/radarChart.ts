@@ -1078,6 +1078,7 @@ export class RadarChart implements IVisual {
             .attr("cx", (dataPoint: RadarChartDatapoint) => yDomain(dataPoint.y) * Math.sin(dataPoint.x * angle))
             .attr("cy", (dataPoint: RadarChartDatapoint) => axisBeginning * yDomain(dataPoint.y) * Math.cos(dataPoint.x * angle))
             .style("fill", (dataPoint: RadarChartDatapoint) => this.colorHelper.getHighContrastColor("foreground", dataPoint.color))
+            .style("stroke", (dataPoint: RadarChartDatapoint) => this.colorHelper.getHighContrastColor("foreground", dataPoint.color))
             .style("opacity", (dataPoint: RadarChartDatapoint) => {
                 return RadarChartUtils.getFillOpacity(
                     dataPoint.selected,
