@@ -1166,7 +1166,7 @@ export class RadarChart implements IVisual {
         this.legend.drawLegend(legendData, { height, width });
         LegendModule.positionChartArea(this.svg, this.legend);
 
-        d3Select(this.root.node()).selectAll("g#legendGroup text")
+        this.root.selectAll("g#legendGroup text")
             .style("font-weight",  () => this.formattingSettings.legend.text.font.bold.value ? "bold" : "normal")
             .style("font-style",  () => this.formattingSettings.legend.text.font.italic.value ? "italic" : "normal")
             .style("text-decoration", () => this.formattingSettings.legend.text.font.underline.value ? "underline" : "none");
