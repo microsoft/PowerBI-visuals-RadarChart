@@ -342,7 +342,13 @@ export class RadarChartSettingsModel extends FormattingSettingsModel {
                     value: minValue
                 }
             };
-            this.display.minValue.value = this.display.minValue.value > minValue ? minValue : 0;
+
+            if (this.display.minValue.value > minValue) {
+                this.display.minValue.value = minValue;
+            }
+            if (this.display.minValue.value < 0) {
+                this.display.minValue.value = 0;
+            }
         }
     }
 }
