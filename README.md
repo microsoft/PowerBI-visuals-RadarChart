@@ -1,10 +1,9 @@
 # PowerBI-visuals-RadarChart
-[![Build Status](https://travis-ci.org/Microsoft/PowerBI-visuals-RadarChart.svg?branch=master)](https://travis-ci.org/Microsoft/PowerBI-visuals-RadarChart) [![Coverage Status](https://coveralls.io/repos/github/Microsoft/PowerBI-visuals-RadarChart/badge.svg?branch=master)](https://coveralls.io/github/Microsoft/PowerBI-visuals-RadarChart?branch=master)
-[![Build Status](https://dev.azure.com/customvisuals/public/_apis/build/status/Microsoft.powerbi-visuals-chord)](https://dev.azure.com/customvisuals/public/_build/latest?definitionId=7)
+[![Build Status](https://github.com/microsoft/powerbi-visuals-radarchart/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/microsoft/powerbi-visuals-radarchart/actions/workflows/build.yml)
 
 > A simple radar chart supporting multiple measures plotted over a categorical axis. Also known as a web chart, spider chart, or star chart. Use to display performance metrics for quality improvement.
 
-![Radar chart screenshot](https://az158878.vo.msecnd.net/marketing/Partner_21474836617/Product_42949680591/Asset_4dca5dfd-442f-4472-8dc7-31c886a3ebb8/RadarChartscreenshot1.png)
+![Radar chart screenshot](assets/screenshot.png)
 # Overview
 A radar chart is a graphical method of displaying multivariate data in the form of a two-dimensional chart of three or more quantitative variables represented on axes starting from the same point. The relative position and angle of the axes is typically uninformative.
 
