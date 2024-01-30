@@ -30,7 +30,7 @@ import clone from "lodash.clone";
 
 // d3
 import { ScaleLinear as d3LinearScale, scaleLinear as d3ScaleLinear} from "d3-scale";
-import { min as d3Min, max as d3Max} from "d3-array";
+import { min as d3Min, max as d3Max, subset} from "d3-array";
 import { arc as d3Arc } from "d3-shape";
 import { transition as d3Transition } from 'd3-transition';
 import {
@@ -75,6 +75,18 @@ import valueFormatter = FormattingUtils.valueFormatter;
 import IValueFormatter = FormattingUtils.valueFormatter.IValueFormatter;
 import textMeasurementService = FormattingUtils.textMeasurementService;
 
+// On object
+import { HtmlSubSelectableClass, HtmlSubSelectionHelper, SubSelectableDirectEdit as SubSelectableDirectEditAttr, SubSelectableDisplayNameAttribute, SubSelectableObjectNameAttribute, SubSelectableSubSelectedAttribute, SubSelectableTypeAttribute } from '../node_modules/powerbi-visuals-utils-onobjectformatting/src';
+import CustomVisualSubSelection = powerbi.visuals.CustomVisualSubSelection;
+import SubSelectableDirectEdit = powerbi.visuals.SubSelectableDirectEdit;
+import SubSelectableDirectEditStyle = powerbi.visuals.SubSelectableDirectEditStyle;
+import SubSelectionShortcutsKey = powerbi.visuals.SubSelectionShortcutsKey;
+import SubSelectionStyles = powerbi.visuals.SubSelectionStyles;
+import VisualShortcutType = powerbi.visuals.VisualShortcutType;
+import VisualSubSelectionShortcuts = powerbi.visuals.VisualSubSelectionShortcuts;
+import SubSelectionStylesType = powerbi.visuals.SubSelectionStylesType;
+import FormattingId = powerbi.visuals.FormattingId;
+
 // Interactivity utils
 import {
     interactivityBaseService,
@@ -116,9 +128,159 @@ import OutsidePlacement = ChartUtils.dataLabelInterfaces.OutsidePlacement;
 import OpacityLegendBehavior = ChartUtils.OpacityLegendBehavior;
 import { RadarChartWebBehavior, RadarChartBehaviorOptions } from "./radarChartWebBehavior";
 import { RadarChartSeries, RadarChartCircularSegment, RadarChartLabel, RadarChartDatapoint, IRadarChartData, RadarChartLabelsData } from "./radarChartDataInterfaces";
-import { LabelsSettingsCard, RadarChartSettingsModel } from "./settings";
+import { FontSettingsProperties, LabelsSettingsCard, RadarChartSettingsModel } from "./settings";
 import * as RadarChartUtils from "./radarChartUtils";
 import * as TooltipBuilder from "./tooltipBuilder";
+
+interface References {
+    cardUid?: string;
+    groupUid?: string;
+    fill?: FormattingId;
+    font?: FormattingId;
+    color?: FormattingId;
+    show?: FormattingId;
+    titleText?: FormattingId;
+    showTitle?: FormattingId;
+    fontFamily?: FormattingId;
+    bold?: FormattingId;
+    italic?: FormattingId;
+    underline?: FormattingId;
+    fontSize?: FormattingId;
+    position?: FormattingId;
+    textProperty?: FormattingId;
+    lineWidth?: FormattingId;
+    axisBeginning?: FormattingId;
+    minValue?: FormattingId;
+};
+
+const enum RadarChartObjectNames {
+    Legend = 'legend',
+    DataPoint = 'dataPoint',
+    Line = 'line',
+    DisplaySettings = 'displaySettings',
+    Labels = 'labels'
+};
+
+const TitleEdit: SubSelectableDirectEdit = {
+    reference: {
+        objectName: 'legend',
+        propertyName: 'titleText'
+    },
+    style: SubSelectableDirectEditStyle.Outline,
+};
+
+const legendReferences: References = {
+    cardUid: 'Visual-legend-card',
+    groupUid: 'legend-group',
+    fontFamily: {
+        objectName: RadarChartObjectNames.Legend,
+        propertyName: FontSettingsProperties.FontFamily
+    },
+    bold: {
+        objectName: RadarChartObjectNames.Legend,
+        propertyName: FontSettingsProperties.Bold
+    },
+    italic: {
+        objectName: RadarChartObjectNames.Legend,
+        propertyName: FontSettingsProperties.Italic
+    },
+    underline: {
+        objectName: RadarChartObjectNames.Legend,
+        propertyName: FontSettingsProperties.Underline
+    },
+    fontSize: {
+        objectName: RadarChartObjectNames.Legend,
+        propertyName: FontSettingsProperties.FontSize
+    },
+    color: {
+        objectName: RadarChartObjectNames.Legend,
+        propertyName: "labelColor"
+    },
+    show: {
+        objectName: RadarChartObjectNames.Legend,
+        propertyName: FontSettingsProperties.Show
+    },
+    showTitle: {
+        objectName: RadarChartObjectNames.Legend,
+        propertyName: 'showTitle'
+    },
+    titleText: {
+        objectName: RadarChartObjectNames.Legend,
+        propertyName: 'titleText'
+    },
+    position: {
+        objectName: RadarChartObjectNames.Legend,
+        propertyName: 'position'
+    }
+};
+
+const labelsReferences: References = {
+    cardUid: 'Visual-labels-card',
+    groupUid: 'labels-group',
+    fontFamily: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: FontSettingsProperties.FontFamily
+    },
+    bold: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: FontSettingsProperties.Bold
+    },
+    italic: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: FontSettingsProperties.Italic
+    },
+    underline: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: FontSettingsProperties.Underline
+    },
+    fontSize: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: FontSettingsProperties.FontSize
+    },
+    color: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: FontSettingsProperties.Color
+    },
+    show: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: FontSettingsProperties.Show
+    }
+};
+
+const displayReferences: References = {
+    cardUid: 'Visual-displaySettings-card',
+    groupUid: 'displaySettings-group',
+    minValue: {
+        objectName: RadarChartObjectNames.DisplaySettings,
+        propertyName: 'minValue'
+    },
+    axisBeginning: {
+        objectName: RadarChartObjectNames.DisplaySettings,
+        propertyName: 'axisBeginning'
+    }
+};
+
+const dataPointReferences: References = {
+    cardUid: 'Visual-dataPoint-card',
+    groupUid: 'dataPoint-group',
+    fill: {
+        objectName: RadarChartObjectNames.DataPoint,
+        propertyName: 'fill'
+    }
+};
+
+const linesReferences: References = {
+    cardUid: 'Visual-line-card',
+    groupUid: 'line-group',
+    show: {
+        objectName: RadarChartObjectNames.Line,
+        propertyName: 'show'
+    },
+    lineWidth: {
+        objectName: RadarChartObjectNames.Line,
+        propertyName: 'lineWidth'
+    }
+};
 
 export class RadarChart implements IVisual {
     private static VisualClassName: string = "radarChart";
@@ -225,6 +387,13 @@ export class RadarChart implements IVisual {
 
     public formattingSettings: RadarChartSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
+    private formattingSettingsModel: powerbi.visuals.FormattingModel;
+
+    private subSelectionHelper: HtmlSubSelectionHelper;
+    private formatMode: boolean = false;
+    // private directEditElement: Selection<SVGElement>;
+    private visualTitleEditSubSelection = JSON.stringify(TitleEdit);
+    public visualOnObjectFormatting?: powerbi.extensibility.visual.VisualOnObjectFormatting;
 
     private static getLabelsData(dataView: DataView): RadarChartLabelsData {
         if (!dataView
@@ -449,6 +618,13 @@ export class RadarChart implements IVisual {
         this.visualHost = options.host;
         this.localizationManager = this.visualHost.createLocalizationManager();
         this.formattingSettingsService = new FormattingSettingsService(this.localizationManager);
+
+        this.subSelectionHelper = HtmlSubSelectionHelper.createHtmlSubselectionHelper({
+            hostElement: options.element,
+            subSelectionService: options.host.subSelectionService,
+            selectionIdCallback: (e) => this.selectionIdCallback(e),
+        });
+
         this.interactivityService = createInteractivityService(this.visualHost);
         this.behavior = new RadarChartWebBehavior();
 
@@ -482,6 +658,12 @@ export class RadarChart implements IVisual {
         this.chart = this.mainGroupElement
             .append("g")
             .classed(RadarChart.ChartSelector.className, true);
+
+        this.visualOnObjectFormatting = {
+            getSubSelectionStyles: (subSelections) => this.getSubSelectionStyles(subSelections),
+            getSubSelectionShortcuts: (subSelections, filter) => this.getSubSelectionShortcuts(subSelections, filter),
+            getSubSelectables: (filter) => this.getSubSelectables(filter)
+        };
     }
 
     public update(options: VisualUpdateOptions): void {
@@ -493,6 +675,9 @@ export class RadarChart implements IVisual {
 
         this.formattingSettings = RadarChart.parseSettings(dataView, this.colorHelper, this.formattingSettingsService);
         this.formattingSettings.setLocalizedOptions(this.localizationManager);
+
+        this.formatMode = options.formatMode;
+
         this.legendObjectProperties = RadarChart.parseLegendProperties(dataView, this.colorHelper, this.formattingSettings);
 
         this.radarChartData = RadarChart.converter(
@@ -568,6 +753,14 @@ export class RadarChart implements IVisual {
 
         this.createAxesLabels();
         this.drawChart(series, RadarChart.AnimationDuration);
+
+        this.subSelectionHelper.setFormatMode(options.formatMode);
+        const shouldUpdateSubSelection = options.type & powerbi.VisualUpdateType.Data
+            || options.type & powerbi.VisualUpdateType.Resize
+            || options.type & powerbi.VisualUpdateType.FormattingSubSelectionChange;
+        if (this.formatMode && shouldUpdateSubSelection) {
+            this.subSelectionHelper.updateOutlinesFromSubSelections(options.subSelections, true);
+        }
     }
 
     public getMinValue(dataView: DataView) : number {
@@ -582,7 +775,357 @@ export class RadarChart implements IVisual {
     }
 
     public getFormattingModel(): powerbi.visuals.FormattingModel {
-        return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
+        this.formattingSettingsModel = this.formattingSettingsService.buildFormattingModel(this.formattingSettings)
+        return this.formattingSettingsModel;
+    }
+
+    private getSubSelectionStyles(subSelections: CustomVisualSubSelection[]): powerbi.visuals.SubSelectionStyles | undefined {
+        const visualObject = subSelections[0]?.customVisualObjects[0];
+        let test = this.formattingSettingsModel.cards.filter((card:powerbi.visuals.FormattingCard) => card.revertToDefaultDescriptors[0].objectName === visualObject.objectName);
+        if (visualObject) {
+            switch (visualObject.objectName) {
+                case RadarChartObjectNames.Labels:
+                    return this.getLabelsStyles();
+                case RadarChartObjectNames.Legend:
+                    return this.getLegendStyles();
+                case RadarChartObjectNames.DataPoint:
+                    return this.getDataPointStyles(subSelections);
+            }
+        }
+    }
+    private getSubSelectionShortcuts(subSelections: CustomVisualSubSelection[], filter: SubSelectionShortcutsKey | undefined): VisualSubSelectionShortcuts | undefined {
+        const visualObject = subSelections[0]?.customVisualObjects[0];
+        if (visualObject) {
+            switch (visualObject.objectName) {
+                case RadarChartObjectNames.Labels:
+                    return this.getLabelsShortcuts();
+                case RadarChartObjectNames.Legend:
+                    return this.getLegendShortcuts();
+                case RadarChartObjectNames.DisplaySettings:
+                    return this.getDisplayShortcuts();
+                case RadarChartObjectNames.Line:
+                    return this.getLineShortcuts();
+                case "legendTitle":
+                    return this.getLegendTitleShortcuts();
+                case RadarChartObjectNames.DataPoint:
+                    return this.getDataPointShortcuts(subSelections);
+            }
+        }
+    }
+    private getSubSelectables?(filter?: powerbi.visuals.SubSelectionStylesType): CustomVisualSubSelection[] | undefined {
+        return this.subSelectionHelper.getAllSubSelectables(filter);
+    }
+
+    //dataPointsColors
+    private getDataPointShortcuts(subSelections: CustomVisualSubSelection[]): VisualSubSelectionShortcuts {
+        const selector = subSelections[0].customVisualObjects[0].selectionId?.getSelector();
+        return [
+            {
+                type: VisualShortcutType.Reset,
+                relatedResetFormattingIds: [{
+                    ...dataPointReferences.fill,
+                    selector
+                }],
+            },
+            {
+                type: VisualShortcutType.Divider,
+            },
+            {
+                type: VisualShortcutType.Navigate,
+                destinationInfo: { cardUid: dataPointReferences.cardUid },
+                label: 'Format chart(?)'
+            }
+        ];
+    }
+    private getDataPointStyles(subSelections: CustomVisualSubSelection[]): SubSelectionStyles {
+        const selector = subSelections[0].customVisualObjects[0].selectionId?.getSelector();
+        return {
+            type: SubSelectionStylesType.Shape,
+            fill: {
+                label: 'Fill',
+                reference: {
+                    ...dataPointReferences.fill,
+                    selector
+                },
+            },
+        };
+    }
+
+    //labels
+    private getLabelsShortcuts(): VisualSubSelectionShortcuts {
+        return [
+            {
+                type: VisualShortcutType.Reset,
+                relatedResetFormattingIds: [
+                    labelsReferences.bold,
+                    labelsReferences.fontFamily,
+                    labelsReferences.fontSize,
+                    labelsReferences.italic,
+                    labelsReferences.underline,
+                    labelsReferences.color
+                ]
+            },
+            {
+                type: VisualShortcutType.Toggle,
+                relatedToggledFormattingIds: [{
+                    ...labelsReferences.show,
+                }],
+                ...labelsReferences.show,
+                disabledLabel: 'Delete data labels',
+                enabledLabel: 'Add data labels'
+            },
+            {
+                type: VisualShortcutType.Divider,
+            },
+            {
+                type: VisualShortcutType.Navigate,
+                destinationInfo: { cardUid: labelsReferences.cardUid },
+                label: 'Format data labels'
+            }
+        ];
+    }
+    private getLabelsStyles(): SubSelectionStyles {
+        return {
+            type: powerbi.visuals.SubSelectionStylesType.Text,
+            fontFamily: {
+                reference: {
+                    ...labelsReferences.fontFamily
+                },
+                label: 'font'
+            },
+            bold: {
+                reference: {
+                    ...labelsReferences.bold
+                },
+                label: 'font'
+            },
+            italic: {
+                reference: {
+                    ...labelsReferences.italic
+                },
+                label: 'font'
+            },
+            underline: {
+                reference: {
+                    ...labelsReferences.underline
+                },
+                label: 'font'
+            },
+            fontSize: {
+                reference: {
+                    ...labelsReferences.fontSize
+                },
+                label: 'font'
+            },
+            fontColor: {
+                reference: {
+                    ...labelsReferences.color
+                },
+                label: 'color'
+            }
+        };
+    }
+
+    //legend
+    private getLegendTitleShortcuts(): VisualSubSelectionShortcuts {
+        return [
+            {
+                type: VisualShortcutType.Reset,
+                relatedResetFormattingIds: [
+                    legendReferences.showTitle,
+                    legendReferences.titleText
+                ]
+            },
+            {
+                type: VisualShortcutType.Toggle,
+                relatedToggledFormattingIds: [{
+                    ...legendReferences.showTitle,
+                }],
+                ...legendReferences.showTitle,
+                disabledLabel: this.localizationManager.getDisplayName("Visual_OnObject_Delete"),
+                
+            },
+            {
+                type: VisualShortcutType.Divider,
+            },
+            {
+                type: VisualShortcutType.Navigate,
+                destinationInfo: { cardUid: legendReferences.cardUid, groupUid: "legendTitleGroup-group" },
+                label: 'Format title'
+            }
+        ];
+    }
+    private getLegendShortcuts(): VisualSubSelectionShortcuts {
+        return [
+            {
+                type: VisualShortcutType.Reset,
+                relatedResetFormattingIds: [
+                    legendReferences.bold,
+                    legendReferences.fontFamily,
+                    legendReferences.fontSize,
+                    legendReferences.italic,
+                    legendReferences.underline,
+                    legendReferences.color,
+                    legendReferences.showTitle,
+                    legendReferences.titleText
+                ]
+            },
+            {
+                type: VisualShortcutType.Picker,
+                ...legendReferences.position,
+                label: 'Position'
+            },
+            {
+                type: VisualShortcutType.Toggle,
+                relatedToggledFormattingIds: [{
+                    ...legendReferences.show,
+                }],
+                ...legendReferences.show,
+                disabledLabel: 'Delete legend'
+            },
+            {
+                type: VisualShortcutType.Toggle,
+                relatedToggledFormattingIds: [{
+                    ...legendReferences.showTitle,
+                }],
+                ...legendReferences.showTitle,
+                enabledLabel: 'Add legend title',
+            },
+            {
+                type: VisualShortcutType.Divider,
+            },
+            {
+                type: VisualShortcutType.Navigate,
+                destinationInfo: { cardUid: legendReferences.cardUid, groupUid: "legendTextGroup-group" },
+                label: 'Format legend'
+            }
+        ];
+    }
+    private getLegendStyles(): SubSelectionStyles {
+        return {
+            type: powerbi.visuals.SubSelectionStylesType.Text,
+            fontFamily: {
+                reference: {
+                    ...legendReferences.fontFamily
+                },
+                label: 'font'
+            },
+            bold: {
+                reference: {
+                    ...legendReferences.bold
+                },
+                label: 'font'
+            },
+            italic: {
+                reference: {
+                    ...legendReferences.italic
+                },
+                label: 'font'
+            },
+            underline: {
+                reference: {
+                    ...legendReferences.underline
+                },
+                label: 'font'
+            },
+            fontSize: {
+                reference: {
+                    ...legendReferences.fontSize
+                },
+                label: 'font'
+            },
+            fontColor: {
+                reference: {
+                    ...legendReferences.color
+                },
+                label: 'color'
+            }
+        };
+    }
+
+    //line width
+    private getLineShortcuts(): VisualSubSelectionShortcuts {
+        return [
+            {
+                type: VisualShortcutType.Reset,
+                relatedResetFormattingIds: [
+                    linesReferences.show,
+                    linesReferences.lineWidth,
+                    displayReferences.axisBeginning
+                ]
+            },
+            {
+                type: VisualShortcutType.Toggle,
+                relatedToggledFormattingIds: [{
+                    ...linesReferences.show,
+                }],
+                ...linesReferences.show,
+                disabledLabel: 'Draw polygons',
+                enabledLabel: 'Draw lines'
+            },
+            {
+                type: VisualShortcutType.Picker,
+                ...displayReferences.axisBeginning,
+                label: 'Axis start position'
+            },
+            {
+                type: VisualShortcutType.Divider,
+            },
+            {
+                type: VisualShortcutType.Navigate,
+                destinationInfo: { cardUid: linesReferences.cardUid },
+                label: 'Format chart'
+            }
+        ];
+    }
+    private getLineStyles(): SubSelectionStyles {
+        return {
+            type: powerbi.visuals.SubSelectionStylesType.Shape,
+            width: {
+                reference: {
+                    ...linesReferences.lineWidth
+                },
+                label: "Line width"
+            }
+        }
+    }
+
+    //display settings
+    private getDisplayShortcuts(): VisualSubSelectionShortcuts {
+        return [
+            {
+                type: VisualShortcutType.Reset,
+                relatedResetFormattingIds: [
+                    displayReferences.axisBeginning,
+                    displayReferences.minValue
+                ]
+            },
+            {
+                type: VisualShortcutType.Picker,
+                ...displayReferences.axisBeginning,
+                label: 'Axis start position'
+            },
+            {
+                type: VisualShortcutType.Divider,
+            },
+            {
+                type: VisualShortcutType.Navigate,
+                destinationInfo: { cardUid: displayReferences.cardUid },
+                label: 'Format display'
+            }
+        ];
+    }
+
+    public selectionIdCallback(e: Element): powerbi.visuals.ISelectionId {
+        const elementType: string = d3Select(e).attr(SubSelectableObjectNameAttribute);
+
+        switch (elementType) {
+            case RadarChartObjectNames.DataPoint:
+                const datum = d3Select<Element, RadarChartSeries>(e).datum();
+                return datum.identity as powerbi.visuals.ISelectionId;
+            default:
+                return undefined;
+        }
     }
 
     private clear(): void {
@@ -909,7 +1452,10 @@ export class RadarChart implements IVisual {
             .style("font-style", () => labelSettings.font.italic.value ? "italic" : "normal")
             .style("text-decoration", () => labelSettings.font.underline.value ? "underline" : "none")
             .style("text-anchor", (label: RadarChartLabel) => label.textAnchor)
-            .style("fill", () => labelSettings.color.value.value);
+            .style("fill", () => labelSettings.color.value.value)
+            .classed(HtmlSubSelectableClass, this.formatMode && this.formattingSettings.labels.show.value)
+            .attr(SubSelectableObjectNameAttribute, 'labels')
+            .attr(SubSelectableDisplayNameAttribute, 'Data Labels');
 
         const selectionLongLineLableLink: Selection<RadarChartLabel> = this.mainGroupElement
             .select(RadarChart.AxisSelector.selectorName)
@@ -974,9 +1520,9 @@ export class RadarChart implements IVisual {
             }).join(" ");
         };
 
-        let areasSelection: Selection<RadarChartDatapoint[]> = this.chart
+        let areasSelection: Selection<RadarChartSeries> = this.chart
             .selectAll(RadarChart.ChartAreaSelector.selectorName)
-            .data(layers);
+            .data(series);
 
         areasSelection
             .exit()
@@ -986,14 +1532,20 @@ export class RadarChart implements IVisual {
             .enter()
             .append("g")
             .classed(RadarChart.ChartAreaSelector.className, true)
-            .merge(areasSelection);
+            .merge(areasSelection)
+            .attr(SubSelectableObjectNameAttribute, 'dataPoint')
+            // .attr(SubSelectableObjectNameAttribute, 'line')
+            .attr(SubSelectableDisplayNameAttribute, (series: RadarChartSeries) => series.name)
+            // .attr(SubSelectableDisplayNameAttribute, 'Draw lines')
+            .attr(SubSelectableTypeAttribute, powerbi.visuals.SubSelectionStylesType.Shape)
+            .classed(HtmlSubSelectableClass, this.formatMode);
 
         let polygonSelection: Selection<RadarChartDatapoint[]> = areasSelection
             .selectAll(RadarChart.ChartPolygonSelector.selectorName)
-            .data((dataPoints: RadarChartDatapoint[]) => {
-                if (dataPoints && dataPoints.length > 0) {
+            .data((series: RadarChartSeries) => {
+                if (series.dataPoints && series.dataPoints.length > 0) {
                     const points: RadarChartDatapoint[] = [];
-                    dataPoints.forEach((point) => {
+                    series.dataPoints.forEach((point) => {
                         if (point.showPoint) {
                             points.push(point);
                         }
@@ -1171,6 +1723,17 @@ export class RadarChart implements IVisual {
             .style("font-weight",  () => this.formattingSettings.legend.text.font.bold.value ? "bold" : "normal")
             .style("font-style",  () => this.formattingSettings.legend.text.font.italic.value ? "italic" : "normal")
             .style("text-decoration", () => this.formattingSettings.legend.text.font.underline.value ? "underline" : "none");
+
+        this.root.select("g#legendGroup")
+            .classed(HtmlSubSelectableClass, this.formatMode && this.formattingSettings.legend.show.value)
+            .attr(SubSelectableObjectNameAttribute, "legend")
+            .attr(SubSelectableDisplayNameAttribute, "Legend");
+
+        this.root.select("g#legendGroup .legendTitle")
+            .classed(HtmlSubSelectableClass, this.formatMode && this.formattingSettings.legend.show.value && this.formattingSettings.legend.title.showTitle.value)
+            .attr(SubSelectableObjectNameAttribute, "legendTitle")
+            .attr(SubSelectableDisplayNameAttribute, "Title")
+            .attr(SubSelectableDirectEditAttr, this.visualTitleEditSubSelection);
     }
 
     private getDataPoints(seriesList: RadarChartSeries[]): RadarChartDatapoint[][] {

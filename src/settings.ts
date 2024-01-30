@@ -60,6 +60,15 @@ const axisBeginningOptions : IEnumMemberWithDisplayNameKey[] = [
     {value : 1, displayName : "South", key: "Visual_South"}
 ];
 
+export class FontSettingsProperties{
+    public static FontFamily: string = "fontFamily";
+    public static Bold: string = "fontBold";
+    public static Italic: string = "fontItalic";
+    public static Underline: string = "fontUnderline";
+    public static FontSize: string = "fontSize";
+    public static Color: string = "color";
+    public static Show: string = "show";
+}
 
 class BaseFontCardSettings extends FormattingSettingsSimpleCard {
     font = new formattingSettings.FontControl({
@@ -67,11 +76,11 @@ class BaseFontCardSettings extends FormattingSettingsSimpleCard {
         displayName: "Font",
         displayNameKey: "Visual_Font",
         fontFamily: new formattingSettings.FontPicker({
-            name: "fontFamily",
+            name: FontSettingsProperties.FontFamily,
             value: "Arial, sans-serif"
         }),
         fontSize: new formattingSettings.NumUpDown({
-            name: "fontSize",
+            name: FontSettingsProperties.FontSize,
             displayName: "Text Size",
             displayNameKey: "Visual_TextSize",
             value: 8,
@@ -87,15 +96,15 @@ class BaseFontCardSettings extends FormattingSettingsSimpleCard {
             }
         }),
         bold: new formattingSettings.ToggleSwitch({
-            name: "fontBold",
+            name: FontSettingsProperties.Bold,
             value: false
         }),
         italic: new formattingSettings.ToggleSwitch({
-            name: "fontItalic",
+            name: FontSettingsProperties.Italic,
             value: false
         }),
         underline: new formattingSettings.ToggleSwitch({
-            name: "fontUnderline",
+            name: FontSettingsProperties.Underline,
             value: false
         })
     });
@@ -303,7 +312,7 @@ export class RadarChartSettingsModel extends FormattingSettingsModel {
                 new formattingSettings.ColorPicker({
                     name: "fill",
                     displayName: dataPoint.name,
-                    selector: ColorHelper.normalizeSelector(dataPoint.identity.getSelector(), false),
+                    selector: dataPoint.identity.getSelector(),
                     value: { value: dataPoint.fill }
                 })
             )
