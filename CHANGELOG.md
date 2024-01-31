@@ -4,6 +4,7 @@
 * Added keyboard navigation
 * Migrated to formatting model
 * Added context menu support
+* Added rendering events
 
 ## 2.0.2
 * UPD: powerbi-visuals-tools has been updated to 3.0.9 to add IE11 support
