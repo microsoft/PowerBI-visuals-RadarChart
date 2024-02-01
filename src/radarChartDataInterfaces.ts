@@ -36,13 +36,14 @@ import {valueFormatter} from "powerbi-visuals-utils-formattingutils";
 import IValueFormatter = valueFormatter.IValueFormatter;
 
 // Interactivity utils
-import {interactivityService} from "powerbi-visuals-utils-interactivityutils";
+import { interactivitySelectionService as interactivityService } from "powerbi-visuals-utils-interactivityutils";
 import SelectableDataPoint = interactivityService.SelectableDataPoint;
 
 // Tooltips utils
 import {TooltipEnabledDataPoint} from "powerbi-visuals-utils-tooltiputils";
 
-import {RadarChartSettings} from "./settings";
+// d3
+import { Arc as d3Arc, DefaultArcObject as d3DefaultArcObject} from "d3-shape";
 
 export interface RadarChartDatapoint extends SelectableDataPoint, TooltipEnabledDataPoint {
     x: number;
@@ -69,10 +70,9 @@ export interface IRadarChartData {
     legendData: LegendData;
     labels: RadarChartLabelsData;
     series: RadarChartSeries[];
-    settings: RadarChartSettings;
 }
 
-export interface RadarChartLabel extends d3.Arc<any, d3.DefaultArcObject> {
+export interface RadarChartLabel extends d3Arc<any, d3DefaultArcObject> {
     text: string;
     index: number;
     x?: number;
