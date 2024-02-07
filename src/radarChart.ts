@@ -149,12 +149,15 @@ interface References {
     position?: FormattingId;
     titleText?: FormattingId;
     fill?: FormattingId;
+    axisBeginning?: FormattingId;
 }
 
 const enum RadarChartObjectNames {
     Legend = "legend",
     LegendTitle = "legendTitle",
     DataPoint = "dataPoint",
+    DisplaySettings = "displaySettings",
+    Line = "line",
     Labels = "labels"
 }
 
@@ -164,7 +167,7 @@ const TitleEdit: SubSelectableDirectEdit = {
         propertyName: "titleText"
     },
     style: SubSelectableDirectEditStyle.Outline,
-};
+}
 
 const legendReferences: References = {
     cardUid: "Visual-legend-card",
@@ -250,6 +253,24 @@ const dataPointReferences: References = {
     fill: {
         objectName: RadarChartObjectNames.DataPoint,
         propertyName: "fill"
+    }
+}
+
+const displayReferences: References = {
+    cardUid: "Visual-displaySettings-card",
+    groupUid: "displaySettings-group",
+    axisBeginning: {
+        objectName: RadarChartObjectNames.DisplaySettings,
+        propertyName: "axisBeginning"
+    }
+}
+
+const linesReferences: References = {
+    cardUid: "Visual-line-card",
+    groupUid: "line-group",
+    show: {
+        objectName: RadarChartObjectNames.Line,
+        propertyName: "show"
     }
 }
 
@@ -881,9 +902,6 @@ export class RadarChart implements IVisual {
             },
             {
                 type: VisualShortcutType.Toggle,
-                relatedToggledFormattingIds: [{
-                    ...legendReferences.showTitle,
-                }],
                 ...legendReferences.showTitle,
                 disabledLabel: "Delete title"
             },
@@ -919,17 +937,11 @@ export class RadarChart implements IVisual {
             },
             {
                 type: VisualShortcutType.Toggle,
-                relatedToggledFormattingIds: [{
-                    ...legendReferences.show,
-                }],
                 ...legendReferences.show,
                 disabledLabel: "Delete legend"
             },
             {
                 type: VisualShortcutType.Toggle,
-                relatedToggledFormattingIds: [{
-                    ...legendReferences.showTitle,
-                }],
                 ...legendReferences.showTitle,
                 enabledLabel: "Add legend title",
             },
@@ -1000,9 +1012,6 @@ export class RadarChart implements IVisual {
             },
             {
                 type: VisualShortcutType.Toggle,
-                relatedToggledFormattingIds: [{
-                    ...labelsReferences.show,
-                }],
                 ...labelsReferences.show,
                 disabledLabel: "Delete data labels",
                 enabledLabel: "Add data labels"
@@ -1067,7 +1076,23 @@ export class RadarChart implements IVisual {
                 relatedResetFormattingIds: [{
                     ...dataPointReferences.fill,
                     selector
-                }],
+                },
+                displayReferences.axisBeginning,
+                linesReferences.show],
+            },
+            {
+                type: VisualShortcutType.Toggle,
+                ...linesReferences.show,
+                disabledLabel: "Draw polygons",
+                enabledLabel: "Draw lines"
+            },
+            {
+                type: VisualShortcutType.Picker,
+                ...displayReferences.axisBeginning,
+                label: "Axis start position"
+            },
+            {
+                type: VisualShortcutType.Divider,
             },
             {
                 type: VisualShortcutType.Navigate,
