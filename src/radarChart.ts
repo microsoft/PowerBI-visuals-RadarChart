@@ -61,6 +61,7 @@ import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
 import ILocalizationManager = powerbi.extensibility.ILocalizationManager;
 import IVisualEventService = powerbi.extensibility.IVisualEventService;
+import IPoint = powerbi.extensibility.IPoint;
 
 // Svg utils
 import * as SvgUtils from "powerbi-visuals-utils-svgutils";
@@ -77,7 +78,7 @@ import IValueFormatter = FormattingUtils.valueFormatter.IValueFormatter;
 import textMeasurementService = FormattingUtils.textMeasurementService;
 
 // On object
-import { HtmlSubSelectableClass, HtmlSubSelectionHelper, SubSelectableDisplayNameAttribute, SubSelectableObjectNameAttribute, SubSelectableDirectEdit as SubSelectableDirectEditAttr } from "../node_modules/powerbi-visuals-utils-onobjectformatting/src";
+import { HtmlSubSelectableClass, HtmlSubSelectionHelper, SubSelectableDisplayNameAttribute, SubSelectableObjectNameAttribute, SubSelectableDirectEdit as SubSelectableDirectEditAttr, SubSelectableTypeAttribute } from "../node_modules/powerbi-visuals-utils-onobjectformatting/src";
 import CustomVisualSubSelection = powerbi.visuals.CustomVisualSubSelection;
 import SubSelectableDirectEdit = powerbi.visuals.SubSelectableDirectEdit;
 import SubSelectableDirectEditStyle = powerbi.visuals.SubSelectableDirectEditStyle;
@@ -85,6 +86,7 @@ import SubSelectionShortcutsKey = powerbi.visuals.SubSelectionShortcutsKey;
 import SubSelectionStyles = powerbi.visuals.SubSelectionStyles;
 import VisualShortcutType = powerbi.visuals.VisualShortcutType;
 import VisualSubSelectionShortcuts = powerbi.visuals.VisualSubSelectionShortcuts;
+import SubSelectionStylesType = powerbi.visuals.SubSelectionStylesType;
 import FormattingId = powerbi.visuals.FormattingId;
 
 // Interactivity utils
@@ -146,11 +148,13 @@ interface References {
     showTitle?: FormattingId;
     position?: FormattingId;
     titleText?: FormattingId;
+    fill?: FormattingId;
 }
 
 const enum RadarChartObjectNames {
     Legend = "legend",
     LegendTitle = "legendTitle",
+    DataPoint = "dataPoint",
     Labels = "labels"
 }
 
@@ -237,6 +241,15 @@ const labelsReferences: References = {
     show: {
         objectName: RadarChartObjectNames.Labels,
         propertyName: "show"
+    }
+}
+
+const dataPointReferences: References = {
+    cardUid: "Visual-dataPoint-card",
+    groupUid: "dataPoint-group",
+    fill: {
+        objectName: RadarChartObjectNames.DataPoint,
+        propertyName: "fill"
     }
 }
 
@@ -579,7 +592,9 @@ export class RadarChart implements IVisual {
 
         this.subSelectionHelper = HtmlSubSelectionHelper.createHtmlSubselectionHelper({
             hostElement: options.element,
-            subSelectionService: options.host.subSelectionService
+            subSelectionService: options.host.subSelectionService,
+            selectionIdCallback: (e) => this.selectionIdCallback(e),
+            customOutlineCallback: (e) => this.customOutlineCallback(e)
         });
 
         this.interactivityService = createInteractivityService(this.visualHost);
@@ -739,20 +754,106 @@ export class RadarChart implements IVisual {
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
 
-    private getSubSelectionStyles(subSelections: CustomVisualSubSelection[]): powerbi.visuals.SubSelectionStyles | undefined {
+    public selectionIdCallback(e: Element): powerbi.visuals.ISelectionId {
+        const elementType: string = d3Select(e).attr(SubSelectableObjectNameAttribute);
+
+        switch (elementType) {
+            case RadarChartObjectNames.DataPoint: {
+                const datum = d3Select<Element, RadarChartSeries>(e).datum();
+                return datum.identity;
+            }
+            default:
+                return undefined;
+        }
+    }
+
+    public customOutlineCallback(subSelections: CustomVisualSubSelection): powerbi.visuals.SubSelectionRegionOutlineFragment[] {
+        const elementType: string = subSelections.customVisualObjects[0].objectName;
+        switch (elementType) {
+            case RadarChartObjectNames.DataPoint: {
+                const subSelectionIdentity: powerbi.visuals.ISelectionId = subSelections.customVisualObjects[0].selectionId;
+                const selectedSeries: RadarChartSeries = this.radarChartData.series.find((series => series.identity.equals(subSelectionIdentity)));
+                const result: powerbi.visuals.SubSelectionRegionOutlineFragment[] = [{
+                    id: RadarChartObjectNames.DataPoint,
+                    outline: {
+                        type: powerbi.visuals.SubSelectionOutlineType.Polygon,
+                        points: selectedSeries?.dataPoints ? this.calculatePoint(selectedSeries?.dataPoints) : []
+                    }
+                }]
+                return result;
+            }
+            default:
+                return undefined;
+        }
+    }
+
+    private calculatePoint(dataPoints: RadarChartDatapoint[]): IPoint[] {
+        if (dataPoints.length === 0){
+            return [];
+        }
+        const yDomain: d3LinearScale<number, number> = this.calculateChartDomain(this.radarChartData.series);
+        const angle: number = this.angle;
+        const axisBeginning: number = +this.formattingSettings.display.axisBeginning.value.value;
+
+        let xShift: number = this.viewport.width / 2;
+        let yShift: number = this.viewport.height / 2;
+
+        //add x and y shifts depending on the orientation of the legend
+        const legendPosition: number = this.legend.getOrientation();
+        switch (legendPosition) {
+            case LegendPosition.Left:
+            case LegendPosition.LeftCenter:
+                xShift+=this.legend.getMargins().width;
+                break;
+            case LegendPosition.Top:
+            case LegendPosition.TopCenter:
+                yShift+=this.legend.getMargins().height;
+                break;
+        }
+        
+        const points: IPoint[] = dataPoints.map((value) => {
+            if (value.showPoint) {
+                const x1: number = yDomain(value.y) * Math.sin(value.x * angle) + xShift,
+                    y1: number = axisBeginning * yDomain(value.y) * Math.cos(value.x * angle) + yShift;
+
+                return {x: x1, y: y1};
+            }
+        });
+
+        return points;
+    }
+
+    private fixSelectionId(customVisualObject: powerbi.visuals.CustomVisualObject) {
+        //@ts-ignore
+        if (customVisualObject?.selectionId?.dataMap) {
+            //@ts-ignore
+            if (Object.keys(customVisualObject?.selectionId?.dataMap).length === 0) {
+                //@ts-ignore
+                customVisualObject.selectionId.dataMap = null;
+            }
+              //@ts-ignore
+            customVisualObject.selectionId.createSelectionId();
+        }
+    }
+
+    private getSubSelectionStyles(subSelections: CustomVisualSubSelection[]): SubSelectionStyles | undefined {
         const visualObject = subSelections[0]?.customVisualObjects[0];
         if (visualObject) {
+            this.fixSelectionId(visualObject);
             switch (visualObject.objectName) {
                 case RadarChartObjectNames.Legend:
                     return this.getLegendStyles();
                 case RadarChartObjectNames.Labels:
                     return this.getLabelsStyles();
+                case RadarChartObjectNames.DataPoint:
+                    return this.getDataPointStyles(subSelections);
             }
         }
     }
     private getSubSelectionShortcuts(subSelections: CustomVisualSubSelection[], filter: SubSelectionShortcutsKey | undefined): VisualSubSelectionShortcuts | undefined {
         const visualObject = subSelections[0]?.customVisualObjects[0];
         if (visualObject) {
+            this.fixSelectionId(visualObject);
             switch (visualObject.objectName) {
                 case RadarChartObjectNames.Legend:
                     return this.getLegendShortcuts();
@@ -760,10 +861,12 @@ export class RadarChart implements IVisual {
                     return this.getLegendTitleShortcuts();
                 case RadarChartObjectNames.Labels:
                     return this.getLabelsShortcuts();
+                case RadarChartObjectNames.DataPoint:
+                    return this.getDataPointShortcuts(subSelections);
             }
         }
     }
-    private getSubSelectables?(filter?: powerbi.visuals.SubSelectionStylesType): CustomVisualSubSelection[] | undefined {
+    private getSubSelectables?(filter?: SubSelectionStylesType): CustomVisualSubSelection[] | undefined {
         return this.subSelectionHelper.getAllSubSelectables(filter);
     }
 
@@ -842,7 +945,7 @@ export class RadarChart implements IVisual {
     }
     private getLegendStyles(): SubSelectionStyles {
         return {
-            type: powerbi.visuals.SubSelectionStylesType.Text,
+            type: SubSelectionStylesType.Text,
             fontFamily: {
                 reference: {
                     ...legendReferences.fontFamily
@@ -914,10 +1017,9 @@ export class RadarChart implements IVisual {
             }
         ];
     }
-
     private getLabelsStyles(): SubSelectionStyles {
         return {
-            type: powerbi.visuals.SubSelectionStylesType.Text,
+            type: SubSelectionStylesType.Text,
             fontFamily: {
                 reference: {
                     ...labelsReferences.fontFamily
@@ -954,6 +1056,37 @@ export class RadarChart implements IVisual {
                 },
                 label: labelsReferences.color.propertyName
             }
+        };
+    }
+
+    private getDataPointShortcuts(subSelections: CustomVisualSubSelection[]): VisualSubSelectionShortcuts {
+        const selector = subSelections[0].customVisualObjects[0].selectionId?.getSelector();
+        return [
+            {
+                type: VisualShortcutType.Reset,
+                relatedResetFormattingIds: [{
+                    ...dataPointReferences.fill,
+                    selector
+                }],
+            },
+            {
+                type: VisualShortcutType.Navigate,
+                destinationInfo: { cardUid: dataPointReferences.cardUid },
+                label: "Format data colors"
+            }
+        ];
+    }
+    private getDataPointStyles(subSelections: CustomVisualSubSelection[]): SubSelectionStyles {
+        const selector = subSelections[0].customVisualObjects[0].selectionId?.getSelector();
+        return {
+            type: SubSelectionStylesType.Shape,
+            fill: {
+                reference: {
+                    ...dataPointReferences.fill,
+                    selector
+                },
+                label: dataPointReferences.fill.propertyName
+            },
         };
     }
 
@@ -1349,9 +1482,9 @@ export class RadarChart implements IVisual {
             }).join(" ");
         };
 
-        let areasSelection: Selection<RadarChartDatapoint[]> = this.chart
+        let areasSelection: Selection<RadarChartSeries> = this.chart
             .selectAll(RadarChart.ChartAreaSelector.selectorName)
-            .data(layers);
+            .data(series);
 
         areasSelection
             .exit()
@@ -1361,14 +1494,18 @@ export class RadarChart implements IVisual {
             .enter()
             .append("g")
             .classed(RadarChart.ChartAreaSelector.className, true)
-            .merge(areasSelection);
+            .merge(areasSelection)
+            .attr(SubSelectableObjectNameAttribute, RadarChartObjectNames.DataPoint)
+            .attr(SubSelectableDisplayNameAttribute, (series: RadarChartSeries) => series.name)
+            .attr(SubSelectableTypeAttribute, powerbi.visuals.SubSelectionStylesType.Shape)
+            .classed(HtmlSubSelectableClass, this.formatMode);
 
         let polygonSelection: Selection<RadarChartDatapoint[]> = areasSelection
             .selectAll(RadarChart.ChartPolygonSelector.selectorName)
-            .data((dataPoints: RadarChartDatapoint[]) => {
-                if (dataPoints && dataPoints.length > 0) {
+            .data((series: RadarChartSeries) => {
+                if (series.dataPoints && series.dataPoints.length > 0) {
                     const points: RadarChartDatapoint[] = [];
-                    dataPoints.forEach((point) => {
+                    series.dataPoints.forEach((point) => {
                         if (point.showPoint) {
                             points.push(point);
                         }
