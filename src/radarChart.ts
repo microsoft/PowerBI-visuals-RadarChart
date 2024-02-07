@@ -289,6 +289,8 @@ export class RadarChart implements IVisual {
     private static LabelGraphicsContextSelector: ClassAndSelector = CreateClassAndSelector("labelGraphicsContext");
     private static AxisLabelLinkLongLineSelector: ClassAndSelector = CreateClassAndSelector("axisLongLabelLink");
     private static AxisLabelLinkShortLineSelector: ClassAndSelector = CreateClassAndSelector("axisShortLabelLink");
+    private static LegendItemSelector: ClassAndSelector = CreateClassAndSelector("legendItem");
+    private static LegendTitleSelector: ClassAndSelector = CreateClassAndSelector("legendTitle");
 
     private static MaxLineWidth: number = 10;
     private static MinLineWidth: number = 1;
@@ -355,6 +357,8 @@ export class RadarChart implements IVisual {
     private root: Selection<any>;
     private svg: Selection<any>;
     private chart: Selection<any>;
+    private legendElement: Selection<any>;
+    private legendItems: Selection<any>;
 
     private mainGroupElement: Selection<any>;
     private colorPalette: IColorPalette;
@@ -634,6 +638,8 @@ export class RadarChart implements IVisual {
             true,
             LegendPosition.Top,
             interactiveBehavior);
+
+        this.legendElement = this.root.select("g#legendGroup");
 
         this.mainGroupElement = this.svg.append("g");
 
@@ -1521,7 +1527,7 @@ export class RadarChart implements IVisual {
             .classed(RadarChart.ChartAreaSelector.className, true)
             .merge(areasSelection)
             .attr(SubSelectableObjectNameAttribute, RadarChartObjectNames.DataPoint)
-            .attr(SubSelectableDisplayNameAttribute, (series: RadarChartSeries) => series.name)
+            .attr(SubSelectableDisplayNameAttribute, (series: RadarChartSeries) => `${series.name} polygon`)
             .attr(SubSelectableTypeAttribute, powerbi.visuals.SubSelectionStylesType.Shape)
             .classed(HtmlSubSelectableClass, this.formatMode);
 
@@ -1642,9 +1648,11 @@ export class RadarChart implements IVisual {
             const behaviorOptions: RadarChartBehaviorOptions = {
                 selection: dotsSelection,
                 clearCatcher: this.svg,
+                legend: this.legendItems,
                 hasHighlights: hasHighlights,
                 behavior: this.behavior,
-                dataPoints: dataPointsToBind
+                dataPoints: dataPointsToBind,
+                formatMode: this.formatMode
             };
 
             this.interactivityService.bind(behaviorOptions);
@@ -1704,17 +1712,18 @@ export class RadarChart implements IVisual {
         this.legend.drawLegend(legendData, { height, width });
         LegendModule.positionChartArea(this.svg, this.legend);
 
-        this.root.selectAll("g#legendGroup text")
+        this.legendItems = this.legendElement.selectAll(RadarChart.LegendItemSelector.selectorName);
+        this.legendItems
             .style("font-weight",  () => this.formattingSettings.legend.text.font.bold.value ? "bold" : "normal")
             .style("font-style",  () => this.formattingSettings.legend.text.font.italic.value ? "italic" : "normal")
             .style("text-decoration", () => this.formattingSettings.legend.text.font.underline.value ? "underline" : "none");
 
-        this.root.select("g#legendGroup")
+        this.legendElement
             .classed(HtmlSubSelectableClass, this.formatMode && this.formattingSettings.legend.show.value)
             .attr(SubSelectableObjectNameAttribute, RadarChartObjectNames.Legend)
             .attr(SubSelectableDisplayNameAttribute, "Legend");
 
-        this.root.select("g#legendGroup .legendTitle")
+        this.legendElement.select(RadarChart.LegendTitleSelector.selectorName)
             .classed(HtmlSubSelectableClass, this.formatMode && this.formattingSettings.legend.show.value && this.formattingSettings.legend.title.showTitle.value)
             .attr(SubSelectableObjectNameAttribute, RadarChartObjectNames.LegendTitle)
             .attr(SubSelectableDisplayNameAttribute, "Title")
