@@ -166,7 +166,7 @@ const TitleEdit: SubSelectableDirectEdit = {
         objectName: "legend",
         propertyName: "titleText"
     },
-    style: SubSelectableDirectEditStyle.Outline,
+    style: SubSelectableDirectEditStyle.HorizontalLeft,
 }
 
 const legendReferences: References = {
