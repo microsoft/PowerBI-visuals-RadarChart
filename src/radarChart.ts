@@ -32,7 +32,7 @@ import clone from "lodash.clone";
 import { ScaleLinear as d3LinearScale, scaleLinear as d3ScaleLinear} from "d3-scale";
 import { min as d3Min, max as d3Max} from "d3-array";
 import { arc as d3Arc } from "d3-shape";
-import { transition as d3Transition } from 'd3-transition';
+import { transition as d3Transition } from "d3-transition";
 import {
     select as d3Select,
     Selection as d3Selection 
@@ -75,6 +75,15 @@ import TextProperties = FormattingUtils.interfaces.TextProperties;
 import valueFormatter = FormattingUtils.valueFormatter;
 import IValueFormatter = FormattingUtils.valueFormatter.IValueFormatter;
 import textMeasurementService = FormattingUtils.textMeasurementService;
+
+// On object
+import { HtmlSubSelectableClass, HtmlSubSelectionHelper, SubSelectableDisplayNameAttribute, SubSelectableObjectNameAttribute } from "../node_modules/powerbi-visuals-utils-onobjectformatting/src";
+import CustomVisualSubSelection = powerbi.visuals.CustomVisualSubSelection;
+import SubSelectionShortcutsKey = powerbi.visuals.SubSelectionShortcutsKey;
+import SubSelectionStyles = powerbi.visuals.SubSelectionStyles;
+import VisualShortcutType = powerbi.visuals.VisualShortcutType;
+import VisualSubSelectionShortcuts = powerbi.visuals.VisualSubSelectionShortcuts;
+import FormattingId = powerbi.visuals.FormattingId;
 
 // Interactivity utils
 import {
@@ -120,6 +129,56 @@ import { RadarChartSeries, RadarChartCircularSegment, RadarChartLabel, RadarChar
 import { LabelsSettingsCard, RadarChartSettingsModel } from "./settings";
 import * as RadarChartUtils from "./radarChartUtils";
 import * as TooltipBuilder from "./tooltipBuilder";
+
+interface References {
+    cardUid?: string;
+    groupUid?: string;
+    font?: FormattingId;
+    color?: FormattingId;
+    show?: FormattingId;
+    fontFamily?: FormattingId;
+    bold?: FormattingId;
+    italic?: FormattingId;
+    underline?: FormattingId;
+    fontSize?: FormattingId;
+}
+
+const enum RadarChartObjectNames {
+    Labels = "labels"
+}
+
+const labelsReferences: References = {
+    cardUid: "Visual-labels-card",
+    groupUid: "labels-group",
+    fontFamily: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: "fontFamily"
+    },
+    bold: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: "fontBold"
+    },
+    italic: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: "fontItalic"
+    },
+    underline: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: "fontUnderline"
+    },
+    fontSize: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: "fontSize"
+    },
+    color: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: "color"
+    },
+    show: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: "show"
+    }
+}
 
 export class RadarChart implements IVisual {
     private static VisualClassName: string = "radarChart";
@@ -227,6 +286,11 @@ export class RadarChart implements IVisual {
 
     public formattingSettings: RadarChartSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
+    private formattingSettingsModel: powerbi.visuals.FormattingModel;
+
+    private subSelectionHelper: HtmlSubSelectionHelper;
+    private formatMode: boolean = false;
+    public visualOnObjectFormatting?: powerbi.extensibility.visual.VisualOnObjectFormatting;
 
     private static getLabelsData(dataView: DataView): RadarChartLabelsData {
         if (!dataView
@@ -451,6 +515,12 @@ export class RadarChart implements IVisual {
         this.visualHost = options.host;
         this.localizationManager = this.visualHost.createLocalizationManager();
         this.formattingSettingsService = new FormattingSettingsService(this.localizationManager);
+
+        this.subSelectionHelper = HtmlSubSelectionHelper.createHtmlSubselectionHelper({
+            hostElement: options.element,
+            subSelectionService: options.host.subSelectionService
+        });
+
         this.interactivityService = createInteractivityService(this.visualHost);
         this.behavior = new RadarChartWebBehavior();
         this.events = options.host.eventService;
@@ -485,6 +555,12 @@ export class RadarChart implements IVisual {
         this.chart = this.mainGroupElement
             .append("g")
             .classed(RadarChart.ChartSelector.className, true);
+
+        this.visualOnObjectFormatting = {
+            getSubSelectionStyles: (subSelections) => this.getSubSelectionStyles(subSelections),
+            getSubSelectionShortcuts: (subSelections, filter) => this.getSubSelectionShortcuts(subSelections, filter),
+            getSubSelectables: (filter) => this.getSubSelectables(filter)
+        };
     }
 
     public update(options: VisualUpdateOptions): void {
@@ -495,6 +571,7 @@ export class RadarChart implements IVisual {
         this.events.renderingStarted(options);
         const dataView: DataView = options.dataViews[0];
 
+        this.formatMode = options.formatMode;
         this.formattingSettings = RadarChart.parseSettings(dataView, this.colorHelper, this.formattingSettingsService);
         this.formattingSettings.setLocalizedOptions(this.localizationManager);
         this.legendObjectProperties = RadarChart.parseLegendProperties(dataView, this.colorHelper, this.formattingSettings);
@@ -574,6 +651,15 @@ export class RadarChart implements IVisual {
 
         this.createAxesLabels();
         this.drawChart(series, RadarChart.AnimationDuration);
+
+        this.subSelectionHelper.setFormatMode(options.formatMode);
+        const shouldUpdateSubSelection = options.type & (powerbi.VisualUpdateType.Data
+            | powerbi.VisualUpdateType.Resize
+            | powerbi.VisualUpdateType.FormattingSubSelectionChange);
+        if (this.formatMode && shouldUpdateSubSelection) {
+            this.subSelectionHelper.updateOutlinesFromSubSelections(options.subSelections, true);
+        }
+
         this.events.renderingFinished(options);
     }
 
@@ -590,6 +676,103 @@ export class RadarChart implements IVisual {
 
     public getFormattingModel(): powerbi.visuals.FormattingModel {
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
+    }
+
+    private getSubSelectionStyles(subSelections: CustomVisualSubSelection[]): powerbi.visuals.SubSelectionStyles | undefined {
+        const visualObject = subSelections[0]?.customVisualObjects[0];
+        if (visualObject) {
+            switch (visualObject.objectName) {
+                case RadarChartObjectNames.Labels:
+                    return this.getLabelsStyles();
+            }
+        }
+    }
+    private getSubSelectionShortcuts(subSelections: CustomVisualSubSelection[], filter: SubSelectionShortcutsKey | undefined): VisualSubSelectionShortcuts | undefined {
+        const visualObject = subSelections[0]?.customVisualObjects[0];
+        if (visualObject) {
+            switch (visualObject.objectName) {
+                case RadarChartObjectNames.Labels:
+                    return this.getLabelsShortcuts();
+            }
+        }
+    }
+    private getSubSelectables?(filter?: powerbi.visuals.SubSelectionStylesType): CustomVisualSubSelection[] | undefined {
+        return this.subSelectionHelper.getAllSubSelectables(filter);
+    }
+
+    private getLabelsShortcuts(): VisualSubSelectionShortcuts {
+        return [
+            {
+                type: VisualShortcutType.Reset,
+                relatedResetFormattingIds: [
+                    labelsReferences.bold,
+                    labelsReferences.fontFamily,
+                    labelsReferences.fontSize,
+                    labelsReferences.italic,
+                    labelsReferences.underline,
+                    labelsReferences.color
+                ]
+            },
+            {
+                type: VisualShortcutType.Toggle,
+                relatedToggledFormattingIds: [{
+                    ...labelsReferences.show,
+                }],
+                ...labelsReferences.show,
+                disabledLabel: "Delete data labels",
+                enabledLabel: "Add data labels"
+            },
+            {
+                type: VisualShortcutType.Divider,
+            },
+            {
+                type: VisualShortcutType.Navigate,
+                destinationInfo: { cardUid: labelsReferences.cardUid },
+                label: "Format data labels"
+            }
+        ];
+    }
+
+    private getLabelsStyles(): SubSelectionStyles {
+        return {
+            type: powerbi.visuals.SubSelectionStylesType.Text,
+            fontFamily: {
+                reference: {
+                    ...labelsReferences.fontFamily
+                },
+                label: labelsReferences.fontFamily.propertyName
+            },
+            bold: {
+                reference: {
+                    ...labelsReferences.bold
+                },
+                label: labelsReferences.bold.propertyName
+            },
+            italic: {
+                reference: {
+                    ...labelsReferences.italic
+                },
+                label: labelsReferences.italic.propertyName
+            },
+            underline: {
+                reference: {
+                    ...labelsReferences.underline
+                },
+                label: labelsReferences.underline.propertyName
+            },
+            fontSize: {
+                reference: {
+                    ...labelsReferences.fontSize
+                },
+                label: labelsReferences.fontSize.propertyName
+            },
+            fontColor: {
+                reference: {
+                    ...labelsReferences.color
+                },
+                label: labelsReferences.color.propertyName
+            }
+        };
     }
 
     private clear(): void {
@@ -916,7 +1099,10 @@ export class RadarChart implements IVisual {
             .style("font-style", () => labelSettings.font.italic.value ? "italic" : "normal")
             .style("text-decoration", () => labelSettings.font.underline.value ? "underline" : "none")
             .style("text-anchor", (label: RadarChartLabel) => label.textAnchor)
-            .style("fill", () => labelSettings.color.value.value);
+            .style("fill", () => labelSettings.color.value.value)
+            .classed(HtmlSubSelectableClass, this.formatMode && this.formattingSettings.labels.show.value)
+            .attr(SubSelectableObjectNameAttribute, RadarChartObjectNames.Labels)
+            .attr(SubSelectableDisplayNameAttribute, "Data Labels");
 
         const selectionLongLineLableLink: Selection<RadarChartLabel> = this.mainGroupElement
             .select(RadarChart.AxisSelector.selectorName)
