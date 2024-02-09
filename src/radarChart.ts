@@ -909,7 +909,7 @@ export class RadarChart implements IVisual {
             {
                 type: VisualShortcutType.Toggle,
                 ...legendReferences.showTitle,
-                disabledLabel: "Delete title"
+                disabledLabel: this.localizationManager.getDisplayName("Visual_OnObject_DeleteTitle")
             },
             {
                 type: VisualShortcutType.Divider,
@@ -917,7 +917,7 @@ export class RadarChart implements IVisual {
             {
                 type: VisualShortcutType.Navigate,
                 destinationInfo: { cardUid: legendReferences.cardUid, groupUid: "legendTitleGroup-group" },
-                label: "Format title"
+                label: this.localizationManager.getDisplayName("Visual_OnObject_FormatTitle")
             }
         ];
     }
@@ -939,17 +939,17 @@ export class RadarChart implements IVisual {
             {
                 type: VisualShortcutType.Picker,
                 ...legendReferences.position,
-                label: "Position"
+                label: this.localizationManager.getDisplayName("Visual_Position")
             },
             {
                 type: VisualShortcutType.Toggle,
                 ...legendReferences.show,
-                disabledLabel: "Delete legend"
+                disabledLabel: this.localizationManager.getDisplayName("Visual_OnObject_DeleteLegend")
             },
             {
                 type: VisualShortcutType.Toggle,
                 ...legendReferences.showTitle,
-                enabledLabel: "Add legend title",
+                enabledLabel: this.localizationManager.getDisplayName("Visual_OnObject_AddTitle")
             },
             {
                 type: VisualShortcutType.Divider,
@@ -957,7 +957,7 @@ export class RadarChart implements IVisual {
             {
                 type: VisualShortcutType.Navigate,
                 destinationInfo: { cardUid: legendReferences.cardUid, groupUid: legendReferences.groupUid },
-                label: "Format legend"
+                label: this.localizationManager.getDisplayName("Visual_OnObject_FormatLegend")
             }
         ];
     }
@@ -1019,8 +1019,8 @@ export class RadarChart implements IVisual {
             {
                 type: VisualShortcutType.Toggle,
                 ...labelsReferences.show,
-                disabledLabel: "Delete data labels",
-                enabledLabel: "Add data labels"
+                disabledLabel: this.localizationManager.getDisplayName("Visual_OnObject_DeleteLabels"),
+                enabledLabel: this.localizationManager.getDisplayName("Visual_OnObject_AddLabels")
             },
             {
                 type: VisualShortcutType.Divider,
@@ -1028,7 +1028,7 @@ export class RadarChart implements IVisual {
             {
                 type: VisualShortcutType.Navigate,
                 destinationInfo: { cardUid: labelsReferences.cardUid },
-                label: "Format data labels"
+                label: this.localizationManager.getDisplayName("Visual_OnObject_FormatLabels")
             }
         ];
     }
@@ -1089,13 +1089,13 @@ export class RadarChart implements IVisual {
             {
                 type: VisualShortcutType.Toggle,
                 ...linesReferences.show,
-                disabledLabel: "Draw polygons",
-                enabledLabel: "Draw lines"
+                disabledLabel: this.localizationManager.getDisplayName("Visual_OnObject_DrawPolygons"),
+                enabledLabel: this.localizationManager.getDisplayName("Visual_DrawLines")
             },
             {
                 type: VisualShortcutType.Picker,
                 ...displayReferences.axisBeginning,
-                label: "Axis start position"
+                label: this.localizationManager.getDisplayName("Visual_AxisStartPosition")
             },
             {
                 type: VisualShortcutType.Divider,
@@ -1103,7 +1103,7 @@ export class RadarChart implements IVisual {
             {
                 type: VisualShortcutType.Navigate,
                 destinationInfo: { cardUid: dataPointReferences.cardUid },
-                label: "Format data colors"
+                label: this.localizationManager.getDisplayName("Visual_OnObject_FormatColors")
             }
         ];
     }
@@ -1527,7 +1527,7 @@ export class RadarChart implements IVisual {
             .classed(RadarChart.ChartAreaSelector.className, true)
             .merge(areasSelection)
             .attr(SubSelectableObjectNameAttribute, RadarChartObjectNames.DataPoint)
-            .attr(SubSelectableDisplayNameAttribute, (series: RadarChartSeries) => `${series.name} polygon`)
+            .attr(SubSelectableDisplayNameAttribute, (series: RadarChartSeries) => `"${series.name}" ${this.localizationManager.getDisplayName("Visual_OnObject_Polygon")}`)
             .attr(SubSelectableTypeAttribute, powerbi.visuals.SubSelectionStylesType.Shape)
             .classed(HtmlSubSelectableClass, this.formatMode);
 

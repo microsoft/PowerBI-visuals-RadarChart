@@ -34,6 +34,17 @@
 	"Visual_Description_DataColors": "Display data color options",
 	"Visual_Description_DataLabels": "Display data label options",
 	"Visual_Description_Color": "Select color for data labels",
+	"Visual_OnObject_DeleteTitle": "Delete title",
+	"Visual_OnObject_FormatTitle": "Format title",
+	"Visual_OnObject_DeleteLegend": "Delete legend",
+	"Visual_OnObject_FormatLegend": "Format legend",
+	"Visual_OnObject_AddTitle": "Add legend title",
+	"Visual_OnObject_DeleteLabels": "Delete data labels",
+	"Visual_OnObject_AddLabels": "Add data labels",
+	"Visual_OnObject_FormatLabels": "Format data labels",
+	"Visual_OnObject_DrawPolygons": "Draw polygons",
+	"Visual_OnObject_FormatColors": "Format data colors",
+	"Visual_OnObject_Polygon": "polygon",
 	"Visual_Short_Description": "Multiple measures plotted over a categorical axis. Useful to compare attributes",
     "Visual_Long_Description": "A radar chart is a graphical method of displaying multivariate data in the form of a two-dimensional chart of three or more quantitative variables represented on axes starting from the same point. The relative position and angle of the axes is typically uninformative.\nEach variable is provided an axis that starts from the center. All axes are arranged radially, with equal distances between each other, while maintaining the same scale between all axes. Grid lines that connect from axis-to-axis are often used as a guide. Each variable value is plotted along its individual axis and all the variables in a dataset and connected together to form a polygon.\nRadar Charts are useful for seeing which variables are scoring high or low within a dataset, making them ideal for displaying performance, such as Skill Analysis of Employee or sport players, product comparison, etc.\nThis is an open source visual. Get the code from GitHub: https://github.com/Microsoft/PowerBI-visuals-RadarChart"
 }
