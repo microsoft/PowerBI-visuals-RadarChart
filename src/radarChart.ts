@@ -850,23 +850,9 @@ export class RadarChart implements IVisual {
         return points;
     }
 
-    private fixSelectionId(customVisualObject: powerbi.visuals.CustomVisualObject) {
-        //@ts-ignore
-        if (customVisualObject?.selectionId?.dataMap) {
-            //@ts-ignore
-            if (Object.keys(customVisualObject?.selectionId?.dataMap).length === 0) {
-                //@ts-ignore
-                customVisualObject.selectionId.dataMap = null;
-            }
-              //@ts-ignore
-            customVisualObject.selectionId.createSelectionId();
-        }
-    }
-
     private getSubSelectionStyles(subSelections: CustomVisualSubSelection[]): SubSelectionStyles | undefined {
         const visualObject = subSelections[0]?.customVisualObjects[0];
         if (visualObject) {
-            this.fixSelectionId(visualObject);
             switch (visualObject.objectName) {
                 case RadarChartObjectNames.Legend:
                     return this.getLegendStyles();
@@ -880,7 +866,6 @@ export class RadarChart implements IVisual {
     private getSubSelectionShortcuts(subSelections: CustomVisualSubSelection[], filter: SubSelectionShortcutsKey | undefined): VisualSubSelectionShortcuts | undefined {
         const visualObject = subSelections[0]?.customVisualObjects[0];
         if (visualObject) {
-            this.fixSelectionId(visualObject);
             switch (visualObject.objectName) {
                 case RadarChartObjectNames.Legend:
                     return this.getLegendShortcuts();
