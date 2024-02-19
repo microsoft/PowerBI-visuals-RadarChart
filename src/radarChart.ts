@@ -80,14 +80,10 @@ import textMeasurementService = FormattingUtils.textMeasurementService;
 // On object
 import { HtmlSubSelectableClass, HtmlSubSelectionHelper, SubSelectableDisplayNameAttribute, SubSelectableObjectNameAttribute, SubSelectableDirectEdit as SubSelectableDirectEditAttr, SubSelectableTypeAttribute } from "../node_modules/powerbi-visuals-utils-onobjectformatting/src";
 import CustomVisualSubSelection = powerbi.visuals.CustomVisualSubSelection;
-import SubSelectableDirectEdit = powerbi.visuals.SubSelectableDirectEdit;
-import SubSelectableDirectEditStyle = powerbi.visuals.SubSelectableDirectEditStyle;
-import SubSelectionShortcutsKey = powerbi.visuals.SubSelectionShortcutsKey;
 import SubSelectionStyles = powerbi.visuals.SubSelectionStyles;
 import VisualShortcutType = powerbi.visuals.VisualShortcutType;
 import VisualSubSelectionShortcuts = powerbi.visuals.VisualSubSelectionShortcuts;
 import SubSelectionStylesType = powerbi.visuals.SubSelectionStylesType;
-import FormattingId = powerbi.visuals.FormattingId;
 
 // Interactivity utils
 import {
@@ -130,149 +126,9 @@ import OutsidePlacement = ChartUtils.dataLabelInterfaces.OutsidePlacement;
 import OpacityLegendBehavior = ChartUtils.OpacityLegendBehavior;
 import { RadarChartWebBehavior, RadarChartBehaviorOptions } from "./radarChartWebBehavior";
 import { RadarChartSeries, RadarChartCircularSegment, RadarChartLabel, RadarChartDatapoint, IRadarChartData, RadarChartLabelsData } from "./radarChartDataInterfaces";
-import { LabelsSettingsCard, RadarChartSettingsModel } from "./settings";
+import { LabelsSettingsCard, RadarChartObjectNames, RadarChartSettingsModel, TitleEdit, dataPointReferences, displayReferences, labelsReferences, legendReferences, linesReferences } from "./settings";
 import * as RadarChartUtils from "./radarChartUtils";
 import * as TooltipBuilder from "./tooltipBuilder";
-
-interface References {
-    cardUid?: string;
-    groupUid?: string;
-    font?: FormattingId;
-    color?: FormattingId;
-    show?: FormattingId;
-    fontFamily?: FormattingId;
-    bold?: FormattingId;
-    italic?: FormattingId;
-    underline?: FormattingId;
-    fontSize?: FormattingId;
-    showTitle?: FormattingId;
-    position?: FormattingId;
-    titleText?: FormattingId;
-    fill?: FormattingId;
-    axisBeginning?: FormattingId;
-}
-
-const enum RadarChartObjectNames {
-    Legend = "legend",
-    LegendTitle = "legendTitle",
-    DataPoint = "dataPoint",
-    DisplaySettings = "displaySettings",
-    Line = "line",
-    Labels = "labels"
-}
-
-const TitleEdit: SubSelectableDirectEdit = {
-    reference: {
-        objectName: "legend",
-        propertyName: "titleText"
-    },
-    style: SubSelectableDirectEditStyle.HorizontalLeft,
-}
-
-const legendReferences: References = {
-    cardUid: "Visual-legend-card",
-    groupUid: "legendTextGroup-group",
-    fontFamily: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "fontFamily"
-    },
-    bold: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "fontBold"
-    },
-    italic: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "fontItalic"
-    },
-    underline: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "fontUnderline"
-    },
-    fontSize: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "fontSize"
-    },
-    color: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "labelColor"
-    },
-    show: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "show"
-    },
-    showTitle: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "showTitle"
-    },
-    titleText: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "titleText"
-    },
-    position: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "position"
-    }
-}
-
-const labelsReferences: References = {
-    cardUid: "Visual-labels-card",
-    groupUid: "labels-group",
-    fontFamily: {
-        objectName: RadarChartObjectNames.Labels,
-        propertyName: "fontFamily"
-    },
-    bold: {
-        objectName: RadarChartObjectNames.Labels,
-        propertyName: "fontBold"
-    },
-    italic: {
-        objectName: RadarChartObjectNames.Labels,
-        propertyName: "fontItalic"
-    },
-    underline: {
-        objectName: RadarChartObjectNames.Labels,
-        propertyName: "fontUnderline"
-    },
-    fontSize: {
-        objectName: RadarChartObjectNames.Labels,
-        propertyName: "fontSize"
-    },
-    color: {
-        objectName: RadarChartObjectNames.Labels,
-        propertyName: "color"
-    },
-    show: {
-        objectName: RadarChartObjectNames.Labels,
-        propertyName: "show"
-    }
-}
-
-const dataPointReferences: References = {
-    cardUid: "Visual-dataPoint-card",
-    groupUid: "dataPoint-group",
-    fill: {
-        objectName: RadarChartObjectNames.DataPoint,
-        propertyName: "fill"
-    }
-}
-
-const displayReferences: References = {
-    cardUid: "Visual-displaySettings-card",
-    groupUid: "displaySettings-group",
-    axisBeginning: {
-        objectName: RadarChartObjectNames.DisplaySettings,
-        propertyName: "axisBeginning"
-    }
-}
-
-const linesReferences: References = {
-    cardUid: "Visual-line-card",
-    groupUid: "line-group",
-    show: {
-        objectName: RadarChartObjectNames.Line,
-        propertyName: "show"
-    }
-}
 
 export class RadarChart implements IVisual {
     private static VisualClassName: string = "radarChart";
@@ -661,7 +517,7 @@ export class RadarChart implements IVisual {
 
         this.visualOnObjectFormatting = {
             getSubSelectionStyles: (subSelections) => this.getSubSelectionStyles(subSelections),
-            getSubSelectionShortcuts: (subSelections, filter) => this.getSubSelectionShortcuts(subSelections, filter),
+            getSubSelectionShortcuts: (subSelections) => this.getSubSelectionShortcuts(subSelections),
             getSubSelectables: (filter) => this.getSubSelectables(filter)
         };
     }
@@ -863,7 +719,7 @@ export class RadarChart implements IVisual {
             }
         }
     }
-    private getSubSelectionShortcuts(subSelections: CustomVisualSubSelection[], filter: SubSelectionShortcutsKey | undefined): VisualSubSelectionShortcuts | undefined {
+    private getSubSelectionShortcuts(subSelections: CustomVisualSubSelection[]): VisualSubSelectionShortcuts | undefined {
         const visualObject = subSelections[0]?.customVisualObjects[0];
         if (visualObject) {
             switch (visualObject.objectName) {
