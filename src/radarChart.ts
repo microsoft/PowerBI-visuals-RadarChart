@@ -1101,7 +1101,7 @@ export class RadarChart implements IVisual {
                     ...dataPointReferences.fill,
                     selector
                 },
-                label: dataPointReferences.fill.propertyName
+                label: this.localizationManager.getDisplayName("Visual_Fill")
             },
         };
     }

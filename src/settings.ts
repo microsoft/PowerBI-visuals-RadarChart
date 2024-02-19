@@ -119,8 +119,8 @@ export class LegendTitleGroup extends FormattingSettingsSimpleCard {
         displayNameKey: "Visual_Name",
         description: "Title Text",
         descriptionKey: "Visual_Description_Name",
-        value: "",
-        placeholder:""
+        value: "Axis",
+        placeholder: "Title"
     });
 
     name: string = "legendTitleGroup";
