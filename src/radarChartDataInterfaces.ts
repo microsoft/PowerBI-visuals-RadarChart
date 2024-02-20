@@ -26,6 +26,8 @@
 import powerbi from "powerbi-visuals-api";
 import ISelectionId = powerbi.visuals.ISelectionId;
 import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
+import GroupFormattingModelReference = powerbi.visuals.GroupFormattingModelReference;
+import FormattingId = powerbi.visuals.FormattingId;
 
 // Chart utils
 import {legendInterfaces} from "powerbi-visuals-utils-chartutils";
@@ -107,4 +109,36 @@ export interface RadarChartCircularSegment {
     y1: number;
     x2: number;
     y2: number;
+}
+
+export interface IFontReference extends GroupFormattingModelReference {
+    fontFamily?: FormattingId;
+    bold?: FormattingId;
+    italic?: FormattingId;
+    underline?: FormattingId;
+    fontSize?: FormattingId;
+    color?: FormattingId;
+}
+
+export interface ILegendReference extends IFontReference {
+    show?: FormattingId;
+    showTitle?: FormattingId;
+    position?: FormattingId;
+    titleText?: FormattingId;
+}
+
+export interface ILabelsReference extends IFontReference {
+    show?: FormattingId;
+}
+
+export interface IDataPointReference extends GroupFormattingModelReference {
+    fill?: FormattingId;
+}
+
+export interface IDisplayReference extends GroupFormattingModelReference {
+    axisBeginning?: FormattingId;
+}
+
+export interface ILineReference extends GroupFormattingModelReference {
+    show?: FormattingId;
 }
