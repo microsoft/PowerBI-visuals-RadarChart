@@ -66,7 +66,7 @@
     "d3-transition": "^3.0.1",
     "eslint": "^8.56.0",
     "eslint-plugin-powerbi-visuals": "^0.8.1",
-    "powerbi-visuals-api": "../libs/powerbi-visuals-api",
+    "powerbi-visuals-api": "^5.8.0",
     "powerbi-visuals-utils-chartutils": "^6.0.2",
     "powerbi-visuals-utils-colorutils": "^6.0.3",
     "powerbi-visuals-utils-dataviewutils": "^6.0.1",
