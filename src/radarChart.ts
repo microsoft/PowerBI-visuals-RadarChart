@@ -657,7 +657,7 @@ export class RadarChart implements IVisual {
                 const subSelectionIdentity: powerbi.visuals.ISelectionId = subSelections.customVisualObjects[0].selectionId;
                 const selectedSeries: RadarChartSeries = this.radarChartData.series.find((series => series.identity.equals(subSelectionIdentity)));
                 const result: powerbi.visuals.SubSelectionRegionOutlineFragment[] = [{
-                    id: RadarChartObjectNames.DataPoint,
+                    id: subSelectionIdentity.getKey(),
                     outline: {
                         type: powerbi.visuals.SubSelectionOutlineType.Polygon,
                         points: selectedSeries?.dataPoints ? this.calculatePoint(selectedSeries?.dataPoints) : []
