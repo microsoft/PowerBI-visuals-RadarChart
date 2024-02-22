@@ -78,7 +78,7 @@ import IValueFormatter = FormattingUtils.valueFormatter.IValueFormatter;
 import textMeasurementService = FormattingUtils.textMeasurementService;
 
 // On object
-import { HtmlSubSelectableClass, HtmlSubSelectionHelper, SubSelectableDisplayNameAttribute, SubSelectableObjectNameAttribute, SubSelectableDirectEdit as SubSelectableDirectEditAttr, SubSelectableTypeAttribute } from "../node_modules/powerbi-visuals-utils-onobjectformatting/src";
+import { HtmlSubSelectableClass, HtmlSubSelectionHelper, SubSelectableDisplayNameAttribute, SubSelectableObjectNameAttribute, SubSelectableDirectEdit as SubSelectableDirectEditAttr, SubSelectableTypeAttribute } from "powerbi-visuals-utils-onobjectutils";
 import CustomVisualSubSelection = powerbi.visuals.CustomVisualSubSelection;
 import SubSelectionStyles = powerbi.visuals.SubSelectionStyles;
 import VisualShortcutType = powerbi.visuals.VisualShortcutType;
