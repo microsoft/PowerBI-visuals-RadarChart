@@ -1,3 +1,6 @@
+## 3.1.1.0
+* Disable keyboard navigation in format mode
+
 ## 3.1.0.0
 * API 5.8.0
 * Add onObject formatting feature
