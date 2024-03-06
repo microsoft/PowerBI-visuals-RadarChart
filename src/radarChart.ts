@@ -1474,6 +1474,15 @@ export class RadarChart implements IVisual {
             .attr("role", "option")
             .attr("aria-selected", "false")
             .attr("aria-label", (dataPoint: RadarChartDatapoint) => this.getDataPointAriaLabel(dataPoint.tooltipInfo));
+        
+        // remove attributes for keyboard navigation which are irrelevant for format mode.
+        if (this.formatMode){
+            dotsSelection
+                .attr("tabindex", null)
+                .attr("role", null)
+                .attr("aria-selected", null)
+                .attr("aria-label", null);
+        }
 
         this.tooltipServiceWrapper.addTooltip(
             dotsSelection,

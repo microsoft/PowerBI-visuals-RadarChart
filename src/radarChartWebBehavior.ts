@@ -131,6 +131,7 @@ export class RadarChartWebBehavior implements IInteractiveBehavior {
     public removeEventListeners(): void {
         this.selection.on("click", null);
         this.selection.on("contextmenu", null);
+        this.selection.on("keydown", null);
         this.clearCatcher.on("click", null);
         this.clearCatcher.on("contextmenu", null);
         this.legendItems.on("click", null);
