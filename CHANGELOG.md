@@ -1,3 +1,7 @@
+## 3.1.0.0
+* API 5.8.0
+* Add onObject formatting feature
+
 ## 3.0.0.0
 * API 5.7.0
 * Updated outdated packages

@@ -34,11 +34,14 @@ import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
 import FormattingSettingsGroup = formattingSettings.Group;
 
-import { RadarChartSeries } from "./radarChartDataInterfaces";
+import { IDataPointReference, IDisplayReference, IFontReference, ILabelsReference, ILegendReference, ILineReference, RadarChartSeries } from "./radarChartDataInterfaces";
 import { ColorHelper } from "powerbi-visuals-utils-colorutils";
 
 import IEnumMember = powerbi.IEnumMember;
 import ILocalizationManager = powerbi.extensibility.ILocalizationManager;
+
+import SubSelectableDirectEdit = powerbi.visuals.SubSelectableDirectEdit;
+import SubSelectableDirectEditStyle = powerbi.visuals.SubSelectableDirectEditStyle;
 
 interface IEnumMemberWithDisplayNameKey extends IEnumMember{
     key: string;
@@ -60,6 +63,114 @@ const axisBeginningOptions : IEnumMemberWithDisplayNameKey[] = [
     {value : 1, displayName : "South", key: "Visual_South"}
 ];
 
+export const enum RadarChartObjectNames {
+    Legend = "legend",
+    LegendTitle = "legendTitleGroup",
+    DataPoint = "dataPoint",
+    DisplaySettings = "displaySettings",
+    Line = "line",
+    Labels = "labels"
+}
+
+export const TitleEdit: SubSelectableDirectEdit = {
+    reference: {
+        objectName: RadarChartObjectNames.Legend,
+        propertyName: "titleText"
+    },
+    style: SubSelectableDirectEditStyle.HorizontalLeft,
+}
+
+const createBaseFontReference = (objectName: string): IFontReference => {
+    return {
+        fontFamily: {
+            objectName: objectName,
+            propertyName: "fontFamily"
+        },
+        bold: {
+            objectName: objectName,
+            propertyName: "fontBold"
+        },
+        italic: {
+            objectName: objectName,
+            propertyName: "fontItalic"
+        },
+        underline: {
+            objectName: objectName,
+            propertyName: "fontUnderline"
+        },
+        fontSize: {
+            objectName: objectName,
+            propertyName: "fontSize"
+        }
+    }
+}
+
+export const legendReferences: ILegendReference = {
+    ...createBaseFontReference(RadarChartObjectNames.Legend),
+    cardUid: "Visual-legend-card",
+    groupUid: "legendTextGroup-group",
+    show: {
+        objectName: RadarChartObjectNames.Legend,
+        propertyName: "show"
+    },
+    showTitle: {
+        objectName: RadarChartObjectNames.Legend,
+        propertyName: "showTitle"
+    },
+    titleText: {
+        objectName: RadarChartObjectNames.Legend,
+        propertyName: "titleText"
+    },
+    position: {
+        objectName: RadarChartObjectNames.Legend,
+        propertyName: "position"
+    },
+    color: {
+        objectName: RadarChartObjectNames.Legend,
+        propertyName: "labelColor"
+    }
+}
+
+export const labelsReferences: ILabelsReference = {
+    ...createBaseFontReference(RadarChartObjectNames.Labels),
+    cardUid: "Visual-labels-card",
+    groupUid: "labels-group",
+    show: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: "show"
+    },
+    color: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: "color"
+    }
+}
+
+export const dataPointReferences: IDataPointReference = {
+    cardUid: "Visual-dataPoint-card",
+    groupUid: "dataPoint-group",
+    fill: {
+        objectName: RadarChartObjectNames.DataPoint,
+        propertyName: "fill"
+    }
+}
+
+export const displayReferences: IDisplayReference = {
+    cardUid: "Visual-displaySettings-card",
+    groupUid: "displaySettings-group",
+    axisBeginning: {
+        objectName: RadarChartObjectNames.DisplaySettings,
+        propertyName: "axisBeginning"
+    }
+}
+
+export const linesReferences: ILineReference = {
+    cardUid: "Visual-line-card",
+    groupUid: "line-group",
+    show: {
+        objectName: RadarChartObjectNames.Line,
+        propertyName: "show"
+    }
+}
 
 class BaseFontCardSettings extends FormattingSettingsSimpleCard {
     font = new formattingSettings.FontControl({
@@ -119,11 +230,11 @@ export class LegendTitleGroup extends FormattingSettingsSimpleCard {
         displayNameKey: "Visual_Name",
         description: "Title Text",
         descriptionKey: "Visual_Description_Name",
-        value: "",
-        placeholder:""
+        value: "Axis",
+        placeholder: "Title"
     });
 
-    name: string = "legendTitleGroup";
+    name: string = RadarChartObjectNames.LegendTitle;
     displayName: string = "Title";
     displayNameKey: string = "Visual_Title";
     slices: FormattingSettingsSlice[] = [this.titleText];
@@ -164,7 +275,7 @@ export class LegendSettingsCard extends FormattingSettingsCompositeCard {
     text: LegendTextGroup = new LegendTextGroup();
     title: LegendTitleGroup = new LegendTitleGroup();
 
-    name: string = "legend";
+    name: string = RadarChartObjectNames.Legend;
     displayName: string = "Legend";
     displayNameKey: string = "Visual_Legend";
     description: string = "Display Legend Options";
@@ -180,7 +291,7 @@ export class DataPointSettingsCard extends FormattingSettingsSimpleCard {
         value: {value: ""}
     })
 
-    name: string = "dataPoint";
+    name: string = RadarChartObjectNames.DataPoint;
     displayName: string =  "Data colors";
     displayNameKey: string = "Visual_DataColors";
     description: string = "Display data color options";
@@ -215,7 +326,7 @@ export class LineSettingsCard extends FormattingSettingsSimpleCard {
         }
     });
 
-    name: string = "line";
+    name: string = RadarChartObjectNames.Line;
     displayName: string = "Draw Lines";
     displayNameKey: string = "Visual_DrawLines";
     slices: FormattingSettingsSlice[] = [this.lineWidth]
@@ -237,7 +348,7 @@ export class DisplaySettingsCard extends FormattingSettingsSimpleCard {
         value: axisBeginningOptions[0],
     });
 
-    name: string = "displaySettings";
+    name: string = RadarChartObjectNames.DisplaySettings;
     displayName: string = "Display settings";
     displayNameKey: string = "Visual_DisplaySettings";
     slices: FormattingSettingsSlice[] = [this.minValue, this.axisBeginning];
@@ -262,7 +373,7 @@ export class LabelsSettingsCard extends BaseFontCardSettings {
         value : {value: "#000"}
     });
 
-    name: string = "labels";
+    name: string = RadarChartObjectNames.Labels;
     displayNameKey: string = "Visual_DataLabels";
     displayName: string = "Data Labels";
     description: string = "Display data label options";

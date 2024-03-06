@@ -46,19 +46,48 @@ import {RadarChartDatapoint} from "./radarChartDataInterfaces";
 export interface RadarChartBehaviorOptions extends IBehaviorOptions {
     selection: Selection<RadarChartDatapoint>;
     clearCatcher: Selection<any>;
+    legend: Selection<any>;
     hasHighlights: boolean;
+    formatMode: boolean;
 }
 
 export class RadarChartWebBehavior implements IInteractiveBehavior {
     private selection: Selection<RadarChartDatapoint>;
     private hasHighlights: boolean;
+    private clearCatcher: Selection<any>;
+    private legendItems: Selection<any>;
 
     public bindEvents(options: RadarChartBehaviorOptions, selectionHandler: ISelectionHandler): void {
-        const clearCatcher: Selection<any> = options.clearCatcher;
-
         this.selection = options.selection;
         this.hasHighlights = options.hasHighlights;
+        this.clearCatcher = options.clearCatcher;
+        this.legendItems = options.legend;
 
+        if (options.formatMode){
+            // remove event listeners which are irrelevant for format mode.
+            this.removeEventListeners();
+            selectionHandler.handleClearSelection();
+        }
+        else { 
+            this.addEventListeners(selectionHandler);
+        }
+    }
+
+    public renderSelection(hasSelection: boolean): void {
+        this.selection.style("opacity", (dataPoint: RadarChartDatapoint) => {
+            return radarChartUtils.getFillOpacity(
+                dataPoint.selected,
+                dataPoint.highlight,
+                !dataPoint.highlight && hasSelection,
+                !dataPoint.selected && this.hasHighlights);
+        });
+
+        this.selection.attr("aria-selected",(dataPoint: RadarChartDatapoint) =>{
+            return (hasSelection && dataPoint.selected);
+        });
+    }
+
+    public addEventListeners(selectionHandler: ISelectionHandler): void {
         this.selection.on("click", (event: PointerEvent, dataPoint: RadarChartDatapoint) => {
             selectionHandler.handleSelection(dataPoint, event.ctrlKey || event.metaKey || event.shiftKey);
 
@@ -85,11 +114,11 @@ export class RadarChartWebBehavior implements IInteractiveBehavior {
             event.stopPropagation(); 
         })
 
-        clearCatcher.on("click", () => {
+        this.clearCatcher.on("click", () => {
             selectionHandler.handleClearSelection();
         });
 
-        clearCatcher.on("contextmenu", (event: PointerEvent) => {
+        this.clearCatcher.on("contextmenu", (event: PointerEvent) => {
             selectionHandler.handleContextMenu({"selected" : false},
             {
                 x: event.clientX,
@@ -99,17 +128,11 @@ export class RadarChartWebBehavior implements IInteractiveBehavior {
         });
     }
 
-    public renderSelection(hasSelection: boolean): void {
-        this.selection.style("opacity", (dataPoint: RadarChartDatapoint) => {
-            return radarChartUtils.getFillOpacity(
-                dataPoint.selected,
-                dataPoint.highlight,
-                !dataPoint.highlight && hasSelection,
-                !dataPoint.selected && this.hasHighlights);
-        });
-
-        this.selection.attr("aria-selected",(dataPoint: RadarChartDatapoint) =>{
-            return (hasSelection && dataPoint.selected);
-        });
+    public removeEventListeners(): void {
+        this.selection.on("click", null);
+        this.selection.on("contextmenu", null);
+        this.clearCatcher.on("click", null);
+        this.clearCatcher.on("contextmenu", null);
+        this.legendItems.on("click", null);
     }
 }
