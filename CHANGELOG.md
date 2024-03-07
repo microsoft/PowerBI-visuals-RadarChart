@@ -1,3 +1,6 @@
+## 3.1.2.0
+* Fix styling options for the legend
+
 ## 3.1.1.0
 * Disable keyboard navigation in format mode
 

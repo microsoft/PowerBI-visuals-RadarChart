@@ -1563,10 +1563,6 @@ export class RadarChart implements IVisual {
         LegendModule.positionChartArea(this.svg, this.legend);
 
         this.legendItems = this.legendElement.selectAll(RadarChart.LegendItemSelector.selectorName);
-        this.legendItems
-            .style("font-weight",  () => this.formattingSettings.legend.text.font.bold.value ? "bold" : "normal")
-            .style("font-style",  () => this.formattingSettings.legend.text.font.italic.value ? "italic" : "normal")
-            .style("text-decoration", () => this.formattingSettings.legend.text.font.underline.value ? "underline" : "none");
 
         this.legendElement
             .classed(HtmlSubSelectableClass, this.formatMode && this.formattingSettings.legend.show.value)
@@ -1578,6 +1574,11 @@ export class RadarChart implements IVisual {
             .attr(SubSelectableObjectNameAttribute, RadarChartObjectNames.LegendTitle)
             .attr(SubSelectableDisplayNameAttribute, "Title")
             .attr(SubSelectableDirectEditAttr, this.visualTitleEditSubSelection);
+        
+        this.legendElement.selectAll("text")
+            .style("font-weight",  () => this.formattingSettings.legend.text.font.bold.value ? "bold" : "normal")
+            .style("font-style",  () => this.formattingSettings.legend.text.font.italic.value ? "italic" : "normal")
+            .style("text-decoration", () => this.formattingSettings.legend.text.font.underline.value ? "underline" : "none");
     }
 
     private getDataPoints(seriesList: RadarChartSeries[]): RadarChartDatapoint[][] {
