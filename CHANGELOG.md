@@ -1,3 +1,6 @@
+## 3.1.3.0
+* Add new translations
+
 ## 3.1.2.0
 * Fix styling options for the legend
 
