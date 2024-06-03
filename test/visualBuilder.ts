@@ -43,55 +43,41 @@ export class RadarChartBuilder extends VisualBuilderBase<RadarChart> {
     public get instance(): RadarChart {
         return this.visual;
     }
-    public get mainElement(): JQuery {
-        return this.element.children("svg");
+    public get mainElement(): SVGElement {
+        return this.element.querySelector("svg");
     }
 
-    public get chart(): JQuery {
+    public get chart(): HTMLElement {
+        return this.mainElement.querySelector("g > g.chart");
+    }
+
+    public get chartPolygons(): NodeListOf<HTMLElement> {
+        return this.chart.querySelectorAll("g.chartArea > polygon.chartPolygon");
+    }
+
+    public get dataLabelsText(): NodeListOf<HTMLElement> {
+        return this.mainElement.querySelectorAll("g > g.axis > text.axisLabel");
+    }
+
+    public get legendGroup(): HTMLElement {
+        return this.element.querySelector("svg.legend > g#legendGroup");
+    }
+
+    public get legendTitle(): HTMLElement {
+        return this.legendGroup.querySelector(".legendTitle");
+    }
+
+    public get legendItemText(): NodeListOf<HTMLElement> {
+        return this.legendGroup.querySelectorAll(".legendItem > text.legendText");
+    }
+
+    public get legendItemCircle(): NodeListOf<HTMLElement> {
+        return this.legendGroup.querySelectorAll(".legendItem > circle");
+    }
+
+    public get chartDot(): NodeListOf<HTMLElement> {
         return this.mainElement
-            .children("g")
-            .children("g.chart");
-    }
-
-    public get chartPolygons(): JQuery {
-        return this.chart
-            .children("g.chartArea")
-            .children("polygon.chartPolygon");
-    }
-
-    public get dataLabelsText(): JQuery {
-        return this.mainElement
-            .children("g")
-            .children("g.axis")
-            .children("text.axisLabel");
-    }
-
-    public get legendGroup(): JQuery {
-        return this.element
-            .children("svg.legend")
-            .children("g#legendGroup");
-    }
-
-    public get legendTitle(): JQuery {
-        return this.legendGroup.children(".legendTitle");
-    }
-
-    public get legendItemText(): JQuery {
-        return this.legendGroup
-            .children(".legendItem")
-            .children("text.legendText");
-    }
-
-    public get legendItemCircle(): JQuery {
-        return this.legendGroup
-            .children(".legendItem")
-            .children("circle");
-    }
-
-    public get chartDot(): JQuery {
-        return this.mainElement
-            .find("g.chartNode")
-            .first()
-            .children("circle.chartDot");
+            .querySelector("g.chartNode")
+            ?.querySelectorAll("circle.chartDot");
     }
 }

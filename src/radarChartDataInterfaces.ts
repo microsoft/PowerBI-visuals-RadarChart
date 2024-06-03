@@ -26,6 +26,8 @@
 import powerbi from "powerbi-visuals-api";
 import ISelectionId = powerbi.visuals.ISelectionId;
 import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
+import GroupFormattingModelReference = powerbi.visuals.GroupFormattingModelReference;
+import FormattingId = powerbi.visuals.FormattingId;
 
 // Chart utils
 import {legendInterfaces} from "powerbi-visuals-utils-chartutils";
@@ -36,13 +38,14 @@ import {valueFormatter} from "powerbi-visuals-utils-formattingutils";
 import IValueFormatter = valueFormatter.IValueFormatter;
 
 // Interactivity utils
-import {interactivityService} from "powerbi-visuals-utils-interactivityutils";
+import { interactivitySelectionService as interactivityService } from "powerbi-visuals-utils-interactivityutils";
 import SelectableDataPoint = interactivityService.SelectableDataPoint;
 
 // Tooltips utils
 import {TooltipEnabledDataPoint} from "powerbi-visuals-utils-tooltiputils";
 
-import {RadarChartSettings} from "./settings";
+// d3
+import { Arc as d3Arc, DefaultArcObject as d3DefaultArcObject} from "d3-shape";
 
 export interface RadarChartDatapoint extends SelectableDataPoint, TooltipEnabledDataPoint {
     x: number;
@@ -69,10 +72,9 @@ export interface IRadarChartData {
     legendData: LegendData;
     labels: RadarChartLabelsData;
     series: RadarChartSeries[];
-    settings: RadarChartSettings;
 }
 
-export interface RadarChartLabel extends d3.Arc<any, d3.DefaultArcObject> {
+export interface RadarChartLabel extends d3Arc<any, d3DefaultArcObject> {
     text: string;
     index: number;
     x?: number;
@@ -107,4 +109,36 @@ export interface RadarChartCircularSegment {
     y1: number;
     x2: number;
     y2: number;
+}
+
+export interface IFontReference extends GroupFormattingModelReference {
+    fontFamily?: FormattingId;
+    bold?: FormattingId;
+    italic?: FormattingId;
+    underline?: FormattingId;
+    fontSize?: FormattingId;
+    color?: FormattingId;
+}
+
+export interface ILegendReference extends IFontReference {
+    show?: FormattingId;
+    showTitle?: FormattingId;
+    position?: FormattingId;
+    titleText?: FormattingId;
+}
+
+export interface ILabelsReference extends IFontReference {
+    show?: FormattingId;
+}
+
+export interface IDataPointReference extends GroupFormattingModelReference {
+    fill?: FormattingId;
+}
+
+export interface IDisplayReference extends GroupFormattingModelReference {
+    axisBeginning?: FormattingId;
+}
+
+export interface ILineReference extends GroupFormattingModelReference {
+    show?: FormattingId;
 }

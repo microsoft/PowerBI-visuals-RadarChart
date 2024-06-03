@@ -28,12 +28,13 @@
  * Imports external styles.
  * We compile it as a less file in order to wrap the external CSS rules.
  */
-@import (less) "node_modules/powerbi-visuals-utils-interactivityutils/lib/index.css";
-@import (less) "node_modules/powerbi-visuals-utils-chartutils/lib/index.css";
+@import (less) "../node_modules/powerbi-visuals-utils-interactivityutils/lib/index.css";
+@import (less) "../node_modules/powerbi-visuals-utils-chartutils/lib/index.css";
 
 .radarChart {
     @defaultColor: grey;
     @labelLinkColor: #e1e1e1;
+    @dotRadius: 5px;
 
     .pathStyle(@strokeWidth) {
         fill: none;
@@ -75,6 +76,25 @@
         text {
             .pathStyle(1px);
             font-size: 10px;
+        }
+    }
+
+    .chartDot {
+        stroke-width: 0px;
+        transition: stroke-width 100ms;
+
+        &:focus {
+            outline: none;
+        }
+
+        &:focus-visible {
+            outline: auto 1px;
+            border-radius: @dotRadius;
+            outline-color: -webkit-focus-ring-color;
+        }
+
+        &:hover {
+            stroke-width: @dotRadius;
         }
     }
 }

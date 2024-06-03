@@ -26,11 +26,19 @@
 import "./../style/radarChart.less";
 
 import powerbi from "powerbi-visuals-api";
-import * as _ from "lodash";
-import "@babel/polyfill";
+import clone from "lodash.clone";
 
 // d3
-import * as d3 from "d3";
+import { ScaleLinear as d3LinearScale, scaleLinear as d3ScaleLinear} from "d3-scale";
+import { min as d3Min, max as d3Max} from "d3-array";
+import { arc as d3Arc } from "d3-shape";
+import { transition as d3Transition } from "d3-transition";
+import {
+    select as d3Select,
+    Selection as d3Selection 
+} from "d3-selection";
+type Selection<T> = d3Selection<any, T, any, any>;
+d3Select.prototype.transition = d3Transition;
 
 // powerbi
 import IDataViewObject = powerbi.DataViewObject;
@@ -42,9 +50,6 @@ import DataViewCategorical = powerbi.DataViewCategorical;
 import DataViewValueColumns = powerbi.DataViewValueColumns;
 import DataViewValueColumnGroup = powerbi.DataViewValueColumnGroup;
 import DataViewMetadataColumn = powerbi.DataViewMetadataColumn;
-import EnumerateVisualObjectInstancesOptions = powerbi.EnumerateVisualObjectInstancesOptions;
-import VisualObjectInstanceEnumeration = powerbi.VisualObjectInstanceEnumeration;
-import VisualObjectInstance = powerbi.VisualObjectInstance;
 
 // powerbi.extensibility
 import IColorPalette = powerbi.extensibility.IColorPalette;
@@ -54,9 +59,9 @@ import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructor
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
-
-// powerbi.visuals
-import IVisualSelectionId = powerbi.visuals.ISelectionId;
+import ILocalizationManager = powerbi.extensibility.ILocalizationManager;
+import IVisualEventService = powerbi.extensibility.IVisualEventService;
+import IPoint = powerbi.extensibility.IPoint;
 
 // Svg utils
 import * as SvgUtils from "powerbi-visuals-utils-svgutils";
@@ -67,16 +72,31 @@ import CreateClassAndSelector = SvgUtils.CssConstants.createClassAndSelector;
 
 // Formatting utils
 import * as FormattingUtils from "powerbi-visuals-utils-formattingutils";
-import TextProperties = FormattingUtils.textMeasurementService.TextProperties;
-import valueFormatter = FormattingUtils.valueFormatter.valueFormatter;
+import TextProperties = FormattingUtils.interfaces.TextProperties;
+import valueFormatter = FormattingUtils.valueFormatter;
 import IValueFormatter = FormattingUtils.valueFormatter.IValueFormatter;
-import textMeasurementService = FormattingUtils.textMeasurementService.textMeasurementService;
+import textMeasurementService = FormattingUtils.textMeasurementService;
+
+// On object
+import { HtmlSubSelectableClass, HtmlSubSelectionHelper, SubSelectableDisplayNameAttribute, SubSelectableObjectNameAttribute, SubSelectableDirectEdit as SubSelectableDirectEditAttr, SubSelectableTypeAttribute } from "powerbi-visuals-utils-onobjectutils";
+import CustomVisualSubSelection = powerbi.visuals.CustomVisualSubSelection;
+import SubSelectionStyles = powerbi.visuals.SubSelectionStyles;
+import VisualShortcutType = powerbi.visuals.VisualShortcutType;
+import VisualSubSelectionShortcuts = powerbi.visuals.VisualSubSelectionShortcuts;
+import SubSelectionStylesType = powerbi.visuals.SubSelectionStylesType;
 
 // Interactivity utils
-import { interactivityService } from "powerbi-visuals-utils-interactivityutils";
-import IInteractivityService = interactivityService.IInteractivityService;
-import IInteractiveBehavior = interactivityService.IInteractiveBehavior;
-import createInteractivityService = interactivityService.createInteractivityService;
+import {
+    interactivityBaseService,
+    interactivitySelectionService as interactivityService
+} from "powerbi-visuals-utils-interactivityutils";
+
+import SelectableDataPoint = interactivityService.SelectableDataPoint;
+import IInteractiveBehavior = interactivityBaseService.IInteractiveBehavior;
+import IInteractivityServiceCommon = interactivityBaseService.IInteractivityService;
+import createInteractivityService = interactivityService.createInteractivitySelectionService;
+
+type IInteractivityService = IInteractivityServiceCommon<SelectableDataPoint>;
 
 // Type utils
 import { pixelConverter as PixelConverter } from "powerbi-visuals-utils-typeutils";
@@ -85,11 +105,13 @@ import { pixelConverter as PixelConverter } from "powerbi-visuals-utils-typeutil
 import { ColorHelper } from "powerbi-visuals-utils-colorutils";
 
 // Tooltips utils
-import { TooltipEventArgs, ITooltipServiceWrapper, createTooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
+import { ITooltipServiceWrapper, createTooltipServiceWrapper } from "powerbi-visuals-utils-tooltiputils";
 
 // Dataview utils
 import { dataViewObjects } from "powerbi-visuals-utils-dataviewutils";
-import DataViewObjects = dataViewObjects.DataViewObjects;
+
+// Formatting model utils
+import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
 
 // Chart utils
 import * as ChartUtils from "powerbi-visuals-utils-chartutils";
@@ -98,18 +120,15 @@ import ILegend = ChartUtils.legendInterfaces.ILegend;
 import LegendData = ChartUtils.legendInterfaces.LegendData;
 import LegendDataPoint = ChartUtils.legendInterfaces.LegendDataPoint;
 import LegendDataModule = ChartUtils.legendData;
-import LegendIcon = ChartUtils.legendInterfaces.LegendIcon;
-import legendProps = ChartUtils.legendInterfaces.legendProps;
 import createLegend = ChartUtils.legend.createLegend;
 import LegendPosition = ChartUtils.legendInterfaces.LegendPosition;
 import OutsidePlacement = ChartUtils.dataLabelInterfaces.OutsidePlacement;
 import OpacityLegendBehavior = ChartUtils.OpacityLegendBehavior;
 import { RadarChartWebBehavior, RadarChartBehaviorOptions } from "./radarChartWebBehavior";
 import { RadarChartSeries, RadarChartCircularSegment, RadarChartLabel, RadarChartDatapoint, IRadarChartData, RadarChartLabelsData } from "./radarChartDataInterfaces";
-import { LabelSettings, RadarChartSettings } from "./settings";
+import { LabelsSettingsCard, RadarChartObjectNames, RadarChartSettingsModel, TitleEdit, dataPointReferences, displayReferences, labelsReferences, legendReferences, linesReferences } from "./settings";
 import * as RadarChartUtils from "./radarChartUtils";
 import * as TooltipBuilder from "./tooltipBuilder";
-import { ScaleLinear } from "d3";
 
 export class RadarChart implements IVisual {
     private static VisualClassName: string = "radarChart";
@@ -126,6 +145,8 @@ export class RadarChart implements IVisual {
     private static LabelGraphicsContextSelector: ClassAndSelector = CreateClassAndSelector("labelGraphicsContext");
     private static AxisLabelLinkLongLineSelector: ClassAndSelector = CreateClassAndSelector("axisLongLabelLink");
     private static AxisLabelLinkShortLineSelector: ClassAndSelector = CreateClassAndSelector("axisShortLabelLink");
+    private static LegendItemSelector: ClassAndSelector = CreateClassAndSelector("legendItem");
+    private static LegendTitleSelector: ClassAndSelector = CreateClassAndSelector("legendTitle");
 
     private static MaxLineWidth: number = 10;
     private static MinLineWidth: number = 1;
@@ -189,10 +210,13 @@ export class RadarChart implements IVisual {
     private static LabelHorizontalShiftStep: number = 5;
     private static LabelMarginFactor: number = 30;
 
-    private svg: d3.Selection<d3.BaseType, {}, null, undefined>;
-    private chart: d3.Selection<d3.BaseType, {}, null, undefined>;
+    private root: Selection<any>;
+    private svg: Selection<any>;
+    private chart: Selection<any>;
+    private legendElement: Selection<any>;
+    private legendItems: Selection<any>;
 
-    private mainGroupElement: d3.Selection<d3.BaseType, {}, null, undefined>;
+    private mainGroupElement: Selection<any>;
     private colorPalette: IColorPalette;
     private colorHelper: ColorHelper;
     private viewport: IViewport;
@@ -201,6 +225,8 @@ export class RadarChart implements IVisual {
     private interactivityService: IInteractivityService;
     private behavior: IInteractiveBehavior;
     private visualHost: IVisualHost;
+    private localizationManager: ILocalizationManager;
+    private events: IVisualEventService;
 
     private tooltipServiceWrapper: ITooltipServiceWrapper;
 
@@ -212,9 +238,14 @@ export class RadarChart implements IVisual {
     private angle: number;
     private radius: number;
 
-    private get settings(): RadarChartSettings {
-        return this.radarChartData && this.radarChartData.settings;
-    }
+    public formattingSettings: RadarChartSettingsModel;
+    private formattingSettingsService: FormattingSettingsService;
+    private formattingSettingsModel: powerbi.visuals.FormattingModel;
+
+    private subSelectionHelper: HtmlSubSelectionHelper;
+    private formatMode: boolean = false;
+    private visualTitleEditSubSelection = JSON.stringify(TitleEdit);
+    public visualOnObjectFormatting?: powerbi.extensibility.visual.VisualOnObjectFormatting;
 
     private static getLabelsData(dataView: DataView): RadarChartLabelsData {
         if (!dataView
@@ -229,22 +260,21 @@ export class RadarChart implements IVisual {
             return null;
         }
 
-        let categoryValues: PrimitiveValue[] = dataView.categorical.categories[0].values,
-            formatter: IValueFormatter;
+        const categoryValues: PrimitiveValue[] = dataView.categorical.categories[0].values;
 
-        formatter = valueFormatter.create({
+        const formatter: IValueFormatter = valueFormatter.create({
             format: valueFormatter.getFormatStringByColumn(
                 dataView.metadata.columns[0],
                 true),
         });
 
-        let labelsData: RadarChartLabelsData = {
+        const labelsData: RadarChartLabelsData = {
             labelPoints: [],
             formatter: formatter,
         };
 
         for (let i: number = 0, iLen: number = categoryValues.length; i < iLen; i++) {
-            const radarChartLabel: RadarChartLabel = d3.arc() as RadarChartLabel;
+            const radarChartLabel: RadarChartLabel = d3Arc() as RadarChartLabel;
             radarChartLabel.text = categoryValues[i] as string;
             radarChartLabel.startAngle = null;
             radarChartLabel.endAngle = null;
@@ -270,10 +300,12 @@ export class RadarChart implements IVisual {
         }
     }
     private static minimumAxisCount: number = 4;
+    // eslint-disable-next-line max-lines-per-function
     public static converter(dataView: DataView,
         colorPalette: IColorPalette,
         colorHelper: ColorHelper,
         visualHost: IVisualHost,
+        settings: RadarChartSettingsModel,
         interactivityService?: IInteractivityService): IRadarChartData {
 
         if (!dataView
@@ -291,47 +323,41 @@ export class RadarChart implements IVisual {
                 legendData: {
                     dataPoints: []
                 },
-                settings: this.parseSettings(dataView, colorHelper),
                 labels: RadarChart.getLabelsData(dataView),
                 series: []
             };
         }
-        let catDv: DataViewCategorical = dataView.categorical,
+        const catDv: DataViewCategorical = dataView.categorical,
             values: DataViewValueColumns = catDv.values,
-            series: RadarChartSeries[] = [],
-            grouped: DataViewValueColumnGroup[];
-        const settings: RadarChartSettings = this.parseSettings(dataView, colorHelper);
+            series: RadarChartSeries[] = [];
+
         RadarChart.checkAndUpdateAxis(dataView, values);
-        grouped = catDv && catDv.values
+        const grouped: DataViewValueColumnGroup[] = catDv && catDv.values
             ? catDv.values.grouped()
             : null;
-        const fillProp: DataViewObjectPropertyIdentifier = {
-            objectName: "dataPoint",
-            propertyName: "fill"
-        };
-        const localColorHelper: ColorHelper = new ColorHelper(colorPalette, fillProp, settings.dataPoint.fill);
 
-        let hasHighlights: boolean = !!(values.length > 0 && values[0].highlights);
+        const hasHighlights: boolean = !!(values.length > 0 && values[0].highlights);
 
-        let legendData: LegendData = {
-            fontSize: settings.legend.fontSize,
+        const legendData: LegendData = {
+            fontSize: settings.legend.text.font.fontSize.value,
             dataPoints: [],
-            title: settings.legend.titleText,
-            labelColor: settings.legend.labelColor
+            title: settings.legend.title.titleText.value,
+            labelColor: settings.legend.text.labelColor.value.value,
+            fontFamily: settings.legend.text.font.fontFamily.value
         };
         for (let i: number = 0, iLen: number = values.length; i < iLen; i++) {
-            let color: string = colorPalette.getColor(i.toString()).value,
+            let dataPointFillColor: string,
                 serieIdentity: ISelectionId,
                 queryName: string,
-                displayName: string,
-                dataPoints: RadarChartDatapoint[] = [];
+                displayName: string;
+            const dataPoints: RadarChartDatapoint[] = [];
 
-            let columnGroup: DataViewValueColumnGroup = grouped && grouped.length > i && grouped[i].values
+            const columnGroup: DataViewValueColumnGroup = grouped && grouped.length > i && grouped[i].values
                 ? grouped[i]
                 : null;
 
             if (values[i].source) {
-                let source: DataViewMetadataColumn = values[i].source;
+                const source: DataViewMetadataColumn = values[i].source;
 
                 if (source.queryName) {
                     queryName = source.queryName;
@@ -346,36 +372,41 @@ export class RadarChart implements IVisual {
                 }
 
                 if (source.objects) {
-                    color = localColorHelper.getColorForMeasure(source.objects, queryName);
+                    const fillProp: DataViewObjectPropertyIdentifier = {
+                        objectName: "dataPoint",
+                        propertyName: "fill"
+                    };
+                    dataPointFillColor = dataViewObjects.getFillColor(source.objects, fillProp);
                 }
             }
 
+            const colorFromPalette: string = colorPalette.getColor(i.toString()).value;
+            const color: string = dataPointFillColor ?? colorFromPalette;
             const legendDataPointsColor: string = colorHelper.isHighContrast ? colorHelper.getHighContrastColor("foreground", color) : color;
             legendData.dataPoints.push(<LegendDataPoint>{
                 label: displayName,
                 color: legendDataPointsColor,
-                icon: LegendIcon.Box,
                 selected: false,
                 identity: serieIdentity
             });
 
             for (let k: number = 0, kLen: number = values[i].values.length; k < kLen; k++) {
-                let dataPointIdentity: ISelectionId = visualHost.createSelectionIdBuilder()
+                const dataPointIdentity: ISelectionId = visualHost.createSelectionIdBuilder()
                     .withMeasure(queryName)
                     .withCategory(catDv.categories[0], k)
                     .withSeries(dataView.categorical.values, columnGroup)
                     .createSelectionId();
 
-                let tooltipInfo: VisualTooltipDataItem[] = TooltipBuilder.createTooltipInfo(
+                const tooltipInfo: VisualTooltipDataItem[] = TooltipBuilder.createTooltipInfo(
                     <any>catDv,
                     catDv.categories[0].values[k],
                     values[i].values[k],
                     i);
-                let currCatValue = catDv.categories[0].values[k];
-                let labelFormatString: string = valueFormatter.getFormatStringByColumn(catDv.values[i].source),
-                    fontSizeInPx: string = PixelConverter.fromPoint(settings.labels.fontSize);
+                const currCatValue = catDv.categories[0].values[k];
+                const labelFormatString: string = valueFormatter.getFormatStringByColumn(catDv.values[i].source),
+                    fontSizeInPx: string = PixelConverter.fromPoint(settings.labels.font.fontSize.value);
 
-                let notConvertedValue: PrimitiveValue = values[i].values[k],
+                const notConvertedValue: PrimitiveValue = values[i].values[k],
                     y: number = notConvertedValue === RadarChart.fakeValue ? 0 : (notConvertedValue !== null ? Number(notConvertedValue) : NaN);
                 if (!isNaN(y)) {
                     dataPoints.push({
@@ -414,7 +445,6 @@ export class RadarChart implements IVisual {
         return {
             labels: RadarChart.getLabelsData(dataView),
             legendData: legendData,
-            settings: settings,
             series: series
         };
     }
@@ -424,21 +454,33 @@ export class RadarChart implements IVisual {
 
         this.colorPalette = options.host.colorPalette;
         this.colorHelper = new ColorHelper(this.colorPalette);
+        this.root = d3Select(options.element);
 
         if (!this.svg) {
-            this.svg = d3.select(element).append("svg");
+            this.svg = d3Select(element).append("svg");
             this.svg.style("position", "absolute");
         }
 
         if (!this.margin) {
-            this.margin = _.clone(RadarChart.DefaultMargin);
+            this.margin = clone(RadarChart.DefaultMargin);
         }
 
         this.svg.classed(RadarChart.VisualClassName, true);
 
         this.visualHost = options.host;
+        this.localizationManager = this.visualHost.createLocalizationManager();
+        this.formattingSettingsService = new FormattingSettingsService(this.localizationManager);
+
+        this.subSelectionHelper = HtmlSubSelectionHelper.createHtmlSubselectionHelper({
+            hostElement: options.element,
+            subSelectionService: options.host.subSelectionService,
+            selectionIdCallback: (e) => this.selectionIdCallback(e),
+            customOutlineCallback: (e) => this.customOutlineCallback(e)
+        });
+
         this.interactivityService = createInteractivityService(this.visualHost);
         this.behavior = new RadarChartWebBehavior();
+        this.events = options.host.eventService;
 
         this.tooltipServiceWrapper = createTooltipServiceWrapper(
             options.host.tooltipService,
@@ -452,6 +494,8 @@ export class RadarChart implements IVisual {
             true,
             LegendPosition.Top,
             interactiveBehavior);
+
+        this.legendElement = this.root.select("g#legendGroup");
 
         this.mainGroupElement = this.svg.append("g");
 
@@ -470,6 +514,12 @@ export class RadarChart implements IVisual {
         this.chart = this.mainGroupElement
             .append("g")
             .classed(RadarChart.ChartSelector.className, true);
+
+        this.visualOnObjectFormatting = {
+            getSubSelectionStyles: (subSelections) => this.getSubSelectionStyles(subSelections),
+            getSubSelectionShortcuts: (subSelections) => this.getSubSelectionShortcuts(subSelections),
+            getSubSelectables: (filter) => this.getSubSelectables(filter)
+        };
     }
 
     public update(options: VisualUpdateOptions): void {
@@ -477,26 +527,36 @@ export class RadarChart implements IVisual {
             this.clear();
             return;
         }
-        let dataView: DataView = options.dataViews[0];
+        this.events.renderingStarted(options);
+        const dataView: DataView = options.dataViews[0];
+
+        this.formatMode = options.formatMode;
+        this.formattingSettings = RadarChart.parseSettings(dataView, this.colorHelper, this.formattingSettingsService);
+        this.formattingSettings.setLocalizedOptions(this.localizationManager);
+        this.legendObjectProperties = RadarChart.parseLegendProperties(dataView, this.colorHelper, this.formattingSettings);
+
         this.radarChartData = RadarChart.converter(
             dataView,
             this.colorPalette,
             this.colorHelper,
             this.visualHost,
+            this.formattingSettings,
             this.interactivityService);
 
-        let categories: PrimitiveValue[] = [],
-            series: RadarChartSeries[] = this.radarChartData.series;
+        let categories: PrimitiveValue[] = [];
+        const series: RadarChartSeries[] = this.radarChartData.series;
 
         if (dataView.categorical
             && dataView.categorical.categories
             && dataView.categorical.categories[0]
             && dataView.categorical.categories[0].values
             && (series.length > 0)) {
+            this.formattingSettings.setMinMaxValuesForDisplay(this.getMinValue(dataView));
 
             categories = dataView.categorical.categories[0].values;
         } else {
             this.clear();
+            this.events.renderingFinished(options);
             return;
         }
         this.viewport = {
@@ -508,8 +568,9 @@ export class RadarChart implements IVisual {
                 : RadarChart.MinViewport.width
         };
 
-        this.parseLegendProperties(dataView);
-        this.parseLineWidth();
+        this.formattingSettings.populateDataPointSlice(this.radarChartData.series);
+        this.formattingSettings.setVisibilityOfColorSlices(this.colorHelper);
+
         this.renderLegend();
         this.updateViewport();
 
@@ -520,18 +581,19 @@ export class RadarChart implements IVisual {
             "transform",
             translate(this.viewport.width / 2, this.viewport.height / 2));
 
-        let labelsFontSize: number = this.radarChartData.settings.labels.fontSize;
+        const labelsFontSize: number = this.formattingSettings.labels.font.fontSize.value;
 
         this.margin.top = Math.max(RadarChart.DefaultMargin.top, labelsFontSize);
         this.margin.left = Math.max(RadarChart.DefaultMargin.left, labelsFontSize);
         this.margin.right = Math.max(RadarChart.DefaultMargin.right, labelsFontSize);
         this.margin.bottom = Math.max(RadarChart.DefaultMargin.bottom, labelsFontSize);
 
-        let width: number = this.viewport.width - this.margin.left - this.margin.right,
+        const width: number = this.viewport.width - this.margin.left - this.margin.right,
             height: number = this.viewport.height - this.margin.top - this.margin.bottom;
 
         if ((width < RadarChart.MinViewportToRender.width) || (height < RadarChart.MinViewportToRender.height)) {
             this.clear();
+            this.events.renderingFinished(options);
             return;
         }
 
@@ -548,6 +610,356 @@ export class RadarChart implements IVisual {
 
         this.createAxesLabels();
         this.drawChart(series, RadarChart.AnimationDuration);
+
+        this.subSelectionHelper.setFormatMode(options.formatMode);
+        const shouldUpdateSubSelection = options.type & (powerbi.VisualUpdateType.Data
+            | powerbi.VisualUpdateType.Resize
+            | powerbi.VisualUpdateType.FormattingSubSelectionChange);
+        if (this.formatMode && shouldUpdateSubSelection) {
+            this.subSelectionHelper.updateOutlinesFromSubSelections(options.subSelections, true);
+        }
+
+        this.events.renderingFinished(options);
+    }
+
+    public getMinValue(dataView: DataView) : number {
+        let minValue = d3Min(<number[]>dataView.categorical.values[0].values);
+        for (let i: number = 0; i < dataView.categorical.values.length; i++) {
+            const minValueL = d3Min(<number[]>dataView.categorical.values[i].values);
+            if (minValue > minValueL) {
+                minValue = minValueL;
+            }
+        }
+        return minValue;
+    }
+
+    public getFormattingModel(): powerbi.visuals.FormattingModel {
+        return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
+    }
+
+    public selectionIdCallback(e: Element): powerbi.visuals.ISelectionId {
+        const elementType: string = d3Select(e).attr(SubSelectableObjectNameAttribute);
+
+        switch (elementType) {
+            case RadarChartObjectNames.DataPoint: {
+                const datum = d3Select<Element, RadarChartSeries>(e).datum();
+                return datum.identity;
+            }
+            default:
+                return undefined;
+        }
+    }
+
+    public customOutlineCallback(subSelections: CustomVisualSubSelection): powerbi.visuals.SubSelectionRegionOutlineFragment[] {
+        const elementType: string = subSelections.customVisualObjects[0].objectName;
+        switch (elementType) {
+            case RadarChartObjectNames.DataPoint: {
+                const subSelectionIdentity: powerbi.visuals.ISelectionId = subSelections.customVisualObjects[0].selectionId;
+                const selectedSeries: RadarChartSeries = this.radarChartData.series.find((series => series.identity.equals(subSelectionIdentity)));
+                const result: powerbi.visuals.SubSelectionRegionOutlineFragment[] = [{
+                    id: subSelectionIdentity.getKey(),
+                    outline: {
+                        type: powerbi.visuals.SubSelectionOutlineType.Polygon,
+                        points: selectedSeries?.dataPoints ? this.calculatePoint(selectedSeries?.dataPoints) : []
+                    }
+                }]
+                return result;
+            }
+            default:
+                return undefined;
+        }
+    }
+
+    private calculatePoint(dataPoints: RadarChartDatapoint[]): IPoint[] {
+        if (dataPoints.length === 0){
+            return [];
+        }
+        const yDomain: d3LinearScale<number, number> = this.calculateChartDomain(this.radarChartData.series);
+        const angle: number = this.angle;
+        const axisBeginning: number = +this.formattingSettings.display.axisBeginning.value.value;
+
+        let xShift: number = this.viewport.width / 2;
+        let yShift: number = this.viewport.height / 2;
+
+        //add x and y shifts depending on the orientation of the legend
+        const legendPosition: number = this.legend.getOrientation();
+        switch (legendPosition) {
+            case LegendPosition.Left:
+            case LegendPosition.LeftCenter:
+                xShift+=this.legend.getMargins().width;
+                break;
+            case LegendPosition.Top:
+            case LegendPosition.TopCenter:
+                yShift+=this.legend.getMargins().height;
+                break;
+        }
+        
+        const points: IPoint[] = dataPoints.map((value) => {
+            if (value.showPoint) {
+                const x1: number = yDomain(value.y) * Math.sin(value.x * angle) + xShift,
+                    y1: number = axisBeginning * yDomain(value.y) * Math.cos(value.x * angle) + yShift;
+
+                return {x: x1, y: y1};
+            }
+        });
+
+        return points;
+    }
+
+    private getSubSelectionStyles(subSelections: CustomVisualSubSelection[]): SubSelectionStyles | undefined {
+        const visualObject = subSelections[0]?.customVisualObjects[0];
+        if (visualObject) {
+            switch (visualObject.objectName) {
+                case RadarChartObjectNames.Legend:
+                    return this.getLegendStyles();
+                case RadarChartObjectNames.Labels:
+                    return this.getLabelsStyles();
+                case RadarChartObjectNames.DataPoint:
+                    return this.getDataPointStyles(subSelections);
+            }
+        }
+    }
+    private getSubSelectionShortcuts(subSelections: CustomVisualSubSelection[]): VisualSubSelectionShortcuts | undefined {
+        const visualObject = subSelections[0]?.customVisualObjects[0];
+        if (visualObject) {
+            switch (visualObject.objectName) {
+                case RadarChartObjectNames.Legend:
+                    return this.getLegendShortcuts();
+                case RadarChartObjectNames.LegendTitle:
+                    return this.getLegendTitleShortcuts();
+                case RadarChartObjectNames.Labels:
+                    return this.getLabelsShortcuts();
+                case RadarChartObjectNames.DataPoint:
+                    return this.getDataPointShortcuts(subSelections);
+            }
+        }
+    }
+    private getSubSelectables?(filter?: SubSelectionStylesType): CustomVisualSubSelection[] | undefined {
+        return this.subSelectionHelper.getAllSubSelectables(filter);
+    }
+
+    private getLegendTitleShortcuts(): VisualSubSelectionShortcuts {
+        return [
+            {
+                type: VisualShortcutType.Reset,
+                relatedResetFormattingIds: [
+                    legendReferences.showTitle,
+                    legendReferences.titleText
+                ]
+            },
+            {
+                type: VisualShortcutType.Toggle,
+                ...legendReferences.showTitle,
+                disabledLabel: this.localizationManager.getDisplayName("Visual_OnObject_DeleteTitle")
+            },
+            {
+                type: VisualShortcutType.Divider,
+            },
+            {
+                type: VisualShortcutType.Navigate,
+                destinationInfo: { cardUid: legendReferences.cardUid, groupUid: "legendTitleGroup-group" },
+                label: this.localizationManager.getDisplayName("Visual_OnObject_FormatTitle")
+            }
+        ];
+    }
+    private getLegendShortcuts(): VisualSubSelectionShortcuts {
+        return [
+            {
+                type: VisualShortcutType.Reset,
+                relatedResetFormattingIds: [
+                    legendReferences.bold,
+                    legendReferences.fontFamily,
+                    legendReferences.fontSize,
+                    legendReferences.italic,
+                    legendReferences.underline,
+                    legendReferences.color,
+                    legendReferences.showTitle,
+                    legendReferences.titleText
+                ]
+            },
+            {
+                type: VisualShortcutType.Picker,
+                ...legendReferences.position,
+                label: this.localizationManager.getDisplayName("Visual_Position")
+            },
+            {
+                type: VisualShortcutType.Toggle,
+                ...legendReferences.show,
+                disabledLabel: this.localizationManager.getDisplayName("Visual_OnObject_DeleteLegend")
+            },
+            {
+                type: VisualShortcutType.Toggle,
+                ...legendReferences.showTitle,
+                enabledLabel: this.localizationManager.getDisplayName("Visual_OnObject_AddTitle")
+            },
+            {
+                type: VisualShortcutType.Divider,
+            },
+            {
+                type: VisualShortcutType.Navigate,
+                destinationInfo: { cardUid: legendReferences.cardUid, groupUid: legendReferences.groupUid },
+                label: this.localizationManager.getDisplayName("Visual_OnObject_FormatLegend")
+            }
+        ];
+    }
+    private getLegendStyles(): SubSelectionStyles {
+        return {
+            type: SubSelectionStylesType.Text,
+            fontFamily: {
+                reference: {
+                    ...legendReferences.fontFamily
+                },
+                label: legendReferences.fontFamily.propertyName
+            },
+            bold: {
+                reference: {
+                    ...legendReferences.bold
+                },
+                label: legendReferences.bold.propertyName
+            },
+            italic: {
+                reference: {
+                    ...legendReferences.italic
+                },
+                label: legendReferences.italic.propertyName
+            },
+            underline: {
+                reference: {
+                    ...legendReferences.underline
+                },
+                label: legendReferences.underline.propertyName
+            },
+            fontSize: {
+                reference: {
+                    ...legendReferences.fontSize
+                },
+                label: legendReferences.fontSize.propertyName
+            },
+            fontColor: {
+                reference: {
+                    ...legendReferences.color
+                },
+                label: legendReferences.color.propertyName
+            }
+        };
+    }
+
+    private getLabelsShortcuts(): VisualSubSelectionShortcuts {
+        return [
+            {
+                type: VisualShortcutType.Reset,
+                relatedResetFormattingIds: [
+                    labelsReferences.bold,
+                    labelsReferences.fontFamily,
+                    labelsReferences.fontSize,
+                    labelsReferences.italic,
+                    labelsReferences.underline,
+                    labelsReferences.color
+                ]
+            },
+            {
+                type: VisualShortcutType.Toggle,
+                ...labelsReferences.show,
+                disabledLabel: this.localizationManager.getDisplayName("Visual_OnObject_DeleteLabels"),
+                enabledLabel: this.localizationManager.getDisplayName("Visual_OnObject_AddLabels")
+            },
+            {
+                type: VisualShortcutType.Divider,
+            },
+            {
+                type: VisualShortcutType.Navigate,
+                destinationInfo: { cardUid: labelsReferences.cardUid },
+                label: this.localizationManager.getDisplayName("Visual_OnObject_FormatLabels")
+            }
+        ];
+    }
+    private getLabelsStyles(): SubSelectionStyles {
+        return {
+            type: SubSelectionStylesType.Text,
+            fontFamily: {
+                reference: {
+                    ...labelsReferences.fontFamily
+                },
+                label: labelsReferences.fontFamily.propertyName
+            },
+            bold: {
+                reference: {
+                    ...labelsReferences.bold
+                },
+                label: labelsReferences.bold.propertyName
+            },
+            italic: {
+                reference: {
+                    ...labelsReferences.italic
+                },
+                label: labelsReferences.italic.propertyName
+            },
+            underline: {
+                reference: {
+                    ...labelsReferences.underline
+                },
+                label: labelsReferences.underline.propertyName
+            },
+            fontSize: {
+                reference: {
+                    ...labelsReferences.fontSize
+                },
+                label: labelsReferences.fontSize.propertyName
+            },
+            fontColor: {
+                reference: {
+                    ...labelsReferences.color
+                },
+                label: labelsReferences.color.propertyName
+            }
+        };
+    }
+
+    private getDataPointShortcuts(subSelections: CustomVisualSubSelection[]): VisualSubSelectionShortcuts {
+        const selector = subSelections[0].customVisualObjects[0].selectionId?.getSelector();
+        return [
+            {
+                type: VisualShortcutType.Reset,
+                relatedResetFormattingIds: [{
+                    ...dataPointReferences.fill,
+                    selector
+                },
+                displayReferences.axisBeginning,
+                linesReferences.show],
+            },
+            {
+                type: VisualShortcutType.Toggle,
+                ...linesReferences.show,
+                disabledLabel: this.localizationManager.getDisplayName("Visual_OnObject_DrawPolygons"),
+                enabledLabel: this.localizationManager.getDisplayName("Visual_DrawLines")
+            },
+            {
+                type: VisualShortcutType.Picker,
+                ...displayReferences.axisBeginning,
+                label: this.localizationManager.getDisplayName("Visual_AxisStartPosition")
+            },
+            {
+                type: VisualShortcutType.Divider,
+            },
+            {
+                type: VisualShortcutType.Navigate,
+                destinationInfo: { cardUid: dataPointReferences.cardUid },
+                label: this.localizationManager.getDisplayName("Visual_OnObject_FormatColors")
+            }
+        ];
+    }
+    private getDataPointStyles(subSelections: CustomVisualSubSelection[]): SubSelectionStyles {
+        const selector = subSelections[0].customVisualObjects[0].selectionId?.getSelector();
+        return {
+            type: SubSelectionStylesType.Shape,
+            fill: {
+                reference: {
+                    ...dataPointReferences.fill,
+                    selector
+                },
+                label: this.localizationManager.getDisplayName("Visual_Fill")
+            },
+        };
     }
 
     private clear(): void {
@@ -581,12 +993,12 @@ export class RadarChart implements IVisual {
             .remove();
 
         this.legend.reset();
-        this.legend.drawLegend({ dataPoints: [] }, _.clone(this.viewport));
+        this.legend.drawLegend({ dataPoints: [] }, clone(this.viewport));
     }
 
-    private changeAxesLineColorInHighMode(selectionArray: d3.Selection<d3.BaseType, any, any, any>[]): void {
+    private changeAxesLineColorInHighMode(selectionArray: Selection<any>[]): void {
         if (this.colorHelper.isHighContrast) {
-            let lineColor: string = this.settings.legend.labelColor;
+            const lineColor: string = this.formattingSettings.legend.text.labelColor.value.value;
 
             selectionArray.forEach((selection) => {
                 selection.style("stroke", lineColor);
@@ -595,15 +1007,15 @@ export class RadarChart implements IVisual {
     }
 
     private drawCircularSegments(values: PrimitiveValue[]): void {
-        let axisBeginning: number = this.radarChartData.settings.displaySettings.axisBeginning;
-        let data: RadarChartCircularSegment[] = [],
+        const axisBeginning: number = +this.formattingSettings.display.axisBeginning.value.value;
+        const data: RadarChartCircularSegment[] = [],
             angle: number = this.angle,
             factor: number = RadarChart.SegmentFactor,
             levels: number = RadarChart.SegmentLevels,
             radius: number = this.radius;
 
         for (let level: number = 0; level < levels; level++) {
-            let levelFactor: number = radius * factor * ((level + 1) / levels);
+            const levelFactor: number = radius * factor * ((level + 1) / levels);
 
             for (let i: number = 0; i <= values.length; i++) {
                 data.push({
@@ -615,7 +1027,7 @@ export class RadarChart implements IVisual {
             }
         }
 
-        let selection: d3.Selection<d3.BaseType, RadarChartCircularSegment, any, any> = this.mainGroupElement
+        let selection: Selection<RadarChartCircularSegment> = this.mainGroupElement
             .select(RadarChart.SegmentsSelector.selectorName)
             .selectAll(RadarChart.SegmentNodeSElector.selectorName)
             .data(data);
@@ -638,15 +1050,15 @@ export class RadarChart implements IVisual {
     }
 
     private drawAxes(values: PrimitiveValue[]): void {
-        let axisBeginning: number = this.radarChartData.settings.displaySettings.axisBeginning;
+        const axisBeginning: number = +this.formattingSettings.display.axisBeginning.value.value;
         const angle: number = this.angle,
             radius: number = this.radius;
 
-        let selection: d3.Selection<d3.BaseType, RadarChartCircularSegment, any, any> = this.mainGroupElement
+        const selection: Selection<RadarChartCircularSegment> = this.mainGroupElement
             .select(RadarChart.AxisSelector.selectorName)
             .selectAll(RadarChart.AxisNodeSelector.selectorName);
 
-        let axexSelection: d3.Selection<d3.BaseType, PrimitiveValue, any, any> = selection.data(values);
+        let axexSelection: Selection<PrimitiveValue> = selection.data(values);
 
         axexSelection
             .exit()
@@ -695,27 +1107,27 @@ export class RadarChart implements IVisual {
     }
 
     private shiftIntersectText(current: RadarChartLabel, others: RadarChartLabel[], shiftDown: boolean): void {
-        let labelSettings: LabelSettings = this.radarChartData.settings.labels;
+        const labelSettings: LabelsSettingsCard = this.formattingSettings.labels;
 
-        let properties: TextProperties = {
+        const properties: TextProperties = {
             fontFamily: RadarChart.AxesLabelsFontFamily,
-            fontSize: PixelConverter.fromPoint(labelSettings.fontSize),
+            fontSize: PixelConverter.fromPoint(labelSettings.font.fontSize.value),
             text: this.radarChartData.labels.formatter.format(current.text)
         };
 
-        let currentTextHeight: number = textMeasurementService.estimateSvgTextHeight(properties);
+        const currentTextHeight: number = textMeasurementService.estimateSvgTextHeight(properties);
 
         for (let i: number = 0; i < others.length; i++) {
-            let label: RadarChartLabel = others[i];
+            const label: RadarChartLabel = others[i];
 
             properties.text = label.text;
-            let otherTextHeight: number = textMeasurementService.estimateSvgTextHeight(properties);
+            const otherTextHeight: number = textMeasurementService.estimateSvgTextHeight(properties);
 
-            let curTextUpperPoint: number = current.y - currentTextHeight;
-            let labelTextUpperPoint: number = label.y - otherTextHeight;
+            const curTextUpperPoint: number = current.y - currentTextHeight;
+            const labelTextUpperPoint: number = label.y - otherTextHeight;
 
             if (RadarChart.isIntersect(current.y, curTextUpperPoint, label.y, labelTextUpperPoint)) {
-                let shift: number = this.shiftText(current.y, curTextUpperPoint, label.y, labelTextUpperPoint, shiftDown);
+                const shift: number = this.shiftText(current.y, curTextUpperPoint, label.y, labelTextUpperPoint, shiftDown);
                 current.y += shift;
                 if (!shiftDown && current.y - 5 < 0 || shiftDown && current.y + currentTextHeight / 2 + 5 > 0) {
                     current.hide = true;
@@ -733,10 +1145,10 @@ export class RadarChart implements IVisual {
             }
         });
 
-        let shiftDirrectionIsDown: boolean = this.radarChartData.settings.displaySettings.axisBeginning === 1;
+        const shiftDirrectionIsDown: boolean = this.formattingSettings.display.axisBeginning.value.value === 1;
 
         for (let i: number = 0; i < labelPoints.length; i++) {
-            let label: RadarChartLabel = labelPoints[i];
+            const label: RadarChartLabel = labelPoints[i];
 
             // from 0 to 90 shift up by Y
             if (label.angleInDegree > RadarChart.Angle0Degree && label.angleInDegree < RadarChart.Angle90Degree) {
@@ -757,7 +1169,7 @@ export class RadarChart implements IVisual {
 
             label.maxWidth = this.viewportAvailable.width - Math.abs(label.x) - RadarChart.LabelMarginFactor;
 
-            let labelDec: RadarChartLabel = labelPoints[labelPoints.length - 1 - i];
+            const labelDec: RadarChartLabel = labelPoints[labelPoints.length - 1 - i];
             // from 180 to 90 shift down by Y
             if (labelDec.angleInDegree > RadarChart.Angle90Degree && labelDec.angleInDegree < RadarChart.Angle180Degree) {
                 this.shiftIntersectText(
@@ -796,14 +1208,14 @@ export class RadarChart implements IVisual {
             return;
         }
 
-        let angle: number = this.angle,
+        const angle: number = this.angle,
             radius: number = this.radius,
             labelPoints: RadarChartLabel[] = this.radarChartData.labels.labelPoints;
 
-        let axisBeginning: number = this.radarChartData.settings.displaySettings.axisBeginning;
+        const axisBeginning: number = +this.formattingSettings.display.axisBeginning.value.value;
 
         for (let i: number = 0; i < labelPoints.length; i++) {
-            let angleInRadian: number = i * angle,
+            const angleInRadian: number = i * angle,
                 label: RadarChartLabel = labelPoints[i],
                 angleInDegree: number = angleInRadian * RadarChart.Angle180Degree / Math.PI;
 
@@ -823,7 +1235,7 @@ export class RadarChart implements IVisual {
         this.shiftCollidedLabels(labelPoints as RadarChartLabel[]);
 
         for (let i: number = 0; i < labelPoints.length; i++) {
-            let label: RadarChartLabel = labelPoints[i];
+            const label: RadarChartLabel = labelPoints[i];
             label.outsidePlacement = OutsidePlacement.Allowed;
             label.xLinkEnd = label.x;
             label.yLinkEnd = label.y;
@@ -832,16 +1244,16 @@ export class RadarChart implements IVisual {
         this.drawAxesLabels(labelPoints as RadarChartLabel[]);
     }
 
-    private drawAxesLabels(values: RadarChartLabel[], dataViewMetadataColumn?: DataViewMetadataColumn): void {
-        let labelSettings: LabelSettings = this.radarChartData.settings.labels;
+    private drawAxesLabels(values: RadarChartLabel[]): void {
+        const labelSettings: LabelsSettingsCard = this.formattingSettings.labels;
 
-        let selectionLabelText: d3.Selection<d3.BaseType, RadarChartLabel, any, any> = this.mainGroupElement
+        const selectionLabelText: Selection<RadarChartLabel> = this.mainGroupElement
             .select(RadarChart.AxisSelector.selectorName)
             .selectAll(RadarChart.AxisLabelSelector.selectorName);
 
-        let filteredData: RadarChartLabel[] = values.filter((label: RadarChartLabel) => labelSettings.show && !label.hide);
+        const filteredData: RadarChartLabel[] = values.filter((label: RadarChartLabel) => labelSettings.show.value && !label.hide);
 
-        let labelsSelection: d3.Selection<d3.BaseType, RadarChartLabel, any, any> = selectionLabelText.data(filteredData);
+        let labelsSelection: Selection<RadarChartLabel> = selectionLabelText.data(filteredData);
 
         labelsSelection
             .exit()
@@ -853,30 +1265,37 @@ export class RadarChart implements IVisual {
             .classed(RadarChart.AxisLabelSelector.className, true)
             .merge(labelsSelection)
             .attr("dy", `${RadarChart.LabelYOffset}em`)
-            .attr("transform", translate(RadarChart.LabelXOffset, -RadarChart.LabelYOffset * labelSettings.fontSize))
+            .attr("transform", translate(RadarChart.LabelXOffset, -RadarChart.LabelYOffset * labelSettings.font.fontSize.value))
             .attr("x", (label: RadarChartLabel) => {
-                let shift: number = label.textAnchor === RadarChart.TextAnchorStart ? +RadarChart.LabelPositionXOffset : -RadarChart.LabelPositionXOffset;
+                const shift: number = label.textAnchor === RadarChart.TextAnchorStart ? +RadarChart.LabelPositionXOffset : -RadarChart.LabelPositionXOffset;
                 return label.x + shift;
             })
             .attr("y", (label: RadarChartLabel) => label.y)
             .text((label: RadarChartLabel) => {
-                let properties: TextProperties = {
+                const properties: TextProperties = {
                     fontFamily: RadarChart.AxesLabelsFontFamily,
-                    fontSize: PixelConverter.fromPoint(labelSettings.fontSize),
+                    fontSize: PixelConverter.fromPoint(labelSettings.font.fontSize.value),
                     text: this.radarChartData.labels.formatter.format(label.text)
                 };
 
                 return textMeasurementService.getTailoredTextOrDefault(properties, label.maxWidth);
             })
-            .style("font-size", () => PixelConverter.fromPoint(labelSettings.fontSize))
+            .style("font-size", () => PixelConverter.fromPoint(labelSettings.font.fontSize.value))
+            .style("font-family", () => labelSettings.font.fontFamily.value)
+            .style("font-weight", () => labelSettings.font.bold.value ? "bold" : "normal")
+            .style("font-style", () => labelSettings.font.italic.value ? "italic" : "normal")
+            .style("text-decoration", () => labelSettings.font.underline.value ? "underline" : "none")
             .style("text-anchor", (label: RadarChartLabel) => label.textAnchor)
-            .style("fill", () => labelSettings.color);
+            .style("fill", () => labelSettings.color.value.value)
+            .classed(HtmlSubSelectableClass, this.formatMode && this.formattingSettings.labels.show.value)
+            .attr(SubSelectableObjectNameAttribute, RadarChartObjectNames.Labels)
+            .attr(SubSelectableDisplayNameAttribute, "Data Labels");
 
-        let selectionLongLineLableLink: d3.Selection<d3.BaseType, RadarChartLabel, any, any> = this.mainGroupElement
+        const selectionLongLineLableLink: Selection<RadarChartLabel> = this.mainGroupElement
             .select(RadarChart.AxisSelector.selectorName)
             .selectAll(RadarChart.AxisLabelLinkLongLineSelector.selectorName);
 
-        let labelsLongLineLinkSelection: d3.Selection<d3.BaseType, RadarChartLabel, any, any> = selectionLongLineLableLink.data(filteredData);
+        let labelsLongLineLinkSelection: Selection<RadarChartLabel> = selectionLongLineLableLink.data(filteredData);
 
         labelsLongLineLinkSelection
             .exit()
@@ -892,11 +1311,11 @@ export class RadarChart implements IVisual {
             .attr("x2", (label: RadarChartLabel) => label.xLinkEnd)
             .attr("y2", (label: RadarChartLabel) => label.yLinkEnd);
 
-        let selectionShortLineLableLink: d3.Selection<d3.BaseType, RadarChartLabel, any, any> = this.mainGroupElement
+        const selectionShortLineLableLink: Selection<RadarChartLabel> = this.mainGroupElement
             .select(RadarChart.AxisSelector.selectorName)
             .selectAll(RadarChart.AxisLabelLinkShortLineSelector.selectorName);
 
-        let labelsShortLineLinkSelection: d3.Selection<d3.BaseType, RadarChartLabel, any, any> = selectionShortLineLableLink.data(filteredData);
+        let labelsShortLineLinkSelection: Selection<RadarChartLabel> = selectionShortLineLableLink.data(filteredData);
 
         labelsShortLineLinkSelection
             .exit()
@@ -910,7 +1329,7 @@ export class RadarChart implements IVisual {
             .attr("x1", (label: RadarChartLabel) => label.xLinkEnd)
             .attr("y1", (label: RadarChartLabel) => label.yLinkEnd)
             .attr("x2", (label: RadarChartLabel) => {
-                let shift: number = label.textAnchor === RadarChart.TextAnchorStart ? +(RadarChart.LabelPositionXOffset - 2) : -(RadarChart.LabelPositionXOffset - 2);
+                const shift: number = label.textAnchor === RadarChart.TextAnchorStart ? +(RadarChart.LabelPositionXOffset - 2) : -(RadarChart.LabelPositionXOffset - 2);
                 return label.xLinkEnd + shift;
             })
             .attr("y2", (label: RadarChartLabel) => label.yLinkEnd);
@@ -918,15 +1337,16 @@ export class RadarChart implements IVisual {
         this.changeAxesLineColorInHighMode([labelsShortLineLinkSelection, labelsLongLineLinkSelection]);
     }
 
+    // eslint-disable-next-line max-lines-per-function
     private drawChart(series: RadarChartSeries[], duration: number): void {
-        let angle: number = this.angle;
-        let layers: RadarChartDatapoint[][] = this.getDataPoints(series);
-        let yDomain: ScaleLinear<number, number> = this.calculateChartDomain(series);
-        let axisBeginning: number = this.radarChartData.settings.displaySettings.axisBeginning;
-        let calculatePoints = (points) => {
+        const angle: number = this.angle;
+        const layers: RadarChartDatapoint[][] = this.getDataPoints(series);
+        const yDomain: d3LinearScale<number, number> = this.calculateChartDomain(series);
+        const axisBeginning: number = +this.formattingSettings.display.axisBeginning.value.value;
+        const calculatePoints = (points) => {
             return points.map((value) => {
                 if (value.showPoint) {
-                    let x1: number = yDomain(value.y) * Math.sin(value.x * angle),
+                    const x1: number = yDomain(value.y) * Math.sin(value.x * angle),
                         y1: number = axisBeginning * yDomain(value.y) * Math.cos(value.x * angle);
 
                     return `${x1},${y1}`;
@@ -934,9 +1354,9 @@ export class RadarChart implements IVisual {
             }).join(" ");
         };
 
-        let areasSelection: d3.Selection<d3.BaseType, RadarChartDatapoint[], any, any> = this.chart
+        let areasSelection: Selection<RadarChartSeries> = this.chart
             .selectAll(RadarChart.ChartAreaSelector.selectorName)
-            .data(layers);
+            .data(series);
 
         areasSelection
             .exit()
@@ -946,14 +1366,18 @@ export class RadarChart implements IVisual {
             .enter()
             .append("g")
             .classed(RadarChart.ChartAreaSelector.className, true)
-            .merge(areasSelection);
+            .merge(areasSelection)
+            .attr(SubSelectableObjectNameAttribute, RadarChartObjectNames.DataPoint)
+            .attr(SubSelectableDisplayNameAttribute, (series: RadarChartSeries) => `"${series.name}" ${this.localizationManager.getDisplayName("Visual_OnObject_Polygon")}`)
+            .attr(SubSelectableTypeAttribute, powerbi.visuals.SubSelectionStylesType.Shape)
+            .classed(HtmlSubSelectableClass, this.formatMode);
 
-        let polygonSelection: d3.Selection<d3.BaseType, RadarChartDatapoint[], any, any> = areasSelection
+        let polygonSelection: Selection<RadarChartDatapoint[]> = areasSelection
             .selectAll(RadarChart.ChartPolygonSelector.selectorName)
-            .data((dataPoints: RadarChartDatapoint[]) => {
-                if (dataPoints && dataPoints.length > 0) {
-                    let points: RadarChartDatapoint[] = [];
-                    dataPoints.forEach((point) => {
+            .data((series: RadarChartSeries) => {
+                if (series.dataPoints && series.dataPoints.length > 0) {
+                    const points: RadarChartDatapoint[] = [];
+                    series.dataPoints.forEach((point) => {
                         if (point.showPoint) {
                             points.push(point);
                         }
@@ -974,13 +1398,13 @@ export class RadarChart implements IVisual {
             .merge(polygonSelection)
             .style("opacity", RadarChartUtils.DimmedOpacity)
             .on("mouseover", function () {
-                d3.select(this)
+                d3Select(this)
                     .transition()
                     .duration(duration)
                     .style("opacity", RadarChart.AreaFillOpacity);
             })
             .on("mouseout", function () {
-                d3.select(this)
+                d3Select(this)
                     .transition()
                     .duration(duration)
                     .style("opacity", RadarChartUtils.DimmedOpacity);
@@ -988,22 +1412,21 @@ export class RadarChart implements IVisual {
             .attr("points", calculatePoints)
             .attr("points-count", (dataPoints: RadarChartDatapoint[]) => dataPoints.length);
 
-        let settings: RadarChartSettings = this.radarChartData.settings;
-        if (settings.line.show ||
+        if (this.formattingSettings.line.show.value ||
             polygonSelection.attr("points-count") === RadarChart.PoligonBecomesLinePointsCount.toString()
         ) {
             polygonSelection
                 .style("fill", "none")
                 .style("stroke", (dataPoints: RadarChartDatapoint[]) =>
                     dataPoints.length ? this.colorHelper.getHighContrastColor("foreground", dataPoints[0].color) : null)
-                .style("stroke-width", settings.line.lineWidth);
+                .style("stroke-width", this.formattingSettings.line.lineWidth.value);
         } else {
             polygonSelection
                 .style("fill", (dataPoints: RadarChartDatapoint[]) => dataPoints.length ? this.colorHelper.getHighContrastColor("foreground", dataPoints[0].color) : null)
                 .style("stroke-width", RadarChart.PolygonStrokeWidth);
         }
 
-        let nodeSelection: d3.Selection<d3.BaseType, RadarChartDatapoint[], any, any> = this.chart
+        let nodeSelection: Selection<RadarChartDatapoint[]> = this.chart
             .selectAll(RadarChart.ChartNodeSelector.selectorName)
             .data(layers);
 
@@ -1015,12 +1438,13 @@ export class RadarChart implements IVisual {
             .enter()
             .append("g")
             .classed(RadarChart.ChartNodeSelector.className, true)
+            .attr("role", "listbox")
             .merge(nodeSelection);
 
-        let hasHighlights: boolean = (series.length > 0) && series[0].hasHighlights,
+        const hasHighlights: boolean = (series.length > 0) && series[0].hasHighlights,
             hasSelection: boolean = this.interactivityService && this.interactivityService.hasSelection();
 
-        let dotsSelection: d3.Selection<d3.BaseType, RadarChartDatapoint, any, any> = nodeSelection
+        let dotsSelection: Selection<RadarChartDatapoint> = nodeSelection
             .selectAll(RadarChart.ChartDotSelector.selectorName)
             .data((dataPoints: RadarChartDatapoint[]) => {
                 return dataPoints.filter(d => d.y != null && d.showPoint);
@@ -1038,46 +1462,66 @@ export class RadarChart implements IVisual {
             .attr("cx", (dataPoint: RadarChartDatapoint) => yDomain(dataPoint.y) * Math.sin(dataPoint.x * angle))
             .attr("cy", (dataPoint: RadarChartDatapoint) => axisBeginning * yDomain(dataPoint.y) * Math.cos(dataPoint.x * angle))
             .style("fill", (dataPoint: RadarChartDatapoint) => this.colorHelper.getHighContrastColor("foreground", dataPoint.color))
+            .style("stroke", (dataPoint: RadarChartDatapoint) => this.colorHelper.getHighContrastColor("foreground", dataPoint.color))
             .style("opacity", (dataPoint: RadarChartDatapoint) => {
                 return RadarChartUtils.getFillOpacity(
                     dataPoint.selected,
                     dataPoint.highlight,
                     !dataPoint.highlight && hasSelection,
                     !dataPoint.selected && hasHighlights);
-            });
+            })
+            .attr("tabindex", 0)
+            .attr("role", "option")
+            .attr("aria-selected", "false")
+            .attr("aria-label", (dataPoint: RadarChartDatapoint) => this.getDataPointAriaLabel(dataPoint.tooltipInfo));
+        
+        // remove attributes for keyboard navigation which are irrelevant for format mode.
+        if (this.formatMode){
+            dotsSelection
+                .attr("tabindex", null)
+                .attr("role", null)
+                .attr("aria-selected", null)
+                .attr("aria-label", null);
+        }
 
         this.tooltipServiceWrapper.addTooltip(
             dotsSelection,
-            (eventArgs: TooltipEventArgs<RadarChartDatapoint>) => {
-                return eventArgs.data.tooltipInfo;
+            (eventArgs: RadarChartDatapoint) => {
+                return eventArgs.tooltipInfo;
             },
             null,
             true);
 
         if (this.interactivityService) {
             // Register interactivity
-            let dataPointsToBind: RadarChartDatapoint[] = this.getAllDataPointsList(series),
-                behaviorOptions: RadarChartBehaviorOptions;
-
-            behaviorOptions = {
+            const dataPointsToBind: RadarChartDatapoint[] = this.getAllDataPointsList(series);
+            const behaviorOptions: RadarChartBehaviorOptions = {
                 selection: dotsSelection,
                 clearCatcher: this.svg,
-                hasHighlights: hasHighlights
+                legend: this.legendItems,
+                hasHighlights: hasHighlights,
+                behavior: this.behavior,
+                dataPoints: dataPointsToBind,
+                formatMode: this.formatMode
             };
 
-            this.interactivityService.bind(dataPointsToBind, this.behavior, behaviorOptions);
+            this.interactivityService.bind(behaviorOptions);
         }
     }
 
-    private calculateChartDomain(series: RadarChartSeries[]): ScaleLinear<number, number> {
-        let radius: number = this.radius * RadarChart.SegmentFactor,
+    private getDataPointAriaLabel(tooltipInfo: VisualTooltipDataItem[]): string {
+        return `${tooltipInfo[0].displayName}:${tooltipInfo[0].value}-${tooltipInfo[1].displayName}:${tooltipInfo[1].value}`;
+    }
+
+    private calculateChartDomain(series: RadarChartSeries[]): d3LinearScale<number, number> {
+        const radius: number = this.radius * RadarChart.SegmentFactor,
             dataPointsList: RadarChartDatapoint[] = this.getAllDataPointsList(series);
 
-        let maxValue: number = d3.max(dataPointsList, (dataPoint: RadarChartDatapoint) => {
+        let maxValue: number = d3Max(dataPointsList, (dataPoint: RadarChartDatapoint) => {
             return dataPoint.y;
         });
 
-        let minValue: number = this.radarChartData.settings.displaySettings.minValue;
+        let minValue: number = this.formattingSettings.display.minValue.value;
 
         if (this.isPercentChart(dataPointsList)) {
             minValue = minValue >= RadarChart.MinDomainValue
@@ -1088,13 +1532,13 @@ export class RadarChart implements IVisual {
                 ? RadarChart.MinDomainValue
                 : RadarChart.MaxDomainValue;
         }
-        return d3.scaleLinear()
+        return d3ScaleLinear()
             .domain([minValue, maxValue])
             .range([RadarChart.MinDomainValue, radius]);
     }
 
     private renderLegend(): void {
-        let radarChartData: IRadarChartData = this.radarChartData;
+        const radarChartData: IRadarChartData = this.radarChartData;
 
         if (!radarChartData.legendData) {
             return;
@@ -1106,7 +1550,7 @@ export class RadarChart implements IVisual {
         if (this.legendObjectProperties) {
             LegendDataModule.update(legendData, this.legendObjectProperties);
 
-            let position: string = this.legendObjectProperties[legendProps.position] as string;
+            const position = this.formattingSettings.legend.text.positionDropdown.value.value;
 
             if (position) {
                 this.legend.changeOrientation(LegendPosition[position]);
@@ -1117,12 +1561,30 @@ export class RadarChart implements IVisual {
 
         this.legend.drawLegend(legendData, { height, width });
         LegendModule.positionChartArea(this.svg, this.legend);
+
+        this.legendItems = this.legendElement.selectAll(RadarChart.LegendItemSelector.selectorName);
+
+        this.legendElement
+            .classed(HtmlSubSelectableClass, this.formatMode && this.formattingSettings.legend.show.value)
+            .attr(SubSelectableObjectNameAttribute, RadarChartObjectNames.Legend)
+            .attr(SubSelectableDisplayNameAttribute, "Legend");
+
+        this.legendElement.select(RadarChart.LegendTitleSelector.selectorName)
+            .classed(HtmlSubSelectableClass, this.formatMode && this.formattingSettings.legend.show.value && this.formattingSettings.legend.title.showTitle.value)
+            .attr(SubSelectableObjectNameAttribute, RadarChartObjectNames.LegendTitle)
+            .attr(SubSelectableDisplayNameAttribute, "Title")
+            .attr(SubSelectableDirectEditAttr, this.visualTitleEditSubSelection);
+        
+        this.legendElement.selectAll("text")
+            .style("font-weight",  () => this.formattingSettings.legend.text.font.bold.value ? "bold" : "normal")
+            .style("font-style",  () => this.formattingSettings.legend.text.font.italic.value ? "italic" : "normal")
+            .style("text-decoration", () => this.formattingSettings.legend.text.font.underline.value ? "underline" : "none");
     }
 
     private getDataPoints(seriesList: RadarChartSeries[]): RadarChartDatapoint[][] {
-        let dataPoints: RadarChartDatapoint[][] = [];
+        const dataPoints: RadarChartDatapoint[][] = [];
 
-        for (let series of seriesList) {
+        for (const series of seriesList) {
             dataPoints.push(series.dataPoints);
         }
 
@@ -1132,7 +1594,7 @@ export class RadarChart implements IVisual {
     private getAllDataPointsList(seriesList: RadarChartSeries[]): RadarChartDatapoint[] {
         let dataPoints: RadarChartDatapoint[] = [];
 
-        for (let series of seriesList) {
+        for (const series of seriesList) {
             dataPoints = dataPoints.concat(series.dataPoints);
         }
 
@@ -1140,7 +1602,7 @@ export class RadarChart implements IVisual {
     }
 
     private isPercentChart(dataPointsList: RadarChartDatapoint[]): boolean {
-        for (let dataPoint of dataPointsList) {
+        for (const dataPoint of dataPointsList) {
             if (!dataPoint.labelFormatString || dataPoint.labelFormatString.indexOf("%") === -1) {
                 return false;
             }
@@ -1149,109 +1611,46 @@ export class RadarChart implements IVisual {
         return true;
     }
 
-    private parseLegendProperties(dataView: DataView): void {
+    public static parseLegendProperties(dataView: DataView, colorHelper: ColorHelper, formattingSettings: RadarChartSettingsModel): IDataViewObject {
+        let legendObjectProperties: IDataViewObject = {};
+
         if (!dataView || !dataView.metadata) {
-            this.legendObjectProperties = {};
-            return;
+            return legendObjectProperties;
         }
 
-        this.legendObjectProperties = DataViewObjects.getObject(
+        legendObjectProperties = dataViewObjects.getObject(
             dataView.metadata.objects,
             "legend",
             {});
 
-        if (this.colorHelper.isHighContrast)
-            this.legendObjectProperties["labelColor"] = {
+        if (colorHelper.isHighContrast) {
+            legendObjectProperties["labelColor"] = {
                 solid: {
-                    color: this.colorHelper.getHighContrastColor("foreground", this.settings.legend.labelColor)
+                    color: colorHelper.getHighContrastColor("foreground", formattingSettings.legend.text.labelColor.value.value)
                 }
             };
+        }
+        
+        return legendObjectProperties;
     }
 
-    public static parseSettings(dataView: DataView, colorHelper: ColorHelper): RadarChartSettings {
-        let settings: RadarChartSettings = RadarChartSettings.parse<RadarChartSettings>(dataView);
+    public static parseSettings(dataView: DataView, colorHelper: ColorHelper, formattingSettingsService: FormattingSettingsService): RadarChartSettingsModel {
+        const settings: RadarChartSettingsModel = formattingSettingsService.populateFormattingSettingsModel(RadarChartSettingsModel, dataView);
+
         if (!colorHelper) {
             return settings;
         }
 
-        if (dataView && dataView.categorical) {
-            let minValue = d3.min(<number[]>dataView.categorical.values[0].values);
-            for (let i: number = 0; i < dataView.categorical.values.length; i++) {
-                let minValueL = d3.min(<number[]>dataView.categorical.values[i].values);
-                if (minValue > minValueL) {
-                    minValue = minValueL;
-                }
-            }
-            RadarChart.countMinValueForDisplaySettings(minValue, settings);
-        }
-
-        settings.dataPoint.fill = colorHelper.getHighContrastColor("foreground", settings.dataPoint.fill);
-        settings.labels.color = colorHelper.getHighContrastColor("foreground", settings.labels.color);
-        settings.legend.labelColor = colorHelper.getHighContrastColor("foreground", settings.legend.labelColor);
+        settings.dataPoint.fill.value.value = colorHelper.getHighContrastColor("foreground", settings.dataPoint.fill.value.value);
+        settings.labels.color.value.value = colorHelper.getHighContrastColor("foreground", settings.labels.color.value.value);
+        settings.legend.text.labelColor.value.value = colorHelper.getHighContrastColor("foreground", settings.legend.text.labelColor.value.value);
 
         return settings;
     }
 
-    public static countMinValueForDisplaySettings(minValue: any, settings: RadarChartSettings) {
-        if (minValue < 0) { // for negative values
-            settings.displaySettings.minValue = minValue;
-        } else {
-            if (settings.displaySettings.minValue > minValue) {
-                settings.displaySettings.minValue = minValue;
-            }
-            if (settings.displaySettings.minValue < 0) {
-                settings.displaySettings.minValue = 0;
-            }
-        }
-    }
-
-    public enumerateDataPoint(): VisualObjectInstance[] {
-        if (!this.radarChartData || !this.radarChartData.series) {
-            return;
-        }
-        let instances: VisualObjectInstance[] = [];
-
-        for (let series of this.radarChartData.series) {
-            instances.push({
-                objectName: "dataPoint",
-                displayName: series.name,
-                selector: ColorHelper.normalizeSelector(
-                    (series.identity as IVisualSelectionId).getSelector(),
-                    false),
-                properties: {
-                    fill: {
-                        solid: {
-                            color: this.colorHelper.isHighContrast ? this.colorHelper.getHighContrastColor("foreground", series.fill) : series.fill
-                        }
-                    }
-                }
-            });
-        }
-        return instances;
-    }
-
-    /**
-    * This function returns the values to be displayed in the property pane for each object.
-    * Usually it is a bind pass of what the property pane gave you, but sometimes you may want to do
-    * validation and return other values/defaults
-    */
-    public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstanceEnumeration {
-        let instances: VisualObjectInstanceEnumeration = null;
-        switch (options.objectName) {
-            case "dataPoint":
-                return this.enumerateDataPoint();
-            default:
-                return RadarChartSettings.enumerateObjectInstances(
-                    this.settings || RadarChartSettings.getDefault(),
-                    options);
-        }
-    }
-
     private updateViewport(): void {
-        let legendMargins: IViewport = this.legend.getMargins(),
-            legendPosition: LegendPosition;
-
-        legendPosition = LegendPosition[this.legendObjectProperties[legendProps.position] as string];
+        const legendMargins: IViewport = this.legend.getMargins();
+        const legendPosition = LegendPosition[this.formattingSettings.legend.text.positionDropdown.value.value];
 
         switch (legendPosition) {
             case LegendPosition.Top:
@@ -1275,14 +1674,6 @@ export class RadarChart implements IVisual {
                 break;
             }
         }
-    }
-
-    private parseLineWidth(): void {
-        let settings: RadarChartSettings = this.radarChartData.settings;
-
-        settings.line.lineWidth = Math.max(
-            RadarChart.MinLineWidth,
-            Math.min(RadarChart.MaxLineWidth, settings.line.lineWidth));
     }
 
     public destroy(): void {

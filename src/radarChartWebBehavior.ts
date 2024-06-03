@@ -25,47 +25,52 @@
  */
 
 // d3
-import * as d3 from "d3";
-import Selection = d3.Selection;
+import {
+    Selection as d3Selection 
+} from "d3-selection";
+type Selection<T> = d3Selection<any, T, any, any>;
 
 // Interactivity utils
-import {interactivityService} from "powerbi-visuals-utils-interactivityutils";
-import SelectableDataPoint = interactivityService.SelectableDataPoint;
-import IInteractiveBehavior = interactivityService.IInteractiveBehavior;
-import ISelectionHandler = interactivityService.ISelectionHandler;
+import { 
+    interactivityBaseService
+} from "powerbi-visuals-utils-interactivityutils";
+import IInteractiveBehavior = interactivityBaseService.IInteractiveBehavior;
+import ISelectionHandler = interactivityBaseService.ISelectionHandler;
+import IBehaviorOptionsCommon = interactivityBaseService.IBehaviorOptions;
+
+type IBehaviorOptions = IBehaviorOptionsCommon<RadarChartDatapoint>;
 
 import * as radarChartUtils from "./radarChartUtils";
 import {RadarChartDatapoint} from "./radarChartDataInterfaces";
 
-export interface RadarChartBehaviorOptions {
-    selection: d3.Selection<d3.BaseType, SelectableDataPoint, any, any>;
-    clearCatcher: d3.Selection<d3.BaseType, any, any, any>;
+export interface RadarChartBehaviorOptions extends IBehaviorOptions {
+    selection: Selection<RadarChartDatapoint>;
+    clearCatcher: Selection<any>;
+    legend: Selection<any>;
     hasHighlights: boolean;
+    formatMode: boolean;
 }
 
-const getEvent = () => require("d3-selection").event;
-
 export class RadarChartWebBehavior implements IInteractiveBehavior {
-    private selection: d3.Selection<d3.BaseType, SelectableDataPoint, any, any>;
+    private selection: Selection<RadarChartDatapoint>;
     private hasHighlights: boolean;
+    private clearCatcher: Selection<any>;
+    private legendItems: Selection<any>;
 
     public bindEvents(options: RadarChartBehaviorOptions, selectionHandler: ISelectionHandler): void {
-        const clearCatcher: d3.Selection<d3.BaseType, any, any, any> = options.clearCatcher;
-
         this.selection = options.selection;
         this.hasHighlights = options.hasHighlights;
+        this.clearCatcher = options.clearCatcher;
+        this.legendItems = options.legend;
 
-        this.selection.on("click", (dataPoint: SelectableDataPoint) => {
-            const mouseEvent: MouseEvent = getEvent() as MouseEvent;
-
-            selectionHandler.handleSelection(dataPoint, mouseEvent.ctrlKey);
-
-            mouseEvent.stopPropagation();
-        });
-
-        clearCatcher.on("click", () => {
+        if (options.formatMode){
+            // remove event listeners which are irrelevant for format mode.
+            this.removeEventListeners();
             selectionHandler.handleClearSelection();
-        });
+        }
+        else { 
+            this.addEventListeners(selectionHandler);
+        }
     }
 
     public renderSelection(hasSelection: boolean): void {
@@ -76,5 +81,59 @@ export class RadarChartWebBehavior implements IInteractiveBehavior {
                 !dataPoint.highlight && hasSelection,
                 !dataPoint.selected && this.hasHighlights);
         });
+
+        this.selection.attr("aria-selected",(dataPoint: RadarChartDatapoint) =>{
+            return (hasSelection && dataPoint.selected);
+        });
+    }
+
+    public addEventListeners(selectionHandler: ISelectionHandler): void {
+        this.selection.on("click", (event: PointerEvent, dataPoint: RadarChartDatapoint) => {
+            selectionHandler.handleSelection(dataPoint, event.ctrlKey || event.metaKey || event.shiftKey);
+
+            event.stopPropagation();
+        });
+
+        this.selection.on("keydown", (event : KeyboardEvent, dataPoint: RadarChartDatapoint) => {
+            if(event?.code == "Enter" || event?.code == "Space")
+            {
+                selectionHandler.handleSelection(
+                    dataPoint,
+                    event.ctrlKey || event.metaKey || event.shiftKey);
+            }
+        });
+
+        this.selection.on("contextmenu", (event: PointerEvent, dataPoint: RadarChartDatapoint) => {
+            selectionHandler.handleContextMenu(dataPoint,
+                {
+                    x: event.clientX,
+                    y: event.clientY
+                }
+            );
+            event.preventDefault();
+            event.stopPropagation(); 
+        })
+
+        this.clearCatcher.on("click", () => {
+            selectionHandler.handleClearSelection();
+        });
+
+        this.clearCatcher.on("contextmenu", (event: PointerEvent) => {
+            selectionHandler.handleContextMenu({"selected" : false},
+            {
+                x: event.clientX,
+                y: event.clientY
+            });
+            event.preventDefault(); 
+        });
+    }
+
+    public removeEventListeners(): void {
+        this.selection.on("click", null);
+        this.selection.on("contextmenu", null);
+        this.selection.on("keydown", null);
+        this.clearCatcher.on("click", null);
+        this.clearCatcher.on("contextmenu", null);
+        this.legendItems.on("click", null);
     }
 }

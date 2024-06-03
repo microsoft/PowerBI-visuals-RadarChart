@@ -27,7 +27,7 @@
 import powerbi from "powerbi-visuals-api";
 
 // d3
-import * as d3 from "d3";
+import { min as d3Min} from "d3-array";
 
 // RadarChart1446119667547
 import { RadarChartData } from "./visualData";
@@ -43,6 +43,8 @@ import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import IColorPalette = powerbi.extensibility.IColorPalette;
 import ISelectionId = powerbi.extensibility.ISelectionId;
 import { d3Click } from "powerbi-visuals-utils-testutils";
+import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
+import { DataPointSettingsCard, DisplaySettingsCard, LabelsSettingsCard, LegendSettingsCard, RadarChartSettingsModel } from "../src/settings";
 
 describe("RadarChart", () => {
     let visualBuilder: RadarChartBuilder,
@@ -58,7 +60,7 @@ describe("RadarChart", () => {
 
     describe("DOM tests", () => {
         it("svg element created", () => {
-            expect(visualBuilder.mainElement[0]).toBeInDOM();
+            expect(document.body.contains(visualBuilder.mainElement)).toBeTruthy();
         });
 
         it("update", (done) => {
@@ -105,25 +107,97 @@ describe("RadarChart", () => {
             visualBuilder.update(dataView);
 
             setTimeout(() => {
-                const firstClass: string = visualBuilder
-                    .mainElement
-                    .find("g.chart")
-                    .children()
-                    .first()
-                    .attr("class");
+                const elements: SVGElement[] = Array.from(visualBuilder.mainElement.querySelectorAll("g.chart > g"));
 
-                const secondClass: string = visualBuilder
-                    .mainElement
-                    .find("g.chart")
-                    .children()
-                    .last()
-                    .attr("class");
+                const firstClass: string | null = elements[0].classList.item(0);
+
+                const secondClass: string| null = elements[elements.length -1].classList.item(0);
 
                 expect(firstClass).toBe("chartArea");
                 expect(secondClass).toBe("chartNode");
 
                 done();
             }, 10);
+        });
+
+        describe("selection and deselection", () => {
+            const selectionClass: string = "selected";
+
+            it("dataPoint can be selected", () => {
+                visualBuilder.updateFlushAllD3Transitions(dataView);
+                const dots: HTMLElement[] = Array.from(visualBuilder.chartDot);
+                const firstDot: HTMLElement = dots[0],
+                    otherDots: HTMLElement[] = dots.slice(1);
+
+                d3Click(firstDot, 1, 1, ClickEventType.Default, 0);
+
+                const firstDotOpacity: string = firstDot.style.getPropertyValue("opacity");
+                expect(parseFloat(firstDotOpacity)).toBe(1);
+
+                otherDots.forEach((dot) => {
+                    const dotOpacity: string = dot.style.getPropertyValue("opacity");
+                    expect(parseFloat(dotOpacity)).toBeLessThan(1);
+                });
+                
+            });
+
+            it("dataPoint can be deselected", () => {
+                visualBuilder.updateFlushAllD3Transitions(dataView);
+                const dots: HTMLElement[] = Array.from(visualBuilder.chartDot);
+                const firstDot: HTMLElement = dots[0],
+                    otherDots: HTMLElement[] = dots.slice(1);
+
+                // Select first datapoint
+                d3Click(firstDot, 1, 1, ClickEventType.Default, 0);
+
+                const firstDotOpacity: string = firstDot.style.getPropertyValue("opacity");
+                expect(parseFloat(firstDotOpacity)).toBe(1);
+
+                otherDots.forEach((dot) => {
+                    const dotOpacity: string = dot.style.getPropertyValue("opacity");
+                    expect(parseFloat(dotOpacity)).toBeLessThan(1);
+                });
+
+                // Deselect firs datapoint
+                d3Click(firstDot, 1, 1, ClickEventType.Default, 0);
+                dots.forEach((dot) => {
+                    const dotOpacity: string = dot.style.getPropertyValue("opacity");
+                    expect(parseFloat(dotOpacity)).toBe(1);
+                });
+            });
+
+            it("multi-selection should work with ctrlKey", () => {
+                checkMultiselection(ClickEventType.CtrlKey);
+            });
+    
+            it("multi-selection should work with metaKey", () => {
+                checkMultiselection(ClickEventType.MetaKey);
+            });
+    
+            it("multi-selection should work with shiftKey", () => {
+                checkMultiselection(ClickEventType.ShiftKey);
+            });
+
+            function checkMultiselection(eventType: number): void {
+                visualBuilder.updateFlushAllD3Transitions(dataView);
+                const dots: NodeListOf<HTMLElement> = visualBuilder.chartDot;
+    
+                const firstDot: HTMLElement = dots[0],
+                    secondDot: HTMLElement = dots[1],
+                    thirdDot: HTMLElement = dots[2];
+    
+                d3Click(firstDot, 1, 1, ClickEventType.Default, 0);
+                d3Click(secondDot, 1, 1, eventType, 0);
+    
+                const firstDotOpacity: string = firstDot.style.getPropertyValue("opacity");
+                const secondDotOpacity: string = secondDot.style.getPropertyValue("opacity");
+                const thirdDotOpacity: string = thirdDot.style.getPropertyValue("opacity");
+    
+                expect(parseFloat(firstDotOpacity)).toBe(1);
+                expect(parseFloat(secondDotOpacity)).toBe(1);
+                expect(parseFloat(thirdDotOpacity)).toBeLessThan(1);
+            }
+
         });
 
     });
@@ -144,23 +218,23 @@ describe("RadarChart", () => {
             it("show", () => {
                 (dataView.metadata.objects as any).legend.show = true;
                 visualBuilder.updateFlushAllD3Transitions(dataView);
-                expect(visualBuilder.legendGroup.children()).toBeInDOM();
+                visualBuilder.legendGroup.querySelectorAll("*").forEach((element: Element) => expect(document.body.contains(element)).toBeTruthy());
 
                 (dataView.metadata.objects as any).legend.show = false;
                 visualBuilder.updateFlushAllD3Transitions(dataView);
-                expect(visualBuilder.legendGroup.children()).not.toBeInDOM();
+                visualBuilder.legendGroup.querySelectorAll("*").forEach((element: Element) => expect(document.body.contains(element)).toBeFalsy());
             });
 
             it("show title", () => {
                 (dataView.metadata.objects as any).legend.showTitle = true;
                 visualBuilder.updateFlushAllD3Transitions(dataView);
 
-                expect(visualBuilder.legendTitle).toBeInDOM();
+                expect(document.body.contains(visualBuilder.legendTitle)).toBeTruthy();
 
                 (dataView.metadata.objects as any).legend.showTitle = false;
                 visualBuilder.updateFlushAllD3Transitions(dataView);
 
-                expect(visualBuilder.legendTitle).not.toBeInDOM();
+                expect(document.body.contains(visualBuilder.legendTitle)).toBeFalsy();
             });
 
             it("title text", () => {
@@ -169,10 +243,8 @@ describe("RadarChart", () => {
 
                 visualBuilder.updateFlushAllD3Transitions(dataView);
 
-                const legendTitleText: string = visualBuilder.legendTitle.get(0).firstChild.textContent,
-                    legendTitleTitle: string = visualBuilder.legendTitle.children("title").text();
+                const legendTitleTitle: string | null = visualBuilder.legendTitle.querySelector("title").textContent;
 
-                expect(legendTitleText).toEqual(titleText);
                 expect(legendTitleTitle).toEqual(titleText);
             });
 
@@ -184,12 +256,11 @@ describe("RadarChart", () => {
 
                 visualBuilder.updateFlushAllD3Transitions(dataView);
 
-                assertColorsMatch(visualBuilder.legendTitle.css("fill"), color);
+                assertColorsMatch(visualBuilder.legendTitle.style.getPropertyValue("fill"), color);
 
-                visualBuilder.legendItemText
-                    .toArray()
-                    .forEach((element: Element) => {
-                        assertColorsMatch($(element).css("fill"), color);
+                Array.from(visualBuilder.legendItemText)
+                    .forEach((element: HTMLElement) => {
+                        assertColorsMatch(element.style.getPropertyValue("fill"), color);
                     });
             });
 
@@ -202,12 +273,11 @@ describe("RadarChart", () => {
 
                 visualBuilder.updateFlushAllD3Transitions(dataView);
 
-                expect(visualBuilder.legendTitle.css("font-size")).toBe(expectedFontSize);
+                expect(visualBuilder.legendTitle.style.getPropertyValue("font-size")).toBe(expectedFontSize);
 
-                visualBuilder.legendItemText
-                    .toArray()
-                    .forEach((element: Element) => {
-                        expect($(element).css("font-size")).toBe(expectedFontSize);
+                Array.from(visualBuilder.legendItemText)
+                    .forEach((element: HTMLElement) => {
+                        expect(element.style.getPropertyValue("font-size")).toBe(expectedFontSize);
                     });
             });
         });
@@ -226,13 +296,11 @@ describe("RadarChart", () => {
 
                 visualBuilder.updateFlushAllD3Transitions(dataView);
 
-                const polygons: JQuery<any>[] = visualBuilder.chartPolygons
-                    .toArray()
-                    .map($);
+                const polygons: HTMLElement[] = Array.from(visualBuilder.chartPolygons);
 
                 colors.forEach((color: string) => {
-                    const doPolygonsContainColor: boolean = polygons.some((element: JQuery) => {
-                        return areColorsEqual(element.css("fill"), color);
+                    const doPolygonsContainColor: boolean = polygons.some((element: HTMLElement) => {
+                        return areColorsEqual(element.style.getPropertyValue("fill"), color);
                     });
 
                     expect(doPolygonsContainColor).toBeTruthy();
@@ -280,22 +348,18 @@ describe("RadarChart", () => {
                 visualBuilder.updateFlushAllD3Transitions(dataView);
 
                 visualBuilder.chartPolygons
-                    .toArray()
-                    .map($)
-                    .forEach((element: JQuery) => {
-                        expect(element.css("fill")).toBe("none");
-                        expect(parseFloat(element.css("stroke-width"))).toBeGreaterThan(0);
+                    .forEach((element: HTMLElement) => {
+                        expect(element.style.getPropertyValue("fill")).toBe("none");
+                        expect(parseFloat(element.style.getPropertyValue("stroke-width"))).toBeGreaterThan(0);
                     });
 
                 (dataView.metadata.objects as any).line.show = false;
                 visualBuilder.updateFlushAllD3Transitions(dataView);
 
                 visualBuilder.chartPolygons
-                    .toArray()
-                    .map($)
-                    .forEach((element: JQuery) => {
-                        expect(element.css("fill")).not.toBe("none");
-                        expect(parseFloat(element.css("stroke-width"))).toBe(0);
+                    .forEach((element: HTMLElement) => {
+                        expect(element.style.getPropertyValue("fill")).not.toBe("none");
+                        expect(parseFloat(element.style.getPropertyValue("stroke-width"))).toBe(0);
                     });
             });
         });
@@ -311,12 +375,12 @@ describe("RadarChart", () => {
 
             it("show", () => {
                 visualBuilder.updateFlushAllD3Transitions(dataView);
-                expect(visualBuilder.dataLabelsText).toBeInDOM();
+                visualBuilder.dataLabelsText.forEach((element: HTMLElement) => expect(document.body.contains(element)).toBeTruthy());
 
                 (dataView.metadata.objects as any).labels.show = false;
                 visualBuilder.updateFlushAllD3Transitions(dataView);
 
-                expect(visualBuilder.dataLabelsText).not.toBeInDOM();
+                visualBuilder.dataLabelsText.forEach((element: HTMLElement) => expect(document.body.contains(element)).toBeFalsy());
             });
 
             it("color must be #ABCDEF", () => {
@@ -325,10 +389,9 @@ describe("RadarChart", () => {
                 (dataView.metadata.objects as any).labels.color = getSolidColorStructuralObject(color);
                 visualBuilder.updateFlushAllD3Transitions(dataView);
 
-                visualBuilder.dataLabelsText
-                    .toArray()
-                    .forEach((element: Element) => {
-                        assertColorsMatch($(element).css("fill"), color);
+                Array.from(visualBuilder.dataLabelsText)
+                    .forEach((element: HTMLElement) => {
+                        assertColorsMatch(element.style.getPropertyValue("fill"), color);
                     });
             });
 
@@ -339,10 +402,9 @@ describe("RadarChart", () => {
                 (dataView.metadata.objects as any).labels.fontSize = fontSize;
                 visualBuilder.updateFlushAllD3Transitions(dataView);
 
-                visualBuilder.dataLabelsText
-                    .toArray()
-                    .forEach((element: Element) => {
-                        expect($(element).css("font-size")).toBe(expectedFontSize);
+                Array.from(visualBuilder.dataLabelsText)
+                    .forEach((element: HTMLElement) => {
+                        expect(element.style.getPropertyValue("font-size")).toBe(expectedFontSize);
                     });
             });
         });
@@ -369,26 +431,29 @@ describe("RadarChart", () => {
     describe("Highlights tests", () => {
         it("data points highlights", (done) => {
             visualBuilder.updateRenderTimeout(dataView, () => {
-                const firstPoint = visualBuilder.mainElement.find("circle.chartDot").first(),
-                    secondPoint = visualBuilder.mainElement.find("circle.chartDot").last();
+                const allPoints: NodeListOf<HTMLElement> = visualBuilder.mainElement.querySelectorAll("circle.chartDot"),
+                    firstPoint = allPoints[0],
+                    secondPoint = allPoints[allPoints.length - 1];
 
-                expect(firstPoint.css("opacity")).toBe("1");
-                expect(secondPoint.css("opacity")).toBe("1");
+                expect(firstPoint.style.getPropertyValue("opacity")).toBe("1");
+                expect(secondPoint.style.getPropertyValue("opacity")).toBe("1");
 
                 d3Click(firstPoint,
-                    parseInt(firstPoint.attr("cx"), 10),
-                    parseInt(firstPoint.attr("cy"), 10));
+                    parseInt(firstPoint.getAttribute("cx"), 10),
+                    parseInt(firstPoint.getAttribute("cy"), 10),
+                    ClickEventType.Default);
 
-                expect(firstPoint.css("opacity")).toBe("1");
-                expect(secondPoint.css("opacity")).toBe("0.4");
+                expect(firstPoint.style.getPropertyValue("opacity")).toBe("1");
+                expect(secondPoint.style.getPropertyValue("opacity")).toBe("0.4");
 
                 // reset selection
                 d3Click(firstPoint,
-                    parseInt(firstPoint.attr("cx"), 10),
-                    parseInt(firstPoint.attr("cy"), 10));
+                    parseInt(firstPoint.getAttribute("cx"), 10),
+                    parseInt(firstPoint.getAttribute("cy"), 10),
+                    ClickEventType.Default);
 
-                expect(firstPoint.css("opacity")).toBe("1");
-                expect(secondPoint.css("opacity")).toBe("1");
+                expect(firstPoint.style.getPropertyValue("opacity")).toBe("1");
+                expect(secondPoint.style.getPropertyValue("opacity")).toBe("1");
 
                 done();
             });
@@ -403,23 +468,23 @@ describe("RadarChart", () => {
 
             visualBuilder.updateRenderTimeout(dataView, () => {
                 const notSelectedColor: string = "#a6a6a6",
-                    firstLegendItem: JQuery = visualBuilder.mainElement.find("circle.legendIcon").first(),
-                    secondLegendItem: JQuery = visualBuilder.mainElement.find("circle.legendIcon").last(),
-                    firstItemColorBeforeSelection: string = firstLegendItem.css("fill"),
-                    secondItemColorBeforeSelection: string = secondLegendItem.css("fill");
-
+                    legendItems: NodeListOf<HTMLElement> = visualBuilder.element.querySelectorAll("path.legendIcon"),
+                    firstLegendItem: HTMLElement = legendItems[0],
+                    secondLegendItem: HTMLElement = legendItems[legendItems.length - 1],
+                    firstItemColorBeforeSelection: string = firstLegendItem.style.getPropertyValue("fill"),
+                    secondItemColorBeforeSelection: string = secondLegendItem.style.getPropertyValue("fill");
                 assertColorsMatch(firstItemColorBeforeSelection, "#123123");
 
                 d3Click(secondLegendItem,
-                    parseInt(secondLegendItem.attr("cx"), 10),
-                    parseInt(secondLegendItem.attr("cy"), 10));
+                    parseInt(secondLegendItem.getAttribute("cx"), 10),
+                    parseInt(secondLegendItem.getAttribute("cy"), 10));
 
                 assertColorsMatch(
-                    firstLegendItem.css("fill"),
+                    firstLegendItem.style.getPropertyValue("fill"),
                     notSelectedColor);
 
                 assertColorsMatch(
-                    secondLegendItem.css("fill"),
+                    secondLegendItem.style.getPropertyValue("fill"),
                     secondItemColorBeforeSelection);
 
                 done();
@@ -428,16 +493,16 @@ describe("RadarChart", () => {
 
         it("interactivity legend highlights", (done) => {
             visualBuilder.updateRenderTimeout(dataView, () => {
-                const firstPoint: JQuery = visualBuilder.mainElement.find("circle.chartDot").first(),
-                    firstLegendItem: JQuery = visualBuilder.mainElement.find("circle.legendIcon").last();
+                const firstPoint: HTMLElement = visualBuilder.mainElement.querySelector("circle.chartDot"),
+                firstLegendItem: HTMLElement = visualBuilder.element.querySelector("path.legendIcon");
 
-                expect(firstPoint.css("opacity")).toBe("1");
+                expect(firstPoint.style.getPropertyValue("opacity")).toBe("1");
 
                 d3Click(firstLegendItem,
-                    parseInt(firstLegendItem.attr("cx"), 10),
-                    parseInt(firstLegendItem.attr("cy"), 10));
+                    parseInt(firstLegendItem.getAttribute("cx"), 10),
+                    parseInt(firstLegendItem.getAttribute("cy"), 10));
 
-                expect(firstPoint.css("opacity")).toBe("0.4");
+                expect(firstPoint.style.getPropertyValue("opacity")).toBe("0.4");
 
                 done();
             });
@@ -447,9 +512,10 @@ describe("RadarChart", () => {
     describe("converter", () => {
         let colors: IColorPalette,
             colorHelper: ColorHelper,
-            visualHost: IVisualHost;
+            visualHost: IVisualHost,
+            formattingSettings: RadarChartSettingsModel;
 
-        beforeEach(() => {
+        beforeEach((done) => {
             colors = createColorPalette();
             colorHelper = new ColorHelper(colors);
             visualHost = createVisualHost();
@@ -461,36 +527,22 @@ describe("RadarChart", () => {
                     minValue: 1000000
                 }
             };
+            visualBuilder.updateRenderTimeout(dataView, () => {
+                visualBuilder.instance.getFormattingModel();
+                formattingSettings = visualBuilder.instance.formattingSettings;
+                done();
+            });
         });
-
-        it("Parse settings", () => {
-            (dataView.metadata.objects as any).displaySettings.minValue = 1000000;
-            expect(() => {
-                RadarChart.parseSettings(dataView, colorHelper);
-            }).not.toThrow();
-        });
-
-        it("enumerateObjects", () => {
-            expect(() => {
-                visualBuilder.instance.enumerateDataPoint();
-                let settings = RadarChart.parseSettings(dataView, colorHelper);
-                RadarChart.countMinValueForDisplaySettings(-1, settings);
-                RadarChart.countMinValueForDisplaySettings(0, settings);
-                RadarChart.countMinValueForDisplaySettings(1, settings);
-                RadarChart.countMinValueForDisplaySettings(100, settings);
-            }).not.toThrow();
-        });
-
         it("arguments are null", () => {
-            callConverterAndExpectExceptions(null, null, null, null);
+            callConverterAndExpectExceptions(null, null, null, null, formattingSettings);
         });
 
         it("arguments are undefined", () => {
-            callConverterAndExpectExceptions(undefined, undefined, undefined, undefined);
+            callConverterAndExpectExceptions(undefined, undefined, undefined, undefined, formattingSettings);
         });
 
         it("dataView is correct", () => {
-            callConverterAndExpectExceptions(dataView, colors, colorHelper, visualHost);
+            callConverterAndExpectExceptions(dataView, colors, colorHelper, visualHost, formattingSettings);
         });
 
         describe("radarChartData", () => {
@@ -501,7 +553,8 @@ describe("RadarChart", () => {
                     dataView,
                     colors,
                     colorHelper,
-                    visualHost);
+                    visualHost,
+                    formattingSettings);
             });
 
             it("radarChart data is defined", () => {
@@ -566,72 +619,54 @@ describe("RadarChart", () => {
             dataView: DataView,
             colors: IColorPalette,
             colorHelper: ColorHelper,
-            visualHost: IVisualHost): IRadarChartData {
+            visualHost: IVisualHost,
+            formattingSettings: RadarChartSettingsModel): IRadarChartData {
 
             let radarChartData: IRadarChartData;
 
             expect(() => {
-                radarChartData = RadarChart.converter(dataView, colors, colorHelper, visualHost);
+                radarChartData = RadarChart.converter(dataView, colors, colorHelper, visualHost, formattingSettings);
             }).not.toThrow();
 
             return radarChartData;
         }
     });
 
-    describe("Capabilities tests", () => {
-        it("all items having displayName should have displayNameKey property", () => {
-            jasmine.getJSONFixtures().fixturesPath = "base";
-
-            let jsonData = getJSONFixture("capabilities.json");
-
-            let objectsChecker: Function = (obj) => {
-                for (let property in obj) {
-                    let value: any = obj[property];
-
-                    if (value.displayName) {
-                        expect(value.displayNameKey).toBeDefined();
-                    }
-
-                    if (typeof value === "object") {
-                        objectsChecker(value);
-                    }
-                }
-            };
-
-            objectsChecker(jsonData);
-        });
-    });
-
     describe("High contrast mode", () => {
         const backgroundColor: string = "#000000";
         const foregroundColor: string = "#ff00ff";
-
-        let chartPolygons: JQuery<any>[],
-            chartDot: JQuery<any>[],
-            legendItemText: JQuery<any>[],
-            dataLabelsText: JQuery<any>[],
-            legendItemCircle: JQuery<any>[];
 
         beforeEach(() => {
             visualBuilder.visualHost.colorPalette.isHighContrast = true;
 
             visualBuilder.visualHost.colorPalette.background = { value: backgroundColor };
             visualBuilder.visualHost.colorPalette.foreground = { value: foregroundColor };
-
-            chartPolygons = visualBuilder.chartPolygons.toArray().map($);
-            chartDot = visualBuilder.chartDot.toArray().map($);
-            legendItemText = visualBuilder.legendItemText.toArray().map($);
-            dataLabelsText = visualBuilder.dataLabelsText.toArray().map($);
-            legendItemCircle = visualBuilder.legendItemCircle.toArray().map($);
         });
 
         it("should use high contrast mode colors", (done) => {
             visualBuilder.updateRenderTimeout(dataView, () => {
-                expect(isColorAppliedToElements(chartPolygons, foregroundColor, "fill"));
-                expect(isColorAppliedToElements(chartDot, foregroundColor, "fill"));
-                expect(isColorAppliedToElements(legendItemText, foregroundColor, "color"));
-                expect(isColorAppliedToElements(dataLabelsText, foregroundColor, "color"));
-                expect(isColorAppliedToElements(legendItemCircle, foregroundColor, "fill"));
+                expect(isColorAppliedToElements(visualBuilder.chartPolygons, foregroundColor, "fill"));
+                expect(isColorAppliedToElements(visualBuilder.chartDot, foregroundColor, "fill"));
+                expect(isColorAppliedToElements(visualBuilder.legendItemText, foregroundColor, "color"));
+                expect(isColorAppliedToElements(visualBuilder.dataLabelsText, foregroundColor, "color"));
+                expect(isColorAppliedToElements(visualBuilder.legendItemCircle, foregroundColor, "fill"));
+                done();
+            });
+        });
+
+        it("color settings for datapoints and labels should be hidden in high contrast mode", (done) => {
+            visualBuilder.updateRenderTimeout(dataView, () => {
+                const dataPointSettings: DataPointSettingsCard = visualBuilder.instance.formattingSettings.dataPoint;
+                expect(dataPointSettings.visible).toBeFalse;
+
+                const legendSettings: LegendSettingsCard = visualBuilder.instance.formattingSettings.legend;
+                expect(legendSettings.text.visible).toBeTrue;
+                expect(legendSettings.text.labelColor.visible).toBeFalse;
+
+                const labelsSettings: LabelsSettingsCard = visualBuilder.instance.formattingSettings.labels;
+                expect(labelsSettings.visible).toBeTrue;
+                expect(labelsSettings.color.visible).toBeFalse;
+
                 done();
             });
         });
@@ -640,12 +675,14 @@ describe("RadarChart", () => {
     describe("Boundary values test", () => {
         let colorPalette: IColorPalette,
             colorHelper: ColorHelper,
-            polygon: JQuery<any>[],
-            chartDot: JQuery<any>[];
+            polygon: NodeListOf<HTMLElement>,
+            chartDot: NodeListOf<HTMLElement>,
+            formattingServise: FormattingSettingsService;
 
         beforeEach(() => {
             colorPalette = createColorPalette();
             colorHelper = new ColorHelper(colorPalette);
+            formattingServise = new FormattingSettingsService();
         });
 
         describe("dataset includes negative values", () => {
@@ -659,10 +696,12 @@ describe("RadarChart", () => {
                 visualBuilder.update(dataView);
             });
 
-            it("Should parse settings.displaySettings.minValue with negative values as expected", () => {
-                let settings = RadarChart.parseSettings(dataView, colorHelper);
-                let minimumValue = d3.min(defaultDataViewBuilder.withNegativeValuesY1);
-                expect(settings.displaySettings.minValue).toBe(minimumValue);
+            it("Should parse settings.displaySettings.minValue with negative values as expected", (done) => {
+                visualBuilder.updateRenderTimeout(dataView, () => {
+                    let minimumValue = d3Min(defaultDataViewBuilder.withNegativeValuesY1);
+                    expect(visualBuilder.instance.formattingSettings.display.minValue.value).toBe(minimumValue);
+                    done();
+                });
             });
         });
 
@@ -676,23 +715,25 @@ describe("RadarChart", () => {
                     }
                 };
                 visualBuilder.update(dataView);
-                polygon = visualBuilder.chartPolygons.toArray().map($);
+                polygon = visualBuilder.chartPolygons;
             });
 
-            it("Should parse settings.displaySettings.minValue property with 2 or less points in the group as expected", () => {
-                let settings = RadarChart.parseSettings(dataView, colorHelper);
-                let minimumValue = d3.min(defaultDataViewBuilder.onlyTwoValuesY1);
-                expect(settings.displaySettings.minValue).toBe(minimumValue);
+            it("Should parse settings.displaySettings.minValue property with 2 or less points in the group as expected", (done) => {
+                visualBuilder.updateRenderTimeout(dataView, () => {
+                    let minimumValue = d3Min(defaultDataViewBuilder.onlyTwoValuesY1);
+                    expect(visualBuilder.instance.formattingSettings.display.minValue.value).toBe(minimumValue);
+                    done();
+                });
             });
 
             it("Should render a polygon with right points count and bound with a line", (done) => {// area for 2 point is a line
                 const expectedPointCount: number = 2;
 
                 visualBuilder.updateRenderTimeout(dataView, () => {
-                    expect(polygon[0].attr("points-count")).toBe(expectedPointCount.toString());
-                    expect(polygon[0].css("fill")).toBe("none");
-                    expect(polygon[0].css("stroke")).toBeTruthy();
-                    expect(polygon[0].css("stroke-width")).toBeTruthy();
+                    expect(polygon[0].getAttribute("points-count")).toBe(expectedPointCount.toString());
+                    expect(polygon[0].style.getPropertyValue("fill")).toBe("none");
+                    expect(polygon[0].style.getPropertyValue("stroke")).toBeTruthy();
+                    expect(polygon[0].style.getPropertyValue("stroke-width")).toBeTruthy();
                     done();
                 });
             });
@@ -703,15 +744,15 @@ describe("RadarChart", () => {
                 dataView = defaultDataViewBuilder.getDataViewWithBlankData();
                 visualBuilder.update(dataView);
 
-                polygon = visualBuilder.chartPolygons.toArray().map($);
-                chartDot = visualBuilder.chartDot.toArray().map($);
+                polygon = visualBuilder.chartPolygons;
+                chartDot = visualBuilder.chartDot;
             });
 
             it("Should render a polygon with right 0 points count and not to render any dots", (done) => {
                 const expectedPointCount: number = 0;
 
                 visualBuilder.updateRenderTimeout(dataView, () => {
-                    expect(polygon[0].attr("points-count")).toBe(expectedPointCount.toString());
+                    expect(polygon[0].getAttribute("points-count")).toBe(expectedPointCount.toString());
                     expect(chartDot.length).toBe(expectedPointCount);
                     done();
                 });
@@ -723,19 +764,160 @@ describe("RadarChart", () => {
                 dataView = defaultDataViewBuilder.getDataViewWithStringData();
                 visualBuilder.update(dataView);
 
-                polygon = visualBuilder.chartPolygons.toArray().map($);
-                chartDot = visualBuilder.chartDot.toArray().map($);
+                polygon = visualBuilder.chartPolygons;
+                chartDot = visualBuilder.chartDot;
             });
 
             it("Should render a polygon with right 0 points count and not to render any dots", (done) => {
                 const expectedPointCount: number = 0;
 
                 visualBuilder.updateRenderTimeout(dataView, () => {
-                    expect(polygon[0].attr("points-count")).toBe(expectedPointCount.toString());
+                    expect(polygon[0].getAttribute("points-count")).toBe(expectedPointCount.toString());
                     expect(chartDot.length).toBe(expectedPointCount);
                     done();
                 });
             });
         });
+    });
+
+    describe("Settings tests:", () => {
+        it("display minValue should be set", (done) => {
+            visualBuilder.updateRenderTimeout(dataView, () => {
+                const displaySettings: DisplaySettingsCard = visualBuilder.instance.formattingSettings.display;
+                visualBuilder.instance.formattingSettings.setMinMaxValuesForDisplay(-1);
+                expect(displaySettings.minValue.value).toBe(-1);
+                expect(displaySettings.minValue.options?.maxValue?.value).toBe(-1);
+                expect(displaySettings.minValue.options?.minValue?.value).toBe(-1);
+
+                visualBuilder.instance.formattingSettings.setMinMaxValuesForDisplay(0);
+                expect(displaySettings.minValue.value).toBe(0);
+                expect(displaySettings.minValue.options?.maxValue?.value).toBe(0);
+                expect(displaySettings.minValue.options?.minValue?.value).toBe(0);
+
+                visualBuilder.instance.formattingSettings.setMinMaxValuesForDisplay(3);
+                expect(displaySettings.minValue.value).toBe(0);
+                expect(displaySettings.minValue.options?.maxValue?.value).toBe(3);
+                expect(displaySettings.minValue.options?.minValue?.value).toBe(0);
+
+                displaySettings.minValue.value = 4;
+                visualBuilder.instance.formattingSettings.setMinMaxValuesForDisplay(3);
+                expect(displaySettings.minValue.value).toBe(3);
+                expect(displaySettings.minValue.options?.maxValue?.value).toBe(3);
+                expect(displaySettings.minValue.options?.minValue?.value).toBe(0);
+                done();
+            });
+        });
+
+        it("datapoint settings should be set", (done) => {
+            visualBuilder.updateRenderTimeout(dataView, () => {
+                const dataPointSettings: DataPointSettingsCard = visualBuilder.instance.formattingSettings.dataPoint;
+                expect(dataPointSettings.slices.length).toBe(dataView.categorical.values.length);
+
+                dataPointSettings.slices.forEach((slice, index) => {
+                    expect(slice.displayName).toBe(dataView.categorical?.values[index].source.displayName);
+                });
+                done();
+            });
+        });
+    });
+
+    describe("Keyboard navigation tests:", () => {
+
+        it("enter toggles the correct column", () => {
+            const enterEvent = new KeyboardEvent("keydown", { code: "Enter", bubbles: true });
+            checkKeyboardSingleSelection(enterEvent);
+        });
+
+        it("space toggles the correct dataPoint", () => {
+            const spaceEvent = new KeyboardEvent("keydown", { code: "Space", bubbles: true });
+            checkKeyboardSingleSelection(spaceEvent);
+        });
+
+        it("multiselection should work with ctrlKey", () => {
+            const enterEventCtrlKey = new KeyboardEvent("keydown", { code: "Enter", bubbles: true, ctrlKey: true });
+            checkKeyboardMultiSelection(enterEventCtrlKey);
+        });
+
+        it("multiselection should work with metaKey", () => {
+            const enterEventMetaKey = new KeyboardEvent("keydown", { code: "Enter", bubbles: true, metaKey: true });
+            checkKeyboardMultiSelection(enterEventMetaKey);
+        });
+
+        it("multiselection should work with shiftKey", () => {
+            const enterEventShiftKey = new KeyboardEvent("keydown", { code: "Enter", bubbles: true, shiftKey: true });
+            checkKeyboardMultiSelection(enterEventShiftKey);
+        });
+
+        it("dataPoints can be focused", () => {
+            visualBuilder.updateFlushAllD3Transitions(dataView);
+
+            const dataPoints: HTMLElement[] = Array.from(visualBuilder.chartDot);
+            const firstDataPoint: HTMLElement = dataPoints[0];
+
+            dataPoints.forEach((dataPoint: HTMLElement) => {
+                expect(dataPoint.matches(":focus-visible")).toBeFalse();
+            });
+
+            firstDataPoint.focus();
+            expect(firstDataPoint.matches(':focus-visible')).toBeTrue();
+
+            const otherdataPoints: HTMLElement[] = dataPoints.slice(1);
+            otherdataPoints.forEach((dataPoint: HTMLElement) => {
+                expect(dataPoint.matches(":focus-visible")).toBeFalse();
+            });
+
+        });
+
+        function checkKeyboardSingleSelection(keyboardSingleSelectionEvent: KeyboardEvent): void {
+            visualBuilder.updateFlushAllD3Transitions(dataView);
+
+            const dots: HTMLElement[] = Array.from(visualBuilder.chartDot);
+            const firstDot: HTMLElement = dots[0];
+            const secondDot: HTMLElement = dots[1];
+
+            firstDot.dispatchEvent(keyboardSingleSelectionEvent);
+            expect(firstDot.getAttribute("aria-selected")).toBe("true");
+
+            const otherdots: HTMLElement[] = dots.slice(1);
+            otherdots.forEach((dot: HTMLElement) => {
+                expect(dot.getAttribute("aria-selected")).toBe("false");
+            });
+
+            secondDot.dispatchEvent(keyboardSingleSelectionEvent);
+            expect(secondDot.getAttribute("aria-selected")).toBe("true");
+
+            dots.splice(1, 1);
+            dots.forEach((dot: HTMLElement) => {
+                expect(dot.getAttribute("aria-selected")).toBe("false");}
+            );
+        }
+
+        function checkKeyboardMultiSelection(keyboardMultiselectionEvent: KeyboardEvent): void {
+            visualBuilder.updateFlushAllD3Transitions(dataView);
+            const enterEvent = new KeyboardEvent("keydown", { code: "Enter", bubbles: true });
+            const dots: HTMLElement[] = Array.from(visualBuilder.chartDot);
+            const firstDot: HTMLElement = dots[0];
+            const secondDot: HTMLElement = dots[1];
+
+            // select first dot
+            firstDot.dispatchEvent(enterEvent);
+            const firstDotOpacity: string = firstDot.style.getPropertyValue("opacity");
+            // multiselect second dot
+            secondDot.dispatchEvent(keyboardMultiselectionEvent);
+            const secondDotOpacity: string = secondDot.style.getPropertyValue("opacity");
+
+            expect(firstDot.getAttribute("aria-selected")).toBe("true");
+            expect(parseFloat(firstDotOpacity)).toBe(1);
+
+            expect(secondDot.getAttribute("aria-selected")).toBe("true");
+            expect(parseFloat(secondDotOpacity)).toBe(1);
+
+            const notSelectedDots: HTMLElement[] = dots.slice(2);
+            notSelectedDots.forEach((dot: HTMLElement) => {
+                const dotOpacity: string = dot.style.getPropertyValue("opacity");
+                expect(parseFloat(dotOpacity)).toBeLessThan(1);
+                expect(dot.getAttribute("aria-selected")).toBe("false");
+            });
+        }
     });
 });

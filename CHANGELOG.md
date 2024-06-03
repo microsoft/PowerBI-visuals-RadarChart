@@ -1,3 +1,24 @@
+## 3.1.3.0
+* Add new translations
+
+## 3.1.2.0
+* Fix styling options for the legend
+
+## 3.1.1.0
+* Disable keyboard navigation in format mode
+
+## 3.1.0.0
+* API 5.8.0
+* Add onObject formatting feature
+
+## 3.0.0.0
+* API 5.7.0
+* Updated outdated packages
+* Added keyboard navigation
+* Migrated to formatting model
+* Added context menu support
+* Added rendering events
+
 ## 2.0.2
 * UPD: powerbi-visuals-tools has been updated to 3.0.9 to add IE11 support
 * UPD: API has been updated to 2.3.0 to add IE11 support
