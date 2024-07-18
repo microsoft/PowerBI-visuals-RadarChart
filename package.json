@@ -72,7 +72,6 @@
     "powerbi-visuals-utils-dataviewutils": "^6.0.1",
     "powerbi-visuals-utils-formattingmodel": "^6.0.0",
     "powerbi-visuals-utils-formattingutils": "^6.0.3",
-    "powerbi-visuals-utils-interactivityutils": "^6.0.3",
     "powerbi-visuals-utils-onobjectutils": "^6.0.1",
     "powerbi-visuals-utils-svgutils": "^6.0.3",
     "powerbi-visuals-utils-tooltiputils": "^6.0.3"

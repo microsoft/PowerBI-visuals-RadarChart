@@ -54,7 +54,6 @@ import DataViewMetadataColumn = powerbi.DataViewMetadataColumn;
 // powerbi.extensibility
 import IColorPalette = powerbi.extensibility.IColorPalette;
 import IVisual = powerbi.extensibility.IVisual;
-import ISelectionId = powerbi.extensibility.ISelectionId;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import IVisualHost = powerbi.extensibility.visual.IVisualHost;
@@ -62,6 +61,10 @@ import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
 import ILocalizationManager = powerbi.extensibility.ILocalizationManager;
 import IVisualEventService = powerbi.extensibility.IVisualEventService;
 import IPoint = powerbi.extensibility.IPoint;
+import ISelectionManager = powerbi.extensibility.ISelectionManager;
+
+//powerbi.visuals
+import ISelectionId = powerbi.visuals.ISelectionId;
 
 // Svg utils
 import * as SvgUtils from "powerbi-visuals-utils-svgutils";
@@ -84,19 +87,6 @@ import SubSelectionStyles = powerbi.visuals.SubSelectionStyles;
 import VisualShortcutType = powerbi.visuals.VisualShortcutType;
 import VisualSubSelectionShortcuts = powerbi.visuals.VisualSubSelectionShortcuts;
 import SubSelectionStylesType = powerbi.visuals.SubSelectionStylesType;
-
-// Interactivity utils
-import {
-    interactivityBaseService,
-    interactivitySelectionService as interactivityService
-} from "powerbi-visuals-utils-interactivityutils";
-
-import SelectableDataPoint = interactivityService.SelectableDataPoint;
-import IInteractiveBehavior = interactivityBaseService.IInteractiveBehavior;
-import IInteractivityServiceCommon = interactivityBaseService.IInteractivityService;
-import createInteractivityService = interactivityService.createInteractivitySelectionService;
-
-type IInteractivityService = IInteractivityServiceCommon<SelectableDataPoint>;
 
 // Type utils
 import { pixelConverter as PixelConverter } from "powerbi-visuals-utils-typeutils";
@@ -123,7 +113,6 @@ import LegendDataModule = ChartUtils.legendData;
 import createLegend = ChartUtils.legend.createLegend;
 import LegendPosition = ChartUtils.legendInterfaces.LegendPosition;
 import OutsidePlacement = ChartUtils.dataLabelInterfaces.OutsidePlacement;
-import OpacityLegendBehavior = ChartUtils.OpacityLegendBehavior;
 import { RadarChartWebBehavior, RadarChartBehaviorOptions } from "./radarChartWebBehavior";
 import { RadarChartSeries, RadarChartCircularSegment, RadarChartLabel, RadarChartDatapoint, IRadarChartData, RadarChartLabelsData } from "./radarChartDataInterfaces";
 import { LabelsSettingsCard, RadarChartObjectNames, RadarChartSettingsModel, TitleEdit, dataPointReferences, displayReferences, labelsReferences, legendReferences, linesReferences } from "./settings";
@@ -213,6 +202,7 @@ export class RadarChart implements IVisual {
     private root: Selection<any>;
     private svg: Selection<any>;
     private chart: Selection<any>;
+    private dotsSelection: Selection<RadarChartDatapoint>;
     private legendElement: Selection<any>;
     private legendItems: Selection<any>;
 
@@ -222,8 +212,7 @@ export class RadarChart implements IVisual {
     private viewport: IViewport;
     private viewportAvailable: IViewport;
 
-    private interactivityService: IInteractivityService;
-    private behavior: IInteractiveBehavior;
+    private behavior: RadarChartWebBehavior;
     private visualHost: IVisualHost;
     private localizationManager: ILocalizationManager;
     private events: IVisualEventService;
@@ -305,8 +294,7 @@ export class RadarChart implements IVisual {
         colorPalette: IColorPalette,
         colorHelper: ColorHelper,
         visualHost: IVisualHost,
-        settings: RadarChartSettingsModel,
-        interactivityService?: IInteractivityService): IRadarChartData {
+        settings: RadarChartSettingsModel): IRadarChartData {
 
         if (!dataView
             || !dataView.categorical
@@ -426,10 +414,6 @@ export class RadarChart implements IVisual {
             }
 
             if (dataPoints.length > 0) {
-                if (interactivityService) {
-                    interactivityService.applySelectionStateToData(dataPoints, hasHighlights);
-                }
-
                 const radarChartSeries: RadarChartSeries = {
                     fill: color,
                     name: displayName,
@@ -478,24 +462,22 @@ export class RadarChart implements IVisual {
             customOutlineCallback: (e) => this.customOutlineCallback(e)
         });
 
-        this.interactivityService = createInteractivityService(this.visualHost);
-        this.behavior = new RadarChartWebBehavior();
+        const selectionManager: ISelectionManager = this.visualHost.createSelectionManager();
+        this.behavior = new RadarChartWebBehavior(selectionManager, this.colorHelper);
         this.events = options.host.eventService;
 
         this.tooltipServiceWrapper = createTooltipServiceWrapper(
             options.host.tooltipService,
             options.element);
 
-        const interactiveBehavior: IInteractiveBehavior = this.colorHelper.isHighContrast ? new OpacityLegendBehavior() : null;
         this.legend = createLegend(
             element,
             false,
-            this.interactivityService,
+            null,
             true,
-            LegendPosition.Top,
-            interactiveBehavior);
+            LegendPosition.Top);
 
-        this.legendElement = this.root.select("g#legendGroup");
+        this.legendElement = this.root.select(".legend");
 
         this.mainGroupElement = this.svg.append("g");
 
@@ -540,8 +522,7 @@ export class RadarChart implements IVisual {
             this.colorPalette,
             this.colorHelper,
             this.visualHost,
-            this.formattingSettings,
-            this.interactivityService);
+            this.formattingSettings);
 
         let categories: PrimitiveValue[] = [];
         const series: RadarChartSeries[] = this.radarChartData.series;
@@ -610,6 +591,8 @@ export class RadarChart implements IVisual {
 
         this.createAxesLabels();
         this.drawChart(series, RadarChart.AnimationDuration);
+
+        this.bindBehaviorToVisual();
 
         this.subSelectionHelper.setFormatMode(options.formatMode);
         const shouldUpdateSubSelection = options.type & (powerbi.VisualUpdateType.Data
@@ -1441,9 +1424,6 @@ export class RadarChart implements IVisual {
             .attr("role", "listbox")
             .merge(nodeSelection);
 
-        const hasHighlights: boolean = (series.length > 0) && series[0].hasHighlights,
-            hasSelection: boolean = this.interactivityService && this.interactivityService.hasSelection();
-
         let dotsSelection: Selection<RadarChartDatapoint> = nodeSelection
             .selectAll(RadarChart.ChartDotSelector.selectorName)
             .data((dataPoints: RadarChartDatapoint[]) => {
@@ -1463,27 +1443,13 @@ export class RadarChart implements IVisual {
             .attr("cy", (dataPoint: RadarChartDatapoint) => axisBeginning * yDomain(dataPoint.y) * Math.cos(dataPoint.x * angle))
             .style("fill", (dataPoint: RadarChartDatapoint) => this.colorHelper.getHighContrastColor("foreground", dataPoint.color))
             .style("stroke", (dataPoint: RadarChartDatapoint) => this.colorHelper.getHighContrastColor("foreground", dataPoint.color))
-            .style("opacity", (dataPoint: RadarChartDatapoint) => {
-                return RadarChartUtils.getFillOpacity(
-                    dataPoint.selected,
-                    dataPoint.highlight,
-                    !dataPoint.highlight && hasSelection,
-                    !dataPoint.selected && hasHighlights);
-            })
             .attr("tabindex", 0)
             .attr("role", "option")
             .attr("aria-selected", "false")
             .attr("aria-label", (dataPoint: RadarChartDatapoint) => this.getDataPointAriaLabel(dataPoint.tooltipInfo));
-        
-        // remove attributes for keyboard navigation which are irrelevant for format mode.
-        if (this.formatMode){
-            dotsSelection
-                .attr("tabindex", null)
-                .attr("role", null)
-                .attr("aria-selected", null)
-                .attr("aria-label", null);
-        }
 
+        this.dotsSelection = dotsSelection;
+    
         this.tooltipServiceWrapper.addTooltip(
             dotsSelection,
             (eventArgs: RadarChartDatapoint) => {
@@ -1491,22 +1457,19 @@ export class RadarChart implements IVisual {
             },
             null,
             true);
+    }
 
-        if (this.interactivityService) {
-            // Register interactivity
-            const dataPointsToBind: RadarChartDatapoint[] = this.getAllDataPointsList(series);
-            const behaviorOptions: RadarChartBehaviorOptions = {
-                selection: dotsSelection,
-                clearCatcher: this.svg,
-                legend: this.legendItems,
-                hasHighlights: hasHighlights,
-                behavior: this.behavior,
-                dataPoints: dataPointsToBind,
-                formatMode: this.formatMode
-            };
+    private bindBehaviorToVisual(): void {
+        const behaviorOptions: RadarChartBehaviorOptions = {
+            selection: this.dotsSelection,
+            clearCatcher: this.svg,
+            legend: this.legendItems,
+            legendClearCatcher: this.legendElement,
+            formatMode: this.formatMode
+        };
 
-            this.interactivityService.bind(behaviorOptions);
-        }
+        this.behavior.bindEvents(behaviorOptions);
+        this.behavior.renderSelection();
     }
 
     private getDataPointAriaLabel(tooltipInfo: VisualTooltipDataItem[]): string {

@@ -30,102 +30,133 @@ import {
 } from "d3-selection";
 type Selection<T> = d3Selection<any, T, any, any>;
 
-// Interactivity utils
-import { 
-    interactivityBaseService
-} from "powerbi-visuals-utils-interactivityutils";
-import IInteractiveBehavior = interactivityBaseService.IInteractiveBehavior;
-import ISelectionHandler = interactivityBaseService.ISelectionHandler;
-import IBehaviorOptionsCommon = interactivityBaseService.IBehaviorOptions;
+import ISelectionManager = powerbi.extensibility.ISelectionManager;
+import ISelectionId = powerbi.visuals.ISelectionId;
 
-type IBehaviorOptions = IBehaviorOptionsCommon<RadarChartDatapoint>;
+import { legendInterfaces } from "powerbi-visuals-utils-chartutils";
+import LegendDataPoint = legendInterfaces.LegendDataPoint
+;
+import { ColorHelper } from "powerbi-visuals-utils-colorutils";
 
 import * as radarChartUtils from "./radarChartUtils";
 import {RadarChartDatapoint} from "./radarChartDataInterfaces";
 
-export interface RadarChartBehaviorOptions extends IBehaviorOptions {
+export interface RadarChartBehaviorOptions {
     selection: Selection<RadarChartDatapoint>;
     clearCatcher: Selection<any>;
     legend: Selection<any>;
-    hasHighlights: boolean;
+    legendClearCatcher: Selection<any>;
     formatMode: boolean;
 }
 
-export class RadarChartWebBehavior implements IInteractiveBehavior {
+export class RadarChartWebBehavior {
     private selection: Selection<RadarChartDatapoint>;
-    private hasHighlights: boolean;
+    private dataPoints: RadarChartDatapoint[];
     private clearCatcher: Selection<any>;
-    private legendItems: Selection<any>;
+    private legendClearCatcher: Selection<any>;
+    private legendIcons: Selection<LegendDataPoint>;
+    private legendItems: Selection<LegendDataPoint>;
+    private legendDataPoints: LegendDataPoint[];
+    private selectionManager: ISelectionManager;
+    private colorHelper: ColorHelper;
 
-    public bindEvents(options: RadarChartBehaviorOptions, selectionHandler: ISelectionHandler): void {
+    constructor(selectionManager: ISelectionManager, colorHelper: ColorHelper) {
+        this.selectionManager = selectionManager;
+        this.colorHelper = colorHelper;
+        this.selectionManager.registerOnSelectCallback(this.onSelectCallback.bind(this));
+    }
+
+    private onSelectCallback(selectionIds?: ISelectionId[]){
+        this.applySelectionStateToData(selectionIds);
+        this.renderSelection();
+    }
+
+    private applySelectionStateToData(selectionIds?: ISelectionId[]): void {
+        const selectedIds: ISelectionId[] = <ISelectionId[]>this.selectionManager.getSelectionIds();
+        this.setSelectedToDataPoints(this.dataPoints, selectionIds || selectedIds);
+        this.setSelectedToDataPoints(this.legendDataPoints, selectionIds || selectedIds);
+    }
+
+    private setSelectedToDataPoints(dataPoints: LegendDataPoint[] | RadarChartDatapoint[], ids: ISelectionId[]): void{
+        dataPoints.forEach((dataPoint: LegendDataPoint| RadarChartDatapoint) => {
+            dataPoint.selected = false;
+            ids.forEach((selectedId: ISelectionId) => {
+                if (selectedId.includes(<ISelectionId>dataPoint.identity)) {
+                    dataPoint.selected = true;
+                }
+            });
+        });
+    }
+
+    public bindEvents(options: RadarChartBehaviorOptions): void {
         this.selection = options.selection;
-        this.hasHighlights = options.hasHighlights;
+        this.dataPoints = options.selection.data();
         this.clearCatcher = options.clearCatcher;
+        this.legendClearCatcher = options.legendClearCatcher;
         this.legendItems = options.legend;
+        this.legendIcons = options.legend.selectAll(".legendIcon");
+        this.legendDataPoints = options.legend.data();
 
         if (options.formatMode){
             // remove event listeners which are irrelevant for format mode.
             this.removeEventListeners();
-            selectionHandler.handleClearSelection();
+            this.removeAttributes();
+            this.selectionManager.clear();
         }
         else { 
-            this.addEventListeners(selectionHandler);
+            this.addEventListeners();
         }
+
+        this.applySelectionStateToData();
     }
 
-    public renderSelection(hasSelection: boolean): void {
+    public renderSelection(): void {
+        const legendHasSelection: boolean = this.legendDataPoints.some((dataPoint: LegendDataPoint) => dataPoint.selected);
+        const dataPointHasSelection: boolean = this.dataPoints.some((dataPoint: RadarChartDatapoint) => dataPoint.selected);
+        const dataPointHasHighlight: boolean = this.dataPoints.some((dataPoint: RadarChartDatapoint) => dataPoint.highlight);
+
         this.selection.style("opacity", (dataPoint: RadarChartDatapoint) => {
             return radarChartUtils.getFillOpacity(
                 dataPoint.selected,
                 dataPoint.highlight,
-                !dataPoint.highlight && hasSelection,
-                !dataPoint.selected && this.hasHighlights);
+                !dataPoint.highlight && dataPointHasSelection,
+                !dataPoint.selected && dataPointHasHighlight);
         });
 
         this.selection.attr("aria-selected",(dataPoint: RadarChartDatapoint) =>{
-            return (hasSelection && dataPoint.selected);
+            return (dataPointHasSelection && dataPoint.selected);
+        });
+
+        this.legendIcons.style("fill-opacity", (legendDataPoint: LegendDataPoint) => {
+            return radarChartUtils.getLegendFillOpacity(
+                legendDataPoint.selected,
+                legendHasSelection,
+                this.colorHelper.isHighContrast
+            );
+        });
+
+        this.legendIcons.style("fill", (legendDataPoint: LegendDataPoint) => {
+            return radarChartUtils.getLegendFill(
+                legendDataPoint.selected,
+                legendHasSelection,
+                legendDataPoint.color,
+                this.colorHelper.isHighContrast
+            );
         });
     }
 
-    public addEventListeners(selectionHandler: ISelectionHandler): void {
-        this.selection.on("click", (event: PointerEvent, dataPoint: RadarChartDatapoint) => {
-            selectionHandler.handleSelection(dataPoint, event.ctrlKey || event.metaKey || event.shiftKey);
+    public addEventListeners(): void {
+        this.bindClickEvent(this.selection);
+        this.bindClickEvent(this.legendItems);
+        this.bindClickEvent(this.clearCatcher);
+        this.bindClickEvent(this.legendClearCatcher);
 
-            event.stopPropagation();
-        });
+        this.bindContextMenuEvent(this.selection);
+        this.bindContextMenuEvent(this.legendItems);
+        this.bindContextMenuEvent(this.clearCatcher);
+        this.bindContextMenuEvent(this.legendClearCatcher);
 
-        this.selection.on("keydown", (event : KeyboardEvent, dataPoint: RadarChartDatapoint) => {
-            if(event?.code == "Enter" || event?.code == "Space")
-            {
-                selectionHandler.handleSelection(
-                    dataPoint,
-                    event.ctrlKey || event.metaKey || event.shiftKey);
-            }
-        });
-
-        this.selection.on("contextmenu", (event: PointerEvent, dataPoint: RadarChartDatapoint) => {
-            selectionHandler.handleContextMenu(dataPoint,
-                {
-                    x: event.clientX,
-                    y: event.clientY
-                }
-            );
-            event.preventDefault();
-            event.stopPropagation(); 
-        })
-
-        this.clearCatcher.on("click", () => {
-            selectionHandler.handleClearSelection();
-        });
-
-        this.clearCatcher.on("contextmenu", (event: PointerEvent) => {
-            selectionHandler.handleContextMenu({"selected" : false},
-            {
-                x: event.clientX,
-                y: event.clientY
-            });
-            event.preventDefault(); 
-        });
+        this.bindKeyboardEvent(this.selection);
     }
 
     public removeEventListeners(): void {
@@ -134,6 +165,58 @@ export class RadarChartWebBehavior implements IInteractiveBehavior {
         this.selection.on("keydown", null);
         this.clearCatcher.on("click", null);
         this.clearCatcher.on("contextmenu", null);
+        this.legendClearCatcher.on("click", null);
+        this.legendClearCatcher.on("contextmenu", null);
         this.legendItems.on("click", null);
+        this.legendItems.on("contextmenu", null);
+    }
+
+    public removeAttributes(): void {
+        this.selection
+            .attr("tabindex", null)
+            .attr("role", null)
+            .attr("aria-selected", null)
+            .attr("aria-label", null);
+    }
+
+    private bindContextMenuEvent(elements: Selection<any>): void {
+        elements.on("contextmenu", (event: PointerEvent, dataPoint: RadarChartDatapoint | LegendDataPoint | undefined) => {
+            this.selectionManager.showContextMenu(dataPoint ? dataPoint.identity : {},
+                {
+                    x: event.clientX,
+                    y: event.clientY
+                }
+            );
+            event.preventDefault();
+            event.stopPropagation();
+        })
+    }
+
+    private bindClickEvent(elements: Selection<any>): void {
+        elements.on("click", (event: PointerEvent, dataPoint: RadarChartDatapoint | LegendDataPoint | undefined) => {
+            const isMultiSelection: boolean = event.ctrlKey || event.metaKey || event.shiftKey;
+            if (dataPoint){
+                this.selectionManager.select(dataPoint.identity, isMultiSelection);
+                event.stopPropagation();
+            }
+            else {
+                this.selectionManager.clear();
+            }
+            this.onSelectCallback();
+        });
+    }
+
+    private bindKeyboardEvent(elements: Selection<any>): void {
+        elements.on("keydown", (event : KeyboardEvent, dataPoint: RadarChartDatapoint | LegendDataPoint) => {
+            if (event.code !== "Enter" && event.code !== "Space") {
+                return;
+            }
+
+            const isMultiSelection: boolean = event.ctrlKey || event.metaKey || event.shiftKey;
+            this.selectionManager.select(dataPoint.identity, isMultiSelection);
+
+            event.stopPropagation();
+            this.onSelectCallback();
+        });
     }
 }

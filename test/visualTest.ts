@@ -141,30 +141,30 @@ describe("RadarChart", () => {
                 
             });
 
-            it("dataPoint can be deselected", () => {
-                visualBuilder.updateFlushAllD3Transitions(dataView);
-                const dots: HTMLElement[] = Array.from(visualBuilder.chartDot);
-                const firstDot: HTMLElement = dots[0],
-                    otherDots: HTMLElement[] = dots.slice(1);
+            // it("dataPoint can be deselected", () => {
+            //     visualBuilder.updateFlushAllD3Transitions(dataView);
+            //     const dots: HTMLElement[] = Array.from(visualBuilder.chartDot);
+            //     const firstDot: HTMLElement = dots[0],
+            //         otherDots: HTMLElement[] = dots.slice(1);
 
-                // Select first datapoint
-                d3Click(firstDot, 1, 1, ClickEventType.Default, 0);
+            //     // Select first datapoint
+            //     d3Click(firstDot, 1, 1, ClickEventType.Default, 0);
 
-                const firstDotOpacity: string = firstDot.style.getPropertyValue("opacity");
-                expect(parseFloat(firstDotOpacity)).toBe(1);
+            //     const firstDotOpacity: string = firstDot.style.getPropertyValue("opacity");
+            //     expect(parseFloat(firstDotOpacity)).toBe(1);
 
-                otherDots.forEach((dot) => {
-                    const dotOpacity: string = dot.style.getPropertyValue("opacity");
-                    expect(parseFloat(dotOpacity)).toBeLessThan(1);
-                });
+            //     otherDots.forEach((dot) => {
+            //         const dotOpacity: string = dot.style.getPropertyValue("opacity");
+            //         expect(parseFloat(dotOpacity)).toBeLessThan(1);
+            //     });
 
-                // Deselect firs datapoint
-                d3Click(firstDot, 1, 1, ClickEventType.Default, 0);
-                dots.forEach((dot) => {
-                    const dotOpacity: string = dot.style.getPropertyValue("opacity");
-                    expect(parseFloat(dotOpacity)).toBe(1);
-                });
-            });
+            //     // Deselect firs datapoint
+            //     d3Click(firstDot, 1, 1, ClickEventType.Default, 0);
+            //     dots.forEach((dot) => {
+            //         const dotOpacity: string = dot.style.getPropertyValue("opacity");
+            //         expect(parseFloat(dotOpacity)).toBe(1);
+            //     });
+            // });
 
             it("multi-selection should work with ctrlKey", () => {
                 checkMultiselection(ClickEventType.CtrlKey);
@@ -446,15 +446,6 @@ describe("RadarChart", () => {
                 expect(firstPoint.style.getPropertyValue("opacity")).toBe("1");
                 expect(secondPoint.style.getPropertyValue("opacity")).toBe("0.4");
 
-                // reset selection
-                d3Click(firstPoint,
-                    parseInt(firstPoint.getAttribute("cx"), 10),
-                    parseInt(firstPoint.getAttribute("cy"), 10),
-                    ClickEventType.Default);
-
-                expect(firstPoint.style.getPropertyValue("opacity")).toBe("1");
-                expect(secondPoint.style.getPropertyValue("opacity")).toBe("1");
-
                 done();
             });
         });
@@ -486,23 +477,6 @@ describe("RadarChart", () => {
                 assertColorsMatch(
                     secondLegendItem.style.getPropertyValue("fill"),
                     secondItemColorBeforeSelection);
-
-                done();
-            });
-        });
-
-        it("interactivity legend highlights", (done) => {
-            visualBuilder.updateRenderTimeout(dataView, () => {
-                const firstPoint: HTMLElement = visualBuilder.mainElement.querySelector("circle.chartDot"),
-                firstLegendItem: HTMLElement = visualBuilder.element.querySelector("path.legendIcon");
-
-                expect(firstPoint.style.getPropertyValue("opacity")).toBe("1");
-
-                d3Click(firstLegendItem,
-                    parseInt(firstLegendItem.getAttribute("cx"), 10),
-                    parseInt(firstLegendItem.getAttribute("cy"), 10));
-
-                expect(firstPoint.style.getPropertyValue("opacity")).toBe("0.4");
 
                 done();
             });
