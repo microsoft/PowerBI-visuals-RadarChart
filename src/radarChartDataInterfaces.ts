@@ -69,6 +69,7 @@ export interface RadarChartAxesLabel {
 export interface IRadarChartData {
     legendData: LegendData;
     labels: RadarChartLabelsData;
+    yLabels: RadarChartLabel[];
     series: RadarChartSeries[];
 }
 
@@ -87,6 +88,7 @@ export interface RadarChartLabel extends d3Arc<any, d3DefaultArcObject> {
     isLabelHasConflict?: boolean;
     outsidePlacement?: number;
     hide?: boolean;
+    color?: string;
 }
 
 export interface RadarChartLabelsData {

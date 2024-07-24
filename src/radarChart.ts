@@ -115,7 +115,7 @@ import LegendPosition = ChartUtils.legendInterfaces.LegendPosition;
 import OutsidePlacement = ChartUtils.dataLabelInterfaces.OutsidePlacement;
 import { RadarChartWebBehavior, RadarChartBehaviorOptions } from "./radarChartWebBehavior";
 import { RadarChartSeries, RadarChartCircularSegment, RadarChartLabel, RadarChartDatapoint, IRadarChartData, RadarChartLabelsData } from "./radarChartDataInterfaces";
-import { LabelsSettingsCard, RadarChartObjectNames, RadarChartSettingsModel, TitleEdit, dataPointReferences, displayReferences, labelsReferences, legendReferences, linesReferences } from "./settings";
+import { LabelsSettingsCard, RadarChartObjectNames, RadarChartSettingsModel, TitleEdit, dataPointReferences, displayReferences, labelsReferences, legendReferences, linesReferences, xAxisLabelsSettings } from "./settings";
 import * as RadarChartUtils from "./radarChartUtils";
 import * as TooltipBuilder from "./tooltipBuilder";
 
@@ -126,6 +126,8 @@ export class RadarChart implements IVisual {
     private static AxisSelector: ClassAndSelector = CreateClassAndSelector("axis");
     private static AxisNodeSelector: ClassAndSelector = CreateClassAndSelector("axisNode");
     private static AxisLabelSelector: ClassAndSelector = CreateClassAndSelector("axisLabel");
+    private static YAxisLabelsSelector: ClassAndSelector = CreateClassAndSelector("yAxisLabels");
+    private static YAxisLabelSelector: ClassAndSelector = CreateClassAndSelector("yAxisLabel");
     private static ChartSelector: ClassAndSelector = CreateClassAndSelector("chart");
     private static ChartNodeSelector: ClassAndSelector = CreateClassAndSelector("chartNode");
     private static ChartAreaSelector: ClassAndSelector = CreateClassAndSelector("chartArea");
@@ -182,12 +184,16 @@ export class RadarChart implements IVisual {
     private static AxesLabelsFontFamily: string = "sans-serif";
 
     private static TextAnchorStart: string = "start";
+    private static TextAnchorMiddle: string = "middle";
     private static TextAnchorEnd: string = "end";
 
     private static LabelXOffset: number = 0;
     private static LabelYOffset: number = 1.5;
 
     private static LabelPositionXOffset: number = 9;
+
+    private static YLabelPositionXOffset: number = 6;
+    private static YLabelPositionYOffset: number = 12;
 
     private static DotRadius: number = 5;
 
@@ -277,6 +283,37 @@ export class RadarChart implements IVisual {
 
         return labelsData;
     }
+
+    private static getYLabelsData(dataView: DataView): RadarChartLabel[] {
+        if (!dataView
+            || !dataView.metadata
+            || !dataView.metadata.columns
+            || !dataView.metadata.columns[0]
+            || !dataView.categorical
+            || !dataView.categorical.values
+            || !dataView.categorical.values[0]
+            || !dataView.categorical.values[0].values) {
+
+            return null;
+        }
+
+        const categoryValues: DataViewValueColumns = dataView.categorical.values;
+
+        const yAxisLabels: RadarChartLabel[] = [];
+
+        for (let i: number = 0, iLen: number = categoryValues.length; i < iLen; i++) {
+            const values: PrimitiveValue[] = categoryValues[i].values;
+            for (let j: number = 0, jLen: number = values.length; j < jLen; j++){
+                const radarChartLabel: RadarChartLabel = d3Arc() as RadarChartLabel;
+                radarChartLabel.text = values[j] as string;
+                radarChartLabel.index = j;
+
+                yAxisLabels.push(radarChartLabel);
+            }
+        }
+        return yAxisLabels;
+    }
+
     private static fakeValue = "fakevalue";
     public static checkAndUpdateAxis(dataView: DataView, values: DataViewValueColumns) {
         if (dataView.categorical.categories[0].values.length <= 2) {// add  2-3 categories to make it looks like a rhomb
@@ -312,6 +349,7 @@ export class RadarChart implements IVisual {
                     dataPoints: []
                 },
                 labels: RadarChart.getLabelsData(dataView),
+                yLabels: [],
                 series: []
             };
         }
@@ -392,10 +430,11 @@ export class RadarChart implements IVisual {
                     i);
                 const currCatValue = catDv.categories[0].values[k];
                 const labelFormatString: string = valueFormatter.getFormatStringByColumn(catDv.values[i].source),
-                    fontSizeInPx: string = PixelConverter.fromPoint(settings.labels.font.fontSize.value);
+                    fontSizeInPx: string = PixelConverter.fromPoint(settings.labels.xAxisLabels.font.fontSize.value);
 
                 const notConvertedValue: PrimitiveValue = values[i].values[k],
                     y: number = notConvertedValue === RadarChart.fakeValue ? 0 : (notConvertedValue !== null ? Number(notConvertedValue) : NaN);
+
                 if (!isNaN(y)) {
                     dataPoints.push({
                         x: k,
@@ -428,6 +467,7 @@ export class RadarChart implements IVisual {
 
         return {
             labels: RadarChart.getLabelsData(dataView),
+            yLabels: RadarChart.getYLabelsData(dataView),
             legendData: legendData,
             series: series
         };
@@ -562,7 +602,7 @@ export class RadarChart implements IVisual {
             "transform",
             translate(this.viewport.width / 2, this.viewport.height / 2));
 
-        const labelsFontSize: number = this.formattingSettings.labels.font.fontSize.value;
+        const labelsFontSize: number = this.formattingSettings.labels.xAxisLabels.font.fontSize.value;
 
         this.margin.top = Math.max(RadarChart.DefaultMargin.top, labelsFontSize);
         this.margin.left = Math.max(RadarChart.DefaultMargin.left, labelsFontSize);
@@ -590,6 +630,8 @@ export class RadarChart implements IVisual {
         this.drawAxes(categories);
 
         this.createAxesLabels();
+        this.createYAxesLabels();
+        this.renderYAxesLabels();
         this.drawChart(series, RadarChart.AnimationDuration);
 
         this.bindBehaviorToVisual();
@@ -1094,7 +1136,7 @@ export class RadarChart implements IVisual {
 
         const properties: TextProperties = {
             fontFamily: RadarChart.AxesLabelsFontFamily,
-            fontSize: PixelConverter.fromPoint(labelSettings.font.fontSize.value),
+            fontSize: PixelConverter.fromPoint(labelSettings.xAxisLabels.font.fontSize.value),
             text: this.radarChartData.labels.formatter.format(current.text)
         };
 
@@ -1184,6 +1226,88 @@ export class RadarChart implements IVisual {
         }
     }
 
+    private createYAxesLabels(): void {
+        if (!this.radarChartData
+            || !this.radarChartData.series
+            || !this.radarChartData.series?.[0]
+            || !this.radarChartData.series[0]?.dataPoints) {
+            return;
+        }
+
+        const angle: number = this.angle,
+            labelPoints: RadarChartLabel[] = this.radarChartData.yLabels,
+            dataPoints: RadarChartDatapoint[] = this.getAllDataPointsList(this.radarChartData.series),
+            yDomain: d3LinearScale<number, number> = this.calculateChartDomain(this.radarChartData.series);
+        
+        const axisBeginning: number = +this.formattingSettings.display.axisBeginning.value.value;
+
+        for (let i: number = 0; i < dataPoints.length; i++) {
+            const yLabel: RadarChartLabel = labelPoints[i],
+                dataPoint: RadarChartDatapoint = dataPoints[i],
+                angleInRadian: number = yLabel.index * angle,
+                angleInDegree: number = Math.round(angleInRadian * RadarChart.Angle180Degree / Math.PI);
+
+            yLabel.angleInDegree = angleInDegree;
+            yLabel.textAnchor = (angleInDegree === RadarChart.Angle90Degree) || (angleInDegree === RadarChart.Angle270Degree)
+                ? RadarChart.TextAnchorMiddle
+                : (yLabel.index * angle) < Math.PI
+                    ? RadarChart.TextAnchorStart
+                    : RadarChart.TextAnchorEnd;
+
+            let shiftX: number = 0,
+                shiftY: number = 0;
+            
+            switch (yLabel.textAnchor) {
+                case RadarChart.TextAnchorStart:
+                    shiftX = +RadarChart.YLabelPositionXOffset
+                    break;
+                case RadarChart.TextAnchorMiddle:
+                    shiftY = angleInDegree === RadarChart.Angle90Degree ? +RadarChart.YLabelPositionYOffset : -RadarChart.YLabelPositionYOffset;
+                    break;
+                case RadarChart.TextAnchorEnd:
+                    shiftX = -RadarChart.YLabelPositionXOffset;
+                    break;
+            } 
+
+            yLabel.x = Math.round(yDomain(dataPoint.y) * Math.sin(dataPoint.x * angle) + shiftX);
+            yLabel.y = Math.round(axisBeginning * yDomain(dataPoint.y) * Math.cos(dataPoint.x * angle) + shiftY);
+            yLabel.color = dataPoint.color; //chande with settings 
+        }
+
+        this.hideOverlappingYLabels();
+    }
+
+    private hideOverlappingYLabels(): void {
+        const labelPoints: RadarChartLabel[] = this.radarChartData.yLabels;
+        const length: number = this.radarChartData.series[0].dataPoints.length;
+        const labelSettings = this.formattingSettings.labels;
+
+        for (let i: number = 0; i < length; i++){
+            const labelsWithSameCategory: RadarChartLabel[] = labelPoints.filter((labelPoint: RadarChartLabel) => labelPoint.index === i);
+
+            labelsWithSameCategory.sort((a: RadarChartLabel, b: RadarChartLabel) => +b.text - +a.text);
+            let currentLabel: RadarChartLabel = labelsWithSameCategory[0];
+            currentLabel.hide = false;
+
+            const properties: TextProperties = {
+                fontFamily: RadarChart.AxesLabelsFontFamily,//change with yAxisLabelSettings
+                fontSize: PixelConverter.fromPoint(labelSettings.xAxisLabels.font.fontSize.value),//change with yAxisLabelSettings
+                text: currentLabel.text
+            };
+            const currentLabelHeight: number = textMeasurementService.measureSvgTextHeight(properties);
+            const currentLabelWidth: number = textMeasurementService.measureSvgTextWidth(properties);
+
+            for (let j: number = 1; j < labelsWithSameCategory.length; j++){
+                const label: RadarChartLabel = labelsWithSameCategory[j];
+                const overlapX: boolean = Math.abs(currentLabel.x - label.x) < currentLabelWidth;
+                const overlapY: boolean = Math.abs(currentLabel.y - label.y) < currentLabelHeight;
+                const shouldHide: boolean = (currentLabel.y === label.y) ? overlapX : overlapY;
+                label.hide = shouldHide;
+                currentLabel = shouldHide ? currentLabel : label;                
+            }
+        }
+    }
+
     private createAxesLabels(): void {
         if (!this.radarChartData
             || !this.radarChartData.labels
@@ -1228,7 +1352,7 @@ export class RadarChart implements IVisual {
     }
 
     private drawAxesLabels(values: RadarChartLabel[]): void {
-        const labelSettings: LabelsSettingsCard = this.formattingSettings.labels;
+        const labelSettings: xAxisLabelsSettings = this.formattingSettings.labels.xAxisLabels;
 
         const selectionLabelText: Selection<RadarChartLabel> = this.mainGroupElement
             .select(RadarChart.AxisSelector.selectorName)
@@ -1270,7 +1394,7 @@ export class RadarChart implements IVisual {
             .style("text-decoration", () => labelSettings.font.underline.value ? "underline" : "none")
             .style("text-anchor", (label: RadarChartLabel) => label.textAnchor)
             .style("fill", () => labelSettings.color.value.value)
-            .classed(HtmlSubSelectableClass, this.formatMode && this.formattingSettings.labels.show.value)
+            .classed(HtmlSubSelectableClass, this.formatMode && labelSettings.show.value)
             .attr(SubSelectableObjectNameAttribute, RadarChartObjectNames.Labels)
             .attr(SubSelectableDisplayNameAttribute, "Data Labels");
 
@@ -1318,6 +1442,55 @@ export class RadarChart implements IVisual {
             .attr("y2", (label: RadarChartLabel) => label.yLinkEnd);
 
         this.changeAxesLineColorInHighMode([labelsShortLineLinkSelection, labelsLongLineLinkSelection]);
+    }
+
+    private renderYAxesLabels(): void {
+        const labelSettings = this.formattingSettings.labels;
+
+        const filteredData: RadarChartLabel[] = this.radarChartData.yLabels.filter((label: RadarChartLabel) => {
+            const showYLabels: boolean = labelSettings.yAxisLabels.show.value;
+            const showOverlapping: boolean = labelSettings.yAxisLabels.showOverlapping.value;
+            return (label.text != null && showYLabels && (showOverlapping || !label.hide))
+        });
+
+        this.chart.selectAll(RadarChart.YAxisLabelsSelector.selectorName).remove();
+
+        this.chart
+            .append("g")
+            .classed(RadarChart.YAxisLabelsSelector.className, true);
+
+        const yLabelsElements: Selection<any> = this.chart
+            .select(RadarChart.YAxisLabelsSelector.selectorName)
+            .selectAll(RadarChart.YAxisLabelSelector.selectorName);
+
+        const yLabelsSelectionData = yLabelsElements
+            .data(filteredData);
+
+        yLabelsSelectionData
+            .exit()
+            .remove();
+
+        const yLabelsElementsEnter = yLabelsSelectionData
+            .enter()
+            .append("text");
+
+        const yLabelsElementsMerged = yLabelsElementsEnter.merge(yLabelsElements);
+        
+        yLabelsElementsMerged
+            .enter()
+            .append("text");
+
+        yLabelsElementsMerged
+            .classed(RadarChart.YAxisLabelSelector.className, true)
+            .attr("dy", `${RadarChart.LabelYOffset}em`)
+            .attr("transform", translate(RadarChart.LabelXOffset, -RadarChart.LabelYOffset * labelSettings.xAxisLabels.font.fontSize.value))//change to yaxislabels
+            .attr("x", (label: RadarChartLabel) => label.x)
+            .attr("y", (label: RadarChartLabel) => label.y)
+            .style("fill", (label: RadarChartLabel) => this.colorHelper.getHighContrastColor("foreground", label.color))//change to yaxislabels
+            .style("text-anchor", (label: RadarChartLabel) => label.textAnchor)
+            .style("font-size", PixelConverter.fromPoint(labelSettings.xAxisLabels.font.fontSize.value))//change to yaxislabels
+            .style("font-family", labelSettings.xAxisLabels.font.fontFamily.value)//change to yaxislabels
+            .text((label: RadarChartLabel) => label.text);
     }
 
     // eslint-disable-next-line max-lines-per-function
@@ -1424,7 +1597,7 @@ export class RadarChart implements IVisual {
             .attr("role", "listbox")
             .merge(nodeSelection);
 
-        let dotsSelection: Selection<RadarChartDatapoint> = nodeSelection
+        const dotsSelection: Selection<RadarChartDatapoint> = nodeSelection
             .selectAll(RadarChart.ChartDotSelector.selectorName)
             .data((dataPoints: RadarChartDatapoint[]) => {
                 return dataPoints.filter(d => d.y != null && d.showPoint);
@@ -1434,9 +1607,9 @@ export class RadarChart implements IVisual {
             .exit()
             .remove();
 
-        dotsSelection = dotsSelection
+        this.dotsSelection = dotsSelection
             .enter()
-            .append("svg:circle")
+            .append("circle")
             .classed(RadarChart.ChartDotSelector.className, true)
             .merge(dotsSelection).attr("r", RadarChart.DotRadius)
             .attr("cx", (dataPoint: RadarChartDatapoint) => yDomain(dataPoint.y) * Math.sin(dataPoint.x * angle))
@@ -1447,11 +1620,9 @@ export class RadarChart implements IVisual {
             .attr("role", "option")
             .attr("aria-selected", "false")
             .attr("aria-label", (dataPoint: RadarChartDatapoint) => this.getDataPointAriaLabel(dataPoint.tooltipInfo));
-
-        this.dotsSelection = dotsSelection;
     
         this.tooltipServiceWrapper.addTooltip(
-            dotsSelection,
+            this.dotsSelection,
             (eventArgs: RadarChartDatapoint) => {
                 return eventArgs.tooltipInfo;
             },
@@ -1605,7 +1776,7 @@ export class RadarChart implements IVisual {
         }
 
         settings.dataPoint.fill.value.value = colorHelper.getHighContrastColor("foreground", settings.dataPoint.fill.value.value);
-        settings.labels.color.value.value = colorHelper.getHighContrastColor("foreground", settings.labels.color.value.value);
+        settings.labels.xAxisLabels.color.value.value = colorHelper.getHighContrastColor("foreground", settings.labels.xAxisLabels.color.value.value);
         settings.legend.text.labelColor.value.value = colorHelper.getHighContrastColor("foreground", settings.legend.text.labelColor.value.value);
 
         return settings;
