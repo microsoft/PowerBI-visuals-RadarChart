@@ -174,7 +174,8 @@ export class RadarChart implements IVisual {
     private static SegmentLevels: number = 5;
     private static SegmentFactor: number = .9;
     private static Radians: number = 2 * Math.PI;
-    private static Scale: number = 0.8;
+    private static ScaleFactorMax: number = 1;
+    private static ScaleFactorMin: number = 0.8;
 
     private static LabelPositionFactor: number = 1.38;
     private static LabelLinkBeginPositionFactor: number = 1.04;
@@ -232,10 +233,10 @@ export class RadarChart implements IVisual {
 
     private angle: number;
     private radius: number;
+    private scale: number;
 
     public formattingSettings: RadarChartSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
-    private formattingSettingsModel: powerbi.visuals.FormattingModel;
 
     private subSelectionHelper: HtmlSubSelectionHelper;
     private formatMode: boolean = false;
@@ -623,8 +624,11 @@ export class RadarChart implements IVisual {
             height: this.viewport.height / RadarChart.ViewportFactor
         };
 
+        this.scale = this.formattingSettings.labels.xAxisLabels.show.value 
+            ? RadarChart.ScaleFactorMin
+            : RadarChart.ScaleFactorMax;
         this.angle = RadarChart.Radians / categories.length;
-        this.radius = RadarChart.SegmentFactor * RadarChart.Scale * Math.min(width, height) / 2;
+        this.radius = RadarChart.SegmentFactor * this.scale * Math.min(width, height) / 2;
 
         this.drawCircularSegments(categories);
         this.drawAxes(categories);
