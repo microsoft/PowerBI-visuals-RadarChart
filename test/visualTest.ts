@@ -109,7 +109,7 @@ describe("RadarChart", () => {
             setTimeout(() => {
                 const elements: SVGElement[] = Array.from(visualBuilder.mainElement.querySelectorAll("g.chart > g"));
 
-                const firstClass: string | null = elements[0].classList.item(0);
+                const firstClass: string | null = elements[1].classList.item(0);
 
                 const secondClass: string| null = elements[elements.length -1].classList.item(0);
 
@@ -141,30 +141,30 @@ describe("RadarChart", () => {
                 
             });
 
-            // it("dataPoint can be deselected", () => {
-            //     visualBuilder.updateFlushAllD3Transitions(dataView);
-            //     const dots: HTMLElement[] = Array.from(visualBuilder.chartDot);
-            //     const firstDot: HTMLElement = dots[0],
-            //         otherDots: HTMLElement[] = dots.slice(1);
+            it("dataPoint can be deselected", () => {
+                visualBuilder.updateFlushAllD3Transitions(dataView);
+                const dots: HTMLElement[] = Array.from(visualBuilder.chartDot);
+                const firstDot: HTMLElement = dots[0],
+                    otherDots: HTMLElement[] = dots.slice(1);
 
-            //     // Select first datapoint
-            //     d3Click(firstDot, 1, 1, ClickEventType.Default, 0);
+                // Select first datapoint
+                d3Click(firstDot, 1, 1, ClickEventType.CtrlKey, 0);
 
-            //     const firstDotOpacity: string = firstDot.style.getPropertyValue("opacity");
-            //     expect(parseFloat(firstDotOpacity)).toBe(1);
+                const firstDotOpacity: string = firstDot.style.getPropertyValue("opacity");
+                expect(parseFloat(firstDotOpacity)).toBe(1);
 
-            //     otherDots.forEach((dot) => {
-            //         const dotOpacity: string = dot.style.getPropertyValue("opacity");
-            //         expect(parseFloat(dotOpacity)).toBeLessThan(1);
-            //     });
+                otherDots.forEach((dot) => {
+                    const dotOpacity: string = dot.style.getPropertyValue("opacity");
+                    expect(parseFloat(dotOpacity)).toBeLessThan(1);
+                });
 
-            //     // Deselect firs datapoint
-            //     d3Click(firstDot, 1, 1, ClickEventType.Default, 0);
-            //     dots.forEach((dot) => {
-            //         const dotOpacity: string = dot.style.getPropertyValue("opacity");
-            //         expect(parseFloat(dotOpacity)).toBe(1);
-            //     });
-            // });
+                // Deselect firs datapoint
+                d3Click(firstDot, 1, 1, ClickEventType.CtrlKey, 0);
+                dots.forEach((dot) => {
+                    const dotOpacity: string = dot.style.getPropertyValue("opacity");
+                    expect(parseFloat(dotOpacity)).toBe(1);
+                });
+            });
 
             it("multi-selection should work with ctrlKey", () => {
                 checkMultiselection(ClickEventType.CtrlKey);
@@ -639,7 +639,7 @@ describe("RadarChart", () => {
 
                 const labelsSettings: LabelsSettingsCard = visualBuilder.instance.formattingSettings.labels;
                 expect(labelsSettings.visible).toBeTrue;
-                expect(labelsSettings.color.visible).toBeFalse;
+                expect(labelsSettings.xAxisLabels.color.visible).toBeFalse;
 
                 done();
             });
