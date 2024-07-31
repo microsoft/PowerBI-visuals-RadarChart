@@ -80,4 +80,8 @@ export class RadarChartBuilder extends VisualBuilderBase<RadarChart> {
             .querySelector("g.chartNode")
             ?.querySelectorAll("circle.chartDot");
     }
+
+    public get chartDotGroup(): NodeListOf<HTMLElement> {
+        return this.mainElement?.querySelectorAll("g.dotGroup");
+    }
 }

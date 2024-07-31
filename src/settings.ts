@@ -354,7 +354,7 @@ export class DisplaySettingsCard extends FormattingSettingsSimpleCard {
     slices: FormattingSettingsSlice[] = [this.minValue, this.axisBeginning];
 }
 
-export class LabelsSettingsCard extends BaseFontCardSettings {
+export class xAxisLabelsSettings extends BaseFontCardSettings {
     show = new formattingSettings.ToggleSwitch({
         name: "show",
         displayNameKey: "Visual_Show",
@@ -373,12 +373,39 @@ export class LabelsSettingsCard extends BaseFontCardSettings {
         value : {value: "#000"}
     });
 
+    name: string = "xAxisLabelsGroup";
+    displayName?: string = "X-Axis labels";
+    slices: FormattingSettingsSlice[] = [this.color, this.font];
+}
+
+export class yAxisLabelsSettings extends FormattingSettingsSimpleCard {
+    showOverlapping = new formattingSettings.ToggleSwitch({
+        name: "showOverlaping",
+        displayName: "Show overlapping labels",
+        value: true
+    });
+
+    show = new formattingSettings.ToggleSwitch({
+        name: "showY",
+        displayName: "Show Y-Axis labels",
+        value: true
+    });
+    topLevelSlice = this.show;
+    name: string = "yAxisLabelsGroup";
+    displayName: string = "Y-Axis labels";
+    slices: FormattingSettingsSlice[] = [ this.showOverlapping];
+}
+
+export class LabelsSettingsCard extends FormattingSettingsCompositeCard {
+    xAxisLabels = new xAxisLabelsSettings();
+    yAxisLabels = new yAxisLabelsSettings();
+
     name: string = RadarChartObjectNames.Labels;
     displayNameKey: string = "Visual_DataLabels";
     displayName: string = "Data Labels";
     description: string = "Display data label options";
     descriptionKey: string = "Visual_Description_DataLabels";
-    slices: FormattingSettingsSlice[] = [this.color, this.font];
+    groups: FormattingSettingsCard[] = [this.xAxisLabels, this.yAxisLabels];
 }
 
 export class RadarChartSettingsModel extends FormattingSettingsModel {
@@ -424,7 +451,7 @@ export class RadarChartSettingsModel extends FormattingSettingsModel {
     public setVisibilityOfColorSlices(colorHelper: ColorHelper): void {
         const isVisible: boolean = !colorHelper.isHighContrast;
         this.dataPoint.visible = isVisible;
-        this.labels.color.visible = isVisible;
+        this.labels.xAxisLabels.color.visible = isVisible;
         this.legend.text.labelColor.visible = isVisible;
     }
 

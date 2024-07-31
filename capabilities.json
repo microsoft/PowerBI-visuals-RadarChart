@@ -193,12 +193,23 @@
                     "type": {
                         "bool": true
                     }
+                },
+                "showY": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showOverlaping": {
+                    "type": {
+                        "bool": true
+                    }
                 }
             }
         }
     },
     "supportsHighlight": true,
     "supportsKeyboardFocus": true,
+    "supportsMultiVisualSelection": true,
     "sorting": {
         "default": {}
     },

@@ -23,9 +23,9 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
-
 export const DimmedOpacity: number = 0.4;
 export const DefaultOpacity: number = 1.0;
+export const DimmedColor: string = "#A6A6A6";
 
 export function getFillOpacity(
     selected: boolean,
@@ -38,4 +38,29 @@ export function getFillOpacity(
     }
 
     return DefaultOpacity;
+}
+
+export function getLegendFillOpacity(
+    selected: boolean,
+    hasSelection: boolean,
+    isHCM: boolean): number {
+
+    if ((hasSelection && !selected) && isHCM) {
+        return DimmedOpacity;
+    }
+
+    return DefaultOpacity;
+}
+
+export function getLegendFill(
+    selected: boolean,
+    hasSelection: boolean,
+    defaultColor: string,
+    isHCM: boolean): string {
+
+    if ((hasSelection && !selected) && !isHCM) {
+        return DimmedColor;
+    }
+
+    return defaultColor;
 }

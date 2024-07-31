@@ -1,3 +1,8 @@
+## 3.2.0.0
+* Remove interactivity utils
+* Add y-axis labels
+* API 5.11.0
+
 ## 3.1.3.0
 * Add new translations
 

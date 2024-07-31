@@ -37,19 +37,18 @@ import LegendData = legendInterfaces.LegendData;
 import {valueFormatter} from "powerbi-visuals-utils-formattingutils";
 import IValueFormatter = valueFormatter.IValueFormatter;
 
-// Interactivity utils
-import { interactivitySelectionService as interactivityService } from "powerbi-visuals-utils-interactivityutils";
-import SelectableDataPoint = interactivityService.SelectableDataPoint;
-
 // Tooltips utils
 import {TooltipEnabledDataPoint} from "powerbi-visuals-utils-tooltiputils";
 
 // d3
 import { Arc as d3Arc, DefaultArcObject as d3DefaultArcObject} from "d3-shape";
 
-export interface RadarChartDatapoint extends SelectableDataPoint, TooltipEnabledDataPoint {
+export interface RadarChartDatapoint extends TooltipEnabledDataPoint {
     x: number;
     y: number;
+    identity: ISelectionId;
+    selected: boolean;
+    label: RadarChartLabel;
     y0?: number;
     color?: string;
     value?: number;
@@ -89,6 +88,7 @@ export interface RadarChartLabel extends d3Arc<any, d3DefaultArcObject> {
     isLabelHasConflict?: boolean;
     outsidePlacement?: number;
     hide?: boolean;
+    color?: string;
 }
 
 export interface RadarChartLabelsData {

@@ -109,7 +109,7 @@ describe("RadarChart", () => {
             setTimeout(() => {
                 const elements: SVGElement[] = Array.from(visualBuilder.mainElement.querySelectorAll("g.chart > g"));
 
-                const firstClass: string | null = elements[0].classList.item(0);
+                const firstClass: string | null = elements[1].classList.item(0);
 
                 const secondClass: string| null = elements[elements.length -1].classList.item(0);
 
@@ -125,7 +125,7 @@ describe("RadarChart", () => {
 
             it("dataPoint can be selected", () => {
                 visualBuilder.updateFlushAllD3Transitions(dataView);
-                const dots: HTMLElement[] = Array.from(visualBuilder.chartDot);
+                const dots: HTMLElement[] = Array.from(visualBuilder.chartDotGroup);
                 const firstDot: HTMLElement = dots[0],
                     otherDots: HTMLElement[] = dots.slice(1);
 
@@ -143,12 +143,12 @@ describe("RadarChart", () => {
 
             it("dataPoint can be deselected", () => {
                 visualBuilder.updateFlushAllD3Transitions(dataView);
-                const dots: HTMLElement[] = Array.from(visualBuilder.chartDot);
+                const dots: HTMLElement[] = Array.from(visualBuilder.chartDotGroup);
                 const firstDot: HTMLElement = dots[0],
                     otherDots: HTMLElement[] = dots.slice(1);
 
                 // Select first datapoint
-                d3Click(firstDot, 1, 1, ClickEventType.Default, 0);
+                d3Click(firstDot, 1, 1, ClickEventType.CtrlKey, 0);
 
                 const firstDotOpacity: string = firstDot.style.getPropertyValue("opacity");
                 expect(parseFloat(firstDotOpacity)).toBe(1);
@@ -159,7 +159,7 @@ describe("RadarChart", () => {
                 });
 
                 // Deselect firs datapoint
-                d3Click(firstDot, 1, 1, ClickEventType.Default, 0);
+                d3Click(firstDot, 1, 1, ClickEventType.CtrlKey, 0);
                 dots.forEach((dot) => {
                     const dotOpacity: string = dot.style.getPropertyValue("opacity");
                     expect(parseFloat(dotOpacity)).toBe(1);
@@ -180,7 +180,7 @@ describe("RadarChart", () => {
 
             function checkMultiselection(eventType: number): void {
                 visualBuilder.updateFlushAllD3Transitions(dataView);
-                const dots: NodeListOf<HTMLElement> = visualBuilder.chartDot;
+                const dots: NodeListOf<HTMLElement> = visualBuilder.chartDotGroup;
     
                 const firstDot: HTMLElement = dots[0],
                     secondDot: HTMLElement = dots[1],
@@ -431,7 +431,7 @@ describe("RadarChart", () => {
     describe("Highlights tests", () => {
         it("data points highlights", (done) => {
             visualBuilder.updateRenderTimeout(dataView, () => {
-                const allPoints: NodeListOf<HTMLElement> = visualBuilder.mainElement.querySelectorAll("circle.chartDot"),
+                const allPoints: NodeListOf<HTMLElement> = visualBuilder.chartDotGroup,
                     firstPoint = allPoints[0],
                     secondPoint = allPoints[allPoints.length - 1];
 
@@ -445,15 +445,6 @@ describe("RadarChart", () => {
 
                 expect(firstPoint.style.getPropertyValue("opacity")).toBe("1");
                 expect(secondPoint.style.getPropertyValue("opacity")).toBe("0.4");
-
-                // reset selection
-                d3Click(firstPoint,
-                    parseInt(firstPoint.getAttribute("cx"), 10),
-                    parseInt(firstPoint.getAttribute("cy"), 10),
-                    ClickEventType.Default);
-
-                expect(firstPoint.style.getPropertyValue("opacity")).toBe("1");
-                expect(secondPoint.style.getPropertyValue("opacity")).toBe("1");
 
                 done();
             });
@@ -490,23 +481,6 @@ describe("RadarChart", () => {
                 done();
             });
         });
-
-        it("interactivity legend highlights", (done) => {
-            visualBuilder.updateRenderTimeout(dataView, () => {
-                const firstPoint: HTMLElement = visualBuilder.mainElement.querySelector("circle.chartDot"),
-                firstLegendItem: HTMLElement = visualBuilder.element.querySelector("path.legendIcon");
-
-                expect(firstPoint.style.getPropertyValue("opacity")).toBe("1");
-
-                d3Click(firstLegendItem,
-                    parseInt(firstLegendItem.getAttribute("cx"), 10),
-                    parseInt(firstLegendItem.getAttribute("cy"), 10));
-
-                expect(firstPoint.style.getPropertyValue("opacity")).toBe("0.4");
-
-                done();
-            });
-        });
     });
 
     describe("converter", () => {
@@ -518,7 +492,7 @@ describe("RadarChart", () => {
         beforeEach((done) => {
             colors = createColorPalette();
             colorHelper = new ColorHelper(colors);
-            visualHost = createVisualHost();
+            visualHost = createVisualHost({});
             dataView.metadata.objects = {
                 labels: {
                     show: true
@@ -665,7 +639,7 @@ describe("RadarChart", () => {
 
                 const labelsSettings: LabelsSettingsCard = visualBuilder.instance.formattingSettings.labels;
                 expect(labelsSettings.visible).toBeTrue;
-                expect(labelsSettings.color.visible).toBeFalse;
+                expect(labelsSettings.xAxisLabels.color.visible).toBeFalse;
 
                 done();
             });
@@ -871,7 +845,7 @@ describe("RadarChart", () => {
         function checkKeyboardSingleSelection(keyboardSingleSelectionEvent: KeyboardEvent): void {
             visualBuilder.updateFlushAllD3Transitions(dataView);
 
-            const dots: HTMLElement[] = Array.from(visualBuilder.chartDot);
+            const dots: HTMLElement[] = Array.from(visualBuilder.chartDotGroup);
             const firstDot: HTMLElement = dots[0];
             const secondDot: HTMLElement = dots[1];
 
@@ -895,7 +869,7 @@ describe("RadarChart", () => {
         function checkKeyboardMultiSelection(keyboardMultiselectionEvent: KeyboardEvent): void {
             visualBuilder.updateFlushAllD3Transitions(dataView);
             const enterEvent = new KeyboardEvent("keydown", { code: "Enter", bubbles: true });
-            const dots: HTMLElement[] = Array.from(visualBuilder.chartDot);
+            const dots: HTMLElement[] = Array.from(visualBuilder.chartDotGroup);
             const firstDot: HTMLElement = dots[0];
             const secondDot: HTMLElement = dots[1];
 
