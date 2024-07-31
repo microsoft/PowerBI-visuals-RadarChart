@@ -492,7 +492,7 @@ describe("RadarChart", () => {
         beforeEach((done) => {
             colors = createColorPalette();
             colorHelper = new ColorHelper(colors);
-            visualHost = createVisualHost();
+            visualHost = createVisualHost({});
             dataView.metadata.objects = {
                 labels: {
                     show: true
