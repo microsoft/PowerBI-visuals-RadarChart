@@ -125,7 +125,7 @@ describe("RadarChart", () => {
 
             it("dataPoint can be selected", () => {
                 visualBuilder.updateFlushAllD3Transitions(dataView);
-                const dots: HTMLElement[] = Array.from(visualBuilder.chartDot);
+                const dots: HTMLElement[] = Array.from(visualBuilder.chartDotGroup);
                 const firstDot: HTMLElement = dots[0],
                     otherDots: HTMLElement[] = dots.slice(1);
 
@@ -143,7 +143,7 @@ describe("RadarChart", () => {
 
             it("dataPoint can be deselected", () => {
                 visualBuilder.updateFlushAllD3Transitions(dataView);
-                const dots: HTMLElement[] = Array.from(visualBuilder.chartDot);
+                const dots: HTMLElement[] = Array.from(visualBuilder.chartDotGroup);
                 const firstDot: HTMLElement = dots[0],
                     otherDots: HTMLElement[] = dots.slice(1);
 
@@ -180,7 +180,7 @@ describe("RadarChart", () => {
 
             function checkMultiselection(eventType: number): void {
                 visualBuilder.updateFlushAllD3Transitions(dataView);
-                const dots: NodeListOf<HTMLElement> = visualBuilder.chartDot;
+                const dots: NodeListOf<HTMLElement> = visualBuilder.chartDotGroup;
     
                 const firstDot: HTMLElement = dots[0],
                     secondDot: HTMLElement = dots[1],
@@ -431,7 +431,7 @@ describe("RadarChart", () => {
     describe("Highlights tests", () => {
         it("data points highlights", (done) => {
             visualBuilder.updateRenderTimeout(dataView, () => {
-                const allPoints: NodeListOf<HTMLElement> = visualBuilder.mainElement.querySelectorAll("circle.chartDot"),
+                const allPoints: NodeListOf<HTMLElement> = visualBuilder.chartDotGroup,
                     firstPoint = allPoints[0],
                     secondPoint = allPoints[allPoints.length - 1];
 
@@ -845,7 +845,7 @@ describe("RadarChart", () => {
         function checkKeyboardSingleSelection(keyboardSingleSelectionEvent: KeyboardEvent): void {
             visualBuilder.updateFlushAllD3Transitions(dataView);
 
-            const dots: HTMLElement[] = Array.from(visualBuilder.chartDot);
+            const dots: HTMLElement[] = Array.from(visualBuilder.chartDotGroup);
             const firstDot: HTMLElement = dots[0];
             const secondDot: HTMLElement = dots[1];
 
@@ -869,7 +869,7 @@ describe("RadarChart", () => {
         function checkKeyboardMultiSelection(keyboardMultiselectionEvent: KeyboardEvent): void {
             visualBuilder.updateFlushAllD3Transitions(dataView);
             const enterEvent = new KeyboardEvent("keydown", { code: "Enter", bubbles: true });
-            const dots: HTMLElement[] = Array.from(visualBuilder.chartDot);
+            const dots: HTMLElement[] = Array.from(visualBuilder.chartDotGroup);
             const firstDot: HTMLElement = dots[0];
             const secondDot: HTMLElement = dots[1];
 

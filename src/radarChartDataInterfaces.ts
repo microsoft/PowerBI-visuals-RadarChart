@@ -48,6 +48,7 @@ export interface RadarChartDatapoint extends TooltipEnabledDataPoint {
     y: number;
     identity: ISelectionId;
     selected: boolean;
+    label: RadarChartLabel;
     y0?: number;
     color?: string;
     value?: number;
@@ -69,7 +70,6 @@ export interface RadarChartAxesLabel {
 export interface IRadarChartData {
     legendData: LegendData;
     labels: RadarChartLabelsData;
-    yLabels: RadarChartLabel[];
     series: RadarChartSeries[];
 }
 
