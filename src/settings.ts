@@ -173,43 +173,47 @@ export const linesReferences: ILineReference = {
 }
 
 class BaseFontCardSettings extends FormattingSettingsSimpleCard {
-    font = new formattingSettings.FontControl({
-        name: "font",
-        displayName: "Font",
-        displayNameKey: "Visual_Font",
-        fontFamily: new formattingSettings.FontPicker({
-            name: "fontFamily",
-            value: "Arial, sans-serif"
-        }),
-        fontSize: new formattingSettings.NumUpDown({
-            name: "fontSize",
-            displayName: "Text Size",
-            displayNameKey: "Visual_TextSize",
-            value: 8,
-            options: {
-                minValue: {
-                    type: powerbi.visuals.ValidatorType.Min,
-                    value: 8
-                },
-                maxValue: {
-                    type: powerbi.visuals.ValidatorType.Max,
-                    value: 60
+    font: formattingSettings.FontControl;
+    constructor (font_identifier = "") {
+        super();
+        this.font = new formattingSettings.FontControl({
+            name: `font`,
+            displayName: "Font",
+            displayNameKey: "Visual_Font",
+            fontFamily: new formattingSettings.FontPicker({
+                name: `${font_identifier}fontFamily`,
+                value: "Arial, sans-serif"
+            }),
+            fontSize: new formattingSettings.NumUpDown({
+                name: `${font_identifier}fontSize`,
+                displayName: "Text Size",
+                displayNameKey: "Visual_TextSize",
+                value: 8,
+                options: {
+                    minValue: {
+                        type: powerbi.visuals.ValidatorType.Min,
+                        value: 8
+                    },
+                    maxValue: {
+                        type: powerbi.visuals.ValidatorType.Max,
+                        value: 60
+                    }
                 }
-            }
-        }),
-        bold: new formattingSettings.ToggleSwitch({
-            name: "fontBold",
-            value: false
-        }),
-        italic: new formattingSettings.ToggleSwitch({
-            name: "fontItalic",
-            value: false
-        }),
-        underline: new formattingSettings.ToggleSwitch({
-            name: "fontUnderline",
-            value: false
-        })
-    });
+            }),
+            bold: new formattingSettings.ToggleSwitch({
+                name: `${font_identifier}fontBold`,
+                value: false
+            }),
+            italic: new formattingSettings.ToggleSwitch({
+                name: `${font_identifier}fontItalic`,
+                value: false
+            }),
+            underline: new formattingSettings.ToggleSwitch({
+                name: `${font_identifier}fontUnderline`,
+                value: false
+            })
+        }); 
+    }
 }
 
 export class LegendTitleGroup extends FormattingSettingsSimpleCard {
@@ -378,10 +382,13 @@ export class xAxisLabelsSettings extends BaseFontCardSettings {
     slices: FormattingSettingsSlice[] = [this.color, this.font];
 }
 
-export class yAxisLabelsSettings extends FormattingSettingsSimpleCard {
+export class yAxisLabelsSettings extends BaseFontCardSettings {
     showOverlapping = new formattingSettings.ToggleSwitch({
-        name: "showOverlaping",
+        name: "showOverlapping",
         displayName: "Show overlapping labels",
+        displayNameKey: "Visual_Show_Labels_Overlapping",
+        description: "Show labels even if they overlap",
+        descriptionKey: "Visual_Description_Labels_Overlapping",
         value: true
     });
 
@@ -390,15 +397,59 @@ export class yAxisLabelsSettings extends FormattingSettingsSimpleCard {
         displayName: "Show Y-Axis labels",
         value: true
     });
+
+    show_y_label_custom_color = new formattingSettings.ToggleSwitch({
+        name: "show_y_label_custom_color",
+        displayNameKey: "Visual_Show_Custom_Color",
+        description: "Use custom color for labels",
+        descriptionKey: "Visual_Description_Labels_Custom_Color",
+        value: false
+    });
+
+    color = new formattingSettings.ColorPicker({
+        name: "y_color",
+        displayName: "Color",
+        displayNameKey: "Visual_Color",
+        description: "Select color for data labels",
+        descriptionKey: "Visual_Description_Color",
+        value : {value: "#000"},
+        visible: true
+    });
+
+    public displayUnits = new formattingSettings.AutoDropdown({
+        name: "displayUnits",
+        displayName: "Display Units",
+        displayNameKey: "Visual_DisplayUnits",
+        value: 0,
+    });
+
+    public precision = new formattingSettings.NumUpDown({
+        name: "precision",
+        displayNameKey: "Visual_Precision",
+        description: "Number of decimal places to display",
+        descriptionKey: "Visual_Description_Precision",
+        value: 2,
+        options: {
+            minValue: {
+                type: powerbi.visuals.ValidatorType.Min,
+                value: 0
+            },
+            maxValue: {
+                type: powerbi.visuals.ValidatorType.Max,
+                value: 10
+            },
+        }
+    });
+
     topLevelSlice = this.show;
     name: string = "yAxisLabelsGroup";
     displayName: string = "Y-Axis labels";
-    slices: FormattingSettingsSlice[] = [ this.showOverlapping];
+    slices: FormattingSettingsSlice[] = [this.showOverlapping, this.displayUnits, this.precision, this.show_y_label_custom_color, this.color, this.font];
 }
 
 export class LabelsSettingsCard extends FormattingSettingsCompositeCard {
     xAxisLabels = new xAxisLabelsSettings();
-    yAxisLabels = new yAxisLabelsSettings();
+    yAxisLabels = new yAxisLabelsSettings("y_");
 
     name: string = RadarChartObjectNames.Labels;
     displayNameKey: string = "Visual_DataLabels";
@@ -453,6 +504,9 @@ export class RadarChartSettingsModel extends FormattingSettingsModel {
         this.dataPoint.visible = isVisible;
         this.labels.xAxisLabels.color.visible = isVisible;
         this.legend.text.labelColor.visible = isVisible;
+        this.labels.yAxisLabels.show_y_label_custom_color.visible = isVisible;
+        this.labels.yAxisLabels.color.visible = isVisible && this.labels.yAxisLabels.show_y_label_custom_color.value;
+        this.labels.yAxisLabels.font.visible = this.labels.yAxisLabels.show_y_label_custom_color.value;
     }
 
     public setMinMaxValuesForDisplay(minValue: number): void {

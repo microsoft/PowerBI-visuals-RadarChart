@@ -194,14 +194,69 @@
                         "bool": true
                     }
                 },
+                "show_y_label_custom_color": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "y_color": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "y_fontSize": {
+                    "type": {
+                        "formatting": {
+                            "fontSize": true
+                        }
+                    }
+                },
+                "y_fontFamily": {
+                    "type": {
+                        "formatting": {
+                            "fontFamily": true
+                        }
+                    }
+                },
+                "y_fontBold": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "y_fontItalic": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "y_fontUnderline": {
+                    "type": {
+                        "bool": true
+                    }
+                },
                 "showY": {
                     "type": {
                         "bool": true
                     }
                 },
-                "showOverlaping": {
+                "showOverlapping": {
                     "type": {
                         "bool": true
+                    }
+                },
+                "displayUnits": {
+                    "type": {
+                        "formatting": {
+                            "labelDisplayUnits": true
+                        }
+                    }
+                },
+                "precision": {
+                    "type": {
+                        "numeric": true
                     }
                 }
             }

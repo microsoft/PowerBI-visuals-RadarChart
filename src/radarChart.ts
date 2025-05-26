@@ -449,7 +449,7 @@ export class RadarChart implements IVisual {
                         labelFontSize: fontSizeInPx,
                         highlight: hasHighlights && !!(values[0].highlights[k]),
                         showPoint: currCatValue === " " || notConvertedValue === RadarChart.fakeValue ? false : true,
-                        label: RadarChart.createDataPointLabel(k, y.toString())
+                        label: RadarChart.createDataPointLabel(k, y, settings)
                     });
                 }
             }
@@ -474,9 +474,11 @@ export class RadarChart implements IVisual {
         };
     }
 
-    public static createDataPointLabel(index: number, text: string): RadarChartLabel {
+    public static createDataPointLabel(index: number, value: number, settings: RadarChartSettingsModel): RadarChartLabel {
         const label: RadarChartLabel = d3Arc() as RadarChartLabel;
-        label.text = text;
+        const formatterValue = ((settings.labels.yAxisLabels.displayUnits.value === 0) && (value !== null)) ? value : settings.labels.yAxisLabels.displayUnits.value;
+        const labelTextFormatter = valueFormatter.create({value: formatterValue, precision: settings.labels.yAxisLabels.precision.value});
+        label.text = labelTextFormatter.format(value);
         label.index = index;
         return label;
     }
@@ -598,7 +600,6 @@ export class RadarChart implements IVisual {
         };
 
         this.formattingSettings.populateDataPointSlice(this.radarChartData.series);
-        this.formattingSettings.setVisibilityOfColorSlices(this.colorHelper);
 
         this.renderLegend();
         this.updateViewport();
@@ -669,6 +670,7 @@ export class RadarChart implements IVisual {
     }
 
     public getFormattingModel(): powerbi.visuals.FormattingModel {
+        this.formattingSettings.setVisibilityOfColorSlices(this.colorHelper);
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
 
@@ -1280,7 +1282,7 @@ export class RadarChart implements IVisual {
 
             yLabel.x = Math.round(yDomain(dataPoint.y) * Math.sin(dataPoint.x * angle) + shiftX);
             yLabel.y = Math.round(axisBeginning * yDomain(dataPoint.y) * Math.cos(dataPoint.x * angle) + shiftY);
-            yLabel.color = dataPoint.color; //chande with settings 
+            yLabel.color = dataPoint.color; 
         }
         this.hideOverlappingYLabels();
     }
@@ -1297,10 +1299,10 @@ export class RadarChart implements IVisual {
             labelsWithSameCategory.sort((a: RadarChartLabel, b: RadarChartLabel) => +b.text - +a.text);
             let currentLabel: RadarChartLabel = labelsWithSameCategory[0];
             currentLabel.hide = false;
-
+            
             const properties: TextProperties = {
-                fontFamily: RadarChart.AxesLabelsFontFamily,//change with yAxisLabelSettings
-                fontSize: PixelConverter.fromPoint(labelSettings.xAxisLabels.font.fontSize.value),//change with yAxisLabelSettings
+                fontFamily: labelSettings.yAxisLabels.font.fontFamily.value,
+                fontSize: PixelConverter.fromPoint(labelSettings.yAxisLabels.font.fontSize.value),
                 text: currentLabel.text
             };
             const currentLabelHeight: number = textMeasurementService.measureSvgTextHeight(properties);
@@ -1598,16 +1600,20 @@ export class RadarChart implements IVisual {
 
         //render labels
         const labelSettings = settings.labels;
+        
         dotGroupSelectionMerged
             .select(RadarChart.YAxisLabelSelector.selectorName)
             .attr("dy", `${RadarChart.LabelYOffset}em`)
-            .attr("transform", translate(RadarChart.LabelXOffset, -RadarChart.LabelYOffset * labelSettings.xAxisLabels.font.fontSize.value))//change to yaxislabels
+            .attr("transform", translate(RadarChart.LabelXOffset, -RadarChart.LabelYOffset * labelSettings.yAxisLabels.font.fontSize.value))
             .attr("x", (dataPoint: RadarChartDatapoint) => dataPoint.label.x)
             .attr("y", (dataPoint: RadarChartDatapoint) => dataPoint.label.y)
-            .style("fill", (dataPoint: RadarChartDatapoint) => this.colorHelper.getHighContrastColor("foreground", dataPoint.label.color))//change to yaxislabels
+            .style("fill", (dataPoint: RadarChartDatapoint) => this.colorHelper.getHighContrastColor("foreground", (labelSettings.yAxisLabels.show_y_label_custom_color.value ? labelSettings.yAxisLabels.color.value.value : dataPoint.label.color)))
             .style("text-anchor", (dataPoint: RadarChartDatapoint) => dataPoint.label.textAnchor)
-            .style("font-size", PixelConverter.fromPoint(labelSettings.xAxisLabels.font.fontSize.value))//change to yaxislabels
-            .style("font-family", labelSettings.xAxisLabels.font.fontFamily.value)//change to yaxislabels
+            .style("font-size", PixelConverter.fromPoint(labelSettings.yAxisLabels.font.fontSize.value))
+            .style("font-family", labelSettings.yAxisLabels.font.fontFamily.value)
+            .style("font-weight", () => labelSettings.yAxisLabels.font.bold.value ? "bold" : "normal")
+            .style("font-style", () => labelSettings.yAxisLabels.font.italic.value ? "italic" : "normal")
+            .style("text-decoration", () => labelSettings.yAxisLabels.font.underline.value ? "underline" : "none")
             .style("visibility", (dataPoint: RadarChartDatapoint) => {
                 const showYLabels: boolean = labelSettings.yAxisLabels.show.value;
                 const showOverlapping: boolean = labelSettings.yAxisLabels.showOverlapping.value;
