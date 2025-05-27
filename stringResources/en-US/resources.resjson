@@ -53,5 +53,7 @@
     "Visual_Title": "Title",
     "Visual_Top": "Top",
     "Visual_TopCenter": "Top Center",
-    "Visual_YAxis": "Y Axis"
+    "Visual_XAxisLabels": "X-Axis labels",
+    "Visual_YAxis": "Y Axis",
+    "Visual_YAxisLabels": "Y-Axis labels"
 }

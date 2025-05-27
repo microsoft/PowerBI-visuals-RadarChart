@@ -379,6 +379,7 @@ export class xAxisLabelsSettings extends BaseFontCardSettings {
 
     name: string = "xAxisLabelsGroup";
     displayName?: string = "X-Axis labels";
+    displayNameKey?: string = "Visual_XAxisLabels";
     slices: FormattingSettingsSlice[] = [this.color, this.font];
 }
 
@@ -443,7 +444,8 @@ export class yAxisLabelsSettings extends BaseFontCardSettings {
 
     topLevelSlice = this.show;
     name: string = "yAxisLabelsGroup";
-    displayName: string = "Y-Axis labels";
+    displayName?: string = "Y-Axis labels";
+    displayNameKey?: string = "Visual_YAxisLabels";
     slices: FormattingSettingsSlice[] = [this.showOverlapping, this.displayUnits, this.precision, this.show_y_label_custom_color, this.color, this.font];
 }
 
