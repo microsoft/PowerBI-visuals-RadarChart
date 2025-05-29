@@ -1296,7 +1296,15 @@ export class RadarChart implements IVisual {
             const categoryIndex: number = labelPoints[i].index;
             const labelsWithSameCategory: RadarChartLabel[] = labelPoints.filter((labelPoint: RadarChartLabel) => labelPoint.index === categoryIndex);
 
-            labelsWithSameCategory.sort((a: RadarChartLabel, b: RadarChartLabel) => +b.text - +a.text);
+            const allXEqual = labelsWithSameCategory.every(point => point.x === labelsWithSameCategory[0].x);
+            const allYEqual = labelsWithSameCategory.every(point => point.y === labelsWithSameCategory[0].y);
+
+            labelsWithSameCategory.sort((a: RadarChartLabel, b: RadarChartLabel) => {
+                if (allXEqual) return a.y - b.y;
+                if (allYEqual) return a.x - b.x;
+                return a.x - b.x || a.y - b.y;
+            });
+
             let currentLabel: RadarChartLabel = labelsWithSameCategory[0];
             currentLabel.hide = false;
             
