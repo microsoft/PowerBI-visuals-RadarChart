@@ -194,6 +194,11 @@
                         "bool": true
                     }
                 },
+                "lineLength": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
                 "show_y_label_custom_color": {
                     "type": {
                         "bool": true

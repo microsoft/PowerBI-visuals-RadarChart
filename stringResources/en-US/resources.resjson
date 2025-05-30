@@ -24,6 +24,7 @@
     "Visual_Left": "Left",
     "Visual_LeftCenter": "Left Center",
     "Visual_Legend": "Legend",
+    "Visual_LineLength": "Line length",
     "Visual_LineWidth": "Line Width",
     "Visual_Long_Description": "A radar chart is a graphical method of displaying multivariate data in the form of a two-dimensional chart of three or more quantitative variables represented on axes starting from the same point. The relative position and angle of the axes is typically uninformative.\nEach variable is provided an axis that starts from the center. All axes are arranged radially, with equal distances between each other, while maintaining the same scale between all axes. Grid lines that connect from axis-to-axis are often used as a guide. Each variable value is plotted along its individual axis and all the variables in a dataset and connected together to form a polygon.\nRadar Charts are useful for seeing which variables are scoring high or low within a dataset, making them ideal for displaying performance, such as Skill Analysis of Employee or sport players, product comparison, etc.\nThis is an open source visual. Get the code from GitHub: https://github.com/Microsoft/PowerBI-visuals-RadarChart",
     "Visual_Name": "Name",

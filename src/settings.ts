@@ -359,6 +359,9 @@ export class DisplaySettingsCard extends FormattingSettingsSimpleCard {
 }
 
 export class xAxisLabelsSettings extends BaseFontCardSettings {
+    public static MinLineLength: number = 0;
+    public static MaxLineLength: number = 100;
+
     show = new formattingSettings.ToggleSwitch({
         name: "show",
         displayNameKey: "Visual_Show",
@@ -377,10 +380,26 @@ export class xAxisLabelsSettings extends BaseFontCardSettings {
         value : {value: "#000"}
     });
 
+    lineLength = new formattingSettings.Slider({
+        name: "lineLength",
+        displayNameKey: "Visual_LineLength",
+        value: 100,
+        options: {
+            minValue: {
+                type: powerbi.visuals.ValidatorType.Min,
+                value: xAxisLabelsSettings.MinLineLength
+            },
+            maxValue: {
+                type: powerbi.visuals.ValidatorType.Max,
+                value: xAxisLabelsSettings.MaxLineLength
+            }
+        }
+    })
+
     name: string = "xAxisLabelsGroup";
     displayName?: string = "X-Axis labels";
     displayNameKey?: string = "Visual_XAxisLabels";
-    slices: FormattingSettingsSlice[] = [this.color, this.font];
+    slices: FormattingSettingsSlice[] = [this.color, this.font, this.lineLength];
 }
 
 export class yAxisLabelsSettings extends BaseFontCardSettings {

@@ -29,7 +29,7 @@ import powerbi from "powerbi-visuals-api";
 import clone from "lodash.clone";
 
 // d3
-import { ScaleLinear as d3LinearScale, scaleLinear as d3ScaleLinear} from "d3-scale";
+import { ScaleLinear as d3LinearScale, scaleLinear as d3ScaleLinear, scaleLinear} from "d3-scale";
 import { min as d3Min, max as d3Max} from "d3-array";
 import { arc as d3Arc } from "d3-shape";
 import { transition as d3Transition } from "d3-transition";
@@ -180,6 +180,7 @@ export class RadarChart implements IVisual {
 
     private static LabelPositionFactor: number = 1.38;
     private static LabelLinkBeginPositionFactor: number = 1.04;
+    private static LabelLinkMultiplierFactor: number = 0.76;
 
     private static AreaFillOpacity: number = 0.6;
 
@@ -632,9 +633,14 @@ export class RadarChart implements IVisual {
             height: this.viewport.height / RadarChart.ViewportFactor
         };
 
+        const chartScale = d3ScaleLinear()
+            .domain([xAxisLabelsSettings.MinLineLength, xAxisLabelsSettings.MaxLineLength])
+            .range([RadarChart.ScaleFactorMax, RadarChart.ScaleFactorMin]);
+
         this.scale = this.formattingSettings.labels.xAxisLabels.show.value 
-            ? RadarChart.ScaleFactorMin
+            ? chartScale(this.formattingSettings.labels.xAxisLabels.lineLength.value)
             : RadarChart.ScaleFactorMax;
+
         this.angle = RadarChart.Radians / categories.length;
         this.radius = RadarChart.SegmentFactor * this.scale * Math.min(width, height) / 2;
 
@@ -1336,7 +1342,8 @@ export class RadarChart implements IVisual {
 
         const angle: number = this.angle,
             radius: number = this.radius,
-            labelPoints: RadarChartLabel[] = this.radarChartData.labels.labelPoints;
+            labelPoints: RadarChartLabel[] = this.radarChartData.labels.labelPoints,
+            lineLength: number = this.formattingSettings.labels.xAxisLabels.lineLength.value;
 
         const axisBeginning: number = +this.formattingSettings.display.axisBeginning.value.value;
 
@@ -1346,9 +1353,12 @@ export class RadarChart implements IVisual {
                 angleInDegree: number = angleInRadian * RadarChart.Angle180Degree / Math.PI;
 
             label.angleInDegree = angleInDegree;
+            const scaleLineLength = d3ScaleLinear()
+                .domain([xAxisLabelsSettings.MinLineLength, xAxisLabelsSettings.MaxLineLength])
+                .range([RadarChart.LabelLinkMultiplierFactor, 1]);
 
-            label.x = RadarChart.LabelPositionFactor * radius * Math.sin(angleInRadian);
-            label.y = axisBeginning * RadarChart.LabelPositionFactor * radius * Math.cos(angleInRadian);
+            label.x = RadarChart.LabelPositionFactor * radius * Math.sin(angleInRadian) * scaleLineLength(lineLength);
+            label.y = axisBeginning * RadarChart.LabelPositionFactor * radius * Math.cos(angleInRadian) * scaleLineLength(lineLength);
 
             label.xLinkBegin = radius * RadarChart.LabelLinkBeginPositionFactor * Math.sin(angleInRadian);
             label.yLinkBegin = axisBeginning * radius * RadarChart.LabelLinkBeginPositionFactor * Math.cos(angleInRadian);
