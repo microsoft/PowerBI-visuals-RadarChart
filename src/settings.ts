@@ -418,7 +418,7 @@ export class yAxisLabelsSettings extends BaseFontCardSettings {
         value: true
     });
 
-    show_y_label_custom_color = new formattingSettings.ToggleSwitch({
+    showCustomColor = new formattingSettings.ToggleSwitch({
         name: "show_y_label_custom_color",
         displayNameKey: "Visual_Show_Custom_Color",
         description: "Use custom color for labels",
@@ -465,7 +465,7 @@ export class yAxisLabelsSettings extends BaseFontCardSettings {
     name: string = "yAxisLabelsGroup";
     displayName?: string = "Y-Axis labels";
     displayNameKey?: string = "Visual_YAxisLabels";
-    slices: FormattingSettingsSlice[] = [this.showOverlapping, this.displayUnits, this.precision, this.show_y_label_custom_color, this.color, this.font];
+    slices: FormattingSettingsSlice[] = [this.showOverlapping, this.displayUnits, this.precision, this.showCustomColor, this.color, this.font];
 }
 
 export class LabelsSettingsCard extends FormattingSettingsCompositeCard {
@@ -525,9 +525,8 @@ export class RadarChartSettingsModel extends FormattingSettingsModel {
         this.dataPoint.visible = isVisible;
         this.labels.xAxisLabels.color.visible = isVisible;
         this.legend.text.labelColor.visible = isVisible;
-        this.labels.yAxisLabels.show_y_label_custom_color.visible = isVisible;
-        this.labels.yAxisLabels.color.visible = isVisible && this.labels.yAxisLabels.show_y_label_custom_color.value;
-        this.labels.yAxisLabels.font.visible = this.labels.yAxisLabels.show_y_label_custom_color.value;
+        this.labels.yAxisLabels.color.visible = isVisible && this.labels.yAxisLabels.showCustomColor.value;
+        this.labels.yAxisLabels.font.visible = this.labels.yAxisLabels.showCustomColor.value;
     }
 
     public setMinMaxValuesForDisplay(minValue: number): void {

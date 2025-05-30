@@ -1625,7 +1625,7 @@ export class RadarChart implements IVisual {
             .attr("transform", translate(RadarChart.LabelXOffset, -RadarChart.LabelYOffset * labelSettings.yAxisLabels.font.fontSize.value))
             .attr("x", (dataPoint: RadarChartDatapoint) => dataPoint.label.x)
             .attr("y", (dataPoint: RadarChartDatapoint) => dataPoint.label.y)
-            .style("fill", (dataPoint: RadarChartDatapoint) => this.colorHelper.getHighContrastColor("foreground", (labelSettings.yAxisLabels.show_y_label_custom_color.value ? labelSettings.yAxisLabels.color.value.value : dataPoint.label.color)))
+            .style("fill", (dataPoint: RadarChartDatapoint) => this.colorHelper.getHighContrastColor("foreground", (labelSettings.yAxisLabels.showCustomColor.value ? labelSettings.yAxisLabels.color.value.value : dataPoint.label.color)))
             .style("text-anchor", (dataPoint: RadarChartDatapoint) => dataPoint.label.textAnchor)
             .style("font-size", PixelConverter.fromPoint(labelSettings.yAxisLabels.font.fontSize.value))
             .style("font-family", labelSettings.yAxisLabels.font.fontFamily.value)
