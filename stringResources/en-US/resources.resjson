@@ -33,7 +33,7 @@
     "Visual_OnObject_AddTitle": "Add legend title",
     "Visual_OnObject_DeleteLabels": "Delete data labels",
     "Visual_OnObject_DeleteLegend": "Delete legend",
-    "Visual_OnObject_DeleteTitle": "Delete title",
+    "Visual_OnObject_Delete": "Delete",
     "Visual_OnObject_DrawPolygons": "Draw polygons",
     "Visual_OnObject_FormatColors": "Format data colors",
     "Visual_OnObject_FormatLabels": "Format data labels",

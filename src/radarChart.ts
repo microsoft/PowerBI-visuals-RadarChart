@@ -43,6 +43,7 @@ d3Select.prototype.transition = d3Transition;
 // powerbi
 import IDataViewObject = powerbi.DataViewObject;
 import PrimitiveValue = powerbi.PrimitiveValue;
+import VisualUpdateType = powerbi.VisualUpdateType;
 import IViewport = powerbi.IViewport;
 import DataViewObjectPropertyIdentifier = powerbi.DataViewObjectPropertyIdentifier;
 import DataView = powerbi.DataView;
@@ -87,6 +88,8 @@ import SubSelectionStyles = powerbi.visuals.SubSelectionStyles;
 import VisualShortcutType = powerbi.visuals.VisualShortcutType;
 import VisualSubSelectionShortcuts = powerbi.visuals.VisualSubSelectionShortcuts;
 import SubSelectionStylesType = powerbi.visuals.SubSelectionStylesType;
+import SubSelectionRegionOutlineFragment = powerbi.visuals.SubSelectionRegionOutlineFragment;
+import SubSelectionOutlineType = powerbi.visuals.SubSelectionOutlineType;
 
 // Type utils
 import { pixelConverter as PixelConverter } from "powerbi-visuals-utils-typeutils";
@@ -115,9 +118,11 @@ import LegendPosition = ChartUtils.legendInterfaces.LegendPosition;
 import OutsidePlacement = ChartUtils.dataLabelInterfaces.OutsidePlacement;
 import { RadarChartWebBehavior, RadarChartBehaviorOptions } from "./radarChartWebBehavior";
 import { RadarChartSeries, RadarChartCircularSegment, RadarChartLabel, RadarChartDatapoint, IRadarChartData, RadarChartLabelsData } from "./radarChartDataInterfaces";
-import { LabelsSettingsCard, RadarChartObjectNames, RadarChartSettingsModel, TitleEdit, dataPointReferences, displayReferences, labelsReferences, legendReferences, linesReferences, xAxisLabelsSettings} from "./settings";
+import { LabelsSettingsCard, RadarChartObjectNames, RadarChartSettingsModel, xAxisLabelsSettings} from "./settings";
+import { RadarOnObjectService } from "./onObject/RadarOnObjectService";
 import * as RadarChartUtils from "./radarChartUtils";
 import * as TooltipBuilder from "./tooltipBuilder";
+import { visualTitleEditSubSelection } from "./onObject/references";
 
 export class RadarChart implements IVisual {
     private static VisualClassName: string = "radarChart";
@@ -240,10 +245,8 @@ export class RadarChart implements IVisual {
     public formattingSettings: RadarChartSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
 
-    private subSelectionHelper: HtmlSubSelectionHelper;
-    private formatMode: boolean = false;
-    private visualTitleEditSubSelection = JSON.stringify(TitleEdit);
-    public visualOnObjectFormatting?: powerbi.extensibility.visual.VisualOnObjectFormatting;
+    public visualOnObjectFormatting: RadarOnObjectService;
+    private formatMode: boolean;
 
     private static getLabelsData(dataView: DataView): RadarChartLabelsData {
         if (!dataView
@@ -506,13 +509,6 @@ export class RadarChart implements IVisual {
         this.localizationManager = this.visualHost.createLocalizationManager();
         this.formattingSettingsService = new FormattingSettingsService(this.localizationManager);
 
-        this.subSelectionHelper = HtmlSubSelectionHelper.createHtmlSubselectionHelper({
-            hostElement: options.element,
-            subSelectionService: options.host.subSelectionService,
-            selectionIdCallback: (e) => this.selectionIdCallback(e),
-            customOutlineCallback: (e) => this.customOutlineCallback(e)
-        });
-
         const selectionManager: ISelectionManager = this.visualHost.createSelectionManager();
         this.behavior = new RadarChartWebBehavior(selectionManager, this.colorHelper);
         this.events = options.host.eventService;
@@ -548,11 +544,7 @@ export class RadarChart implements IVisual {
             .append("g")
             .classed(RadarChart.ChartSelector.className, true);
 
-        this.visualOnObjectFormatting = {
-            getSubSelectionStyles: (subSelections) => this.getSubSelectionStyles(subSelections),
-            getSubSelectionShortcuts: (subSelections) => this.getSubSelectionShortcuts(subSelections),
-            getSubSelectables: (filter) => this.getSubSelectables(filter)
-        };
+        this.visualOnObjectFormatting = new RadarOnObjectService(options.element, options.host, this.localizationManager, this.getCustomOutlines.bind(this));
     }
 
     public update(options: VisualUpdateOptions): void {
@@ -652,15 +644,8 @@ export class RadarChart implements IVisual {
         this.drawChart(series, RadarChart.AnimationDuration, this.formattingSettings);
 
         this.bindBehaviorToVisual();
-
-        this.subSelectionHelper.setFormatMode(options.formatMode);
-        const shouldUpdateSubSelection = options.type & (powerbi.VisualUpdateType.Data
-            | powerbi.VisualUpdateType.Resize
-            | powerbi.VisualUpdateType.FormattingSubSelectionChange);
-        if (this.formatMode && shouldUpdateSubSelection) {
-            this.subSelectionHelper.updateOutlinesFromSubSelections(options.subSelections, true);
-        }
-
+        
+        this.applyOnObjectFormatting(options.formatMode, options.type, options.subSelections);
         this.events.renderingFinished(options);
     }
 
@@ -680,37 +665,33 @@ export class RadarChart implements IVisual {
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
 
-    public selectionIdCallback(e: Element): powerbi.visuals.ISelectionId {
-        const elementType: string = d3Select(e).attr(SubSelectableObjectNameAttribute);
+    private applyOnObjectFormatting(isFormatMode: boolean, updateType: VisualUpdateType, subSelections?: CustomVisualSubSelection[]): void{
+        this.visualOnObjectFormatting.setFormatMode(isFormatMode);
 
-        switch (elementType) {
-            case RadarChartObjectNames.DataPoint: {
-                const datum = d3Select<Element, RadarChartSeries>(e).datum();
-                return datum.identity;
-            }
-            default:
-                return undefined;
+        const shouldUpdateSubSelection = updateType & (powerbi.VisualUpdateType.Data
+            | powerbi.VisualUpdateType.Resize
+            | powerbi.VisualUpdateType.FormattingSubSelectionChange);
+
+        if (isFormatMode && shouldUpdateSubSelection) {
+            this.visualOnObjectFormatting.updateOutlinesFromSubSelections(subSelections, true);
         }
     }
 
-    public customOutlineCallback(subSelections: CustomVisualSubSelection): powerbi.visuals.SubSelectionRegionOutlineFragment[] {
-        const elementType: string = subSelections.customVisualObjects[0].objectName;
-        switch (elementType) {
-            case RadarChartObjectNames.DataPoint: {
-                const subSelectionIdentity: powerbi.visuals.ISelectionId = subSelections.customVisualObjects[0].selectionId;
-                const selectedSeries: RadarChartSeries = this.radarChartData.series.find((series => series.identity.equals(subSelectionIdentity)));
-                const result: powerbi.visuals.SubSelectionRegionOutlineFragment[] = [{
-                    id: subSelectionIdentity.getKey(),
-                    outline: {
-                        type: powerbi.visuals.SubSelectionOutlineType.Polygon,
-                        points: selectedSeries?.dataPoints ? this.calculatePoint(selectedSeries?.dataPoints) : []
-                    }
-                }]
-                return result;
-            }
-            default:
-                return undefined;
+    public getCustomOutlines(selectionId: ISelectionId): SubSelectionRegionOutlineFragment[] {
+        const selectedSeries: RadarChartSeries = this.radarChartData.series.find((series => series.identity.equals(selectionId)));
+        if (!selectedSeries) {
+            return [];
         }
+
+        const result: SubSelectionRegionOutlineFragment[] = [{
+            id: selectionId.getKey(),
+            outline: {
+                type: SubSelectionOutlineType.Polygon,
+                points: selectedSeries?.dataPoints ? this.calculatePoint(selectedSeries?.dataPoints) : []
+            }
+        }];
+
+        return result;
     }
 
     private calculatePoint(dataPoints: RadarChartDatapoint[]): IPoint[] {
@@ -747,262 +728,6 @@ export class RadarChart implements IVisual {
         });
 
         return points;
-    }
-
-    private getSubSelectionStyles(subSelections: CustomVisualSubSelection[]): SubSelectionStyles | undefined {
-        const visualObject = subSelections[0]?.customVisualObjects[0];
-        if (visualObject) {
-            switch (visualObject.objectName) {
-                case RadarChartObjectNames.Legend:
-                    return this.getLegendStyles();
-                case RadarChartObjectNames.Labels:
-                    return this.getLabelsStyles();
-                case RadarChartObjectNames.DataPoint:
-                    return this.getDataPointStyles(subSelections);
-            }
-        }
-    }
-    private getSubSelectionShortcuts(subSelections: CustomVisualSubSelection[]): VisualSubSelectionShortcuts | undefined {
-        const visualObject = subSelections[0]?.customVisualObjects[0];
-        if (visualObject) {
-            switch (visualObject.objectName) {
-                case RadarChartObjectNames.Legend:
-                    return this.getLegendShortcuts();
-                case RadarChartObjectNames.LegendTitle:
-                    return this.getLegendTitleShortcuts();
-                case RadarChartObjectNames.Labels:
-                    return this.getLabelsShortcuts();
-                case RadarChartObjectNames.DataPoint:
-                    return this.getDataPointShortcuts(subSelections);
-            }
-        }
-    }
-    private getSubSelectables?(filter?: SubSelectionStylesType): CustomVisualSubSelection[] | undefined {
-        return this.subSelectionHelper.getAllSubSelectables(filter);
-    }
-
-    private getLegendTitleShortcuts(): VisualSubSelectionShortcuts {
-        return [
-            {
-                type: VisualShortcutType.Reset,
-                relatedResetFormattingIds: [
-                    legendReferences.showTitle,
-                    legendReferences.titleText
-                ]
-            },
-            {
-                type: VisualShortcutType.Toggle,
-                ...legendReferences.showTitle,
-                disabledLabel: this.localizationManager.getDisplayName("Visual_OnObject_DeleteTitle")
-            },
-            {
-                type: VisualShortcutType.Divider,
-            },
-            {
-                type: VisualShortcutType.Navigate,
-                destinationInfo: { cardUid: legendReferences.cardUid, groupUid: "legendTitleGroup-group" },
-                label: this.localizationManager.getDisplayName("Visual_OnObject_FormatTitle")
-            }
-        ];
-    }
-    private getLegendShortcuts(): VisualSubSelectionShortcuts {
-        return [
-            {
-                type: VisualShortcutType.Reset,
-                relatedResetFormattingIds: [
-                    legendReferences.bold,
-                    legendReferences.fontFamily,
-                    legendReferences.fontSize,
-                    legendReferences.italic,
-                    legendReferences.underline,
-                    legendReferences.color,
-                    legendReferences.showTitle,
-                    legendReferences.titleText
-                ]
-            },
-            {
-                type: VisualShortcutType.Picker,
-                ...legendReferences.position,
-                label: this.localizationManager.getDisplayName("Visual_Position")
-            },
-            {
-                type: VisualShortcutType.Toggle,
-                ...legendReferences.show,
-                disabledLabel: this.localizationManager.getDisplayName("Visual_OnObject_DeleteLegend")
-            },
-            {
-                type: VisualShortcutType.Toggle,
-                ...legendReferences.showTitle,
-                enabledLabel: this.localizationManager.getDisplayName("Visual_OnObject_AddTitle")
-            },
-            {
-                type: VisualShortcutType.Divider,
-            },
-            {
-                type: VisualShortcutType.Navigate,
-                destinationInfo: { cardUid: legendReferences.cardUid, groupUid: legendReferences.groupUid },
-                label: this.localizationManager.getDisplayName("Visual_OnObject_FormatLegend")
-            }
-        ];
-    }
-    private getLegendStyles(): SubSelectionStyles {
-        return {
-            type: SubSelectionStylesType.Text,
-            fontFamily: {
-                reference: {
-                    ...legendReferences.fontFamily
-                },
-                label: legendReferences.fontFamily.propertyName
-            },
-            bold: {
-                reference: {
-                    ...legendReferences.bold
-                },
-                label: legendReferences.bold.propertyName
-            },
-            italic: {
-                reference: {
-                    ...legendReferences.italic
-                },
-                label: legendReferences.italic.propertyName
-            },
-            underline: {
-                reference: {
-                    ...legendReferences.underline
-                },
-                label: legendReferences.underline.propertyName
-            },
-            fontSize: {
-                reference: {
-                    ...legendReferences.fontSize
-                },
-                label: legendReferences.fontSize.propertyName
-            },
-            fontColor: {
-                reference: {
-                    ...legendReferences.color
-                },
-                label: legendReferences.color.propertyName
-            }
-        };
-    }
-
-    private getLabelsShortcuts(): VisualSubSelectionShortcuts {
-        return [
-            {
-                type: VisualShortcutType.Reset,
-                relatedResetFormattingIds: [
-                    labelsReferences.bold,
-                    labelsReferences.fontFamily,
-                    labelsReferences.fontSize,
-                    labelsReferences.italic,
-                    labelsReferences.underline,
-                    labelsReferences.color
-                ]
-            },
-            {
-                type: VisualShortcutType.Toggle,
-                ...labelsReferences.show,
-                disabledLabel: this.localizationManager.getDisplayName("Visual_OnObject_DeleteLabels"),
-                enabledLabel: this.localizationManager.getDisplayName("Visual_OnObject_AddLabels")
-            },
-            {
-                type: VisualShortcutType.Divider,
-            },
-            {
-                type: VisualShortcutType.Navigate,
-                destinationInfo: { cardUid: labelsReferences.cardUid },
-                label: this.localizationManager.getDisplayName("Visual_OnObject_FormatLabels")
-            }
-        ];
-    }
-    private getLabelsStyles(): SubSelectionStyles {
-        return {
-            type: SubSelectionStylesType.Text,
-            fontFamily: {
-                reference: {
-                    ...labelsReferences.fontFamily
-                },
-                label: labelsReferences.fontFamily.propertyName
-            },
-            bold: {
-                reference: {
-                    ...labelsReferences.bold
-                },
-                label: labelsReferences.bold.propertyName
-            },
-            italic: {
-                reference: {
-                    ...labelsReferences.italic
-                },
-                label: labelsReferences.italic.propertyName
-            },
-            underline: {
-                reference: {
-                    ...labelsReferences.underline
-                },
-                label: labelsReferences.underline.propertyName
-            },
-            fontSize: {
-                reference: {
-                    ...labelsReferences.fontSize
-                },
-                label: labelsReferences.fontSize.propertyName
-            },
-            fontColor: {
-                reference: {
-                    ...labelsReferences.color
-                },
-                label: labelsReferences.color.propertyName
-            }
-        };
-    }
-
-    private getDataPointShortcuts(subSelections: CustomVisualSubSelection[]): VisualSubSelectionShortcuts {
-        const selector = subSelections[0].customVisualObjects[0].selectionId?.getSelector();
-        return [
-            {
-                type: VisualShortcutType.Reset,
-                relatedResetFormattingIds: [{
-                    ...dataPointReferences.fill,
-                    selector
-                },
-                displayReferences.axisBeginning,
-                linesReferences.show],
-            },
-            {
-                type: VisualShortcutType.Toggle,
-                ...linesReferences.show,
-                disabledLabel: this.localizationManager.getDisplayName("Visual_OnObject_DrawPolygons"),
-                enabledLabel: this.localizationManager.getDisplayName("Visual_DrawLines")
-            },
-            {
-                type: VisualShortcutType.Picker,
-                ...displayReferences.axisBeginning,
-                label: this.localizationManager.getDisplayName("Visual_AxisStartPosition")
-            },
-            {
-                type: VisualShortcutType.Divider,
-            },
-            {
-                type: VisualShortcutType.Navigate,
-                destinationInfo: { cardUid: dataPointReferences.cardUid },
-                label: this.localizationManager.getDisplayName("Visual_OnObject_FormatColors")
-            }
-        ];
-    }
-    private getDataPointStyles(subSelections: CustomVisualSubSelection[]): SubSelectionStyles {
-        const selector = subSelections[0].customVisualObjects[0].selectionId?.getSelector();
-        return {
-            type: SubSelectionStylesType.Shape,
-            fill: {
-                reference: {
-                    ...dataPointReferences.fill,
-                    selector
-                },
-                label: this.localizationManager.getDisplayName("Visual_Fill")
-            },
-        };
     }
 
     private clear(): void {
@@ -1728,7 +1453,7 @@ export class RadarChart implements IVisual {
             .classed(HtmlSubSelectableClass, this.formatMode && this.formattingSettings.legend.show.value && this.formattingSettings.legend.title.showTitle.value)
             .attr(SubSelectableObjectNameAttribute, RadarChartObjectNames.LegendTitle)
             .attr(SubSelectableDisplayNameAttribute, "Title")
-            .attr(SubSelectableDirectEditAttr, this.visualTitleEditSubSelection);
+            .attr(SubSelectableDirectEditAttr, visualTitleEditSubSelection);
         
         this.legendElement.selectAll("text")
             .style("font-weight",  () => this.formattingSettings.legend.text.font.bold.value ? "bold" : "normal")

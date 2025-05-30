@@ -34,14 +34,11 @@ import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
 import FormattingSettingsGroup = formattingSettings.Group;
 
-import { IDataPointReference, IDisplayReference, IFontReference, ILabelsReference, ILegendReference, ILineReference, RadarChartSeries } from "./radarChartDataInterfaces";
+import { RadarChartSeries } from "./radarChartDataInterfaces";
 import { ColorHelper } from "powerbi-visuals-utils-colorutils";
 
 import IEnumMember = powerbi.IEnumMember;
 import ILocalizationManager = powerbi.extensibility.ILocalizationManager;
-
-import SubSelectableDirectEdit = powerbi.visuals.SubSelectableDirectEdit;
-import SubSelectableDirectEditStyle = powerbi.visuals.SubSelectableDirectEditStyle;
 
 interface IEnumMemberWithDisplayNameKey extends IEnumMember{
     key: string;
@@ -70,106 +67,6 @@ export const enum RadarChartObjectNames {
     DisplaySettings = "displaySettings",
     Line = "line",
     Labels = "labels"
-}
-
-export const TitleEdit: SubSelectableDirectEdit = {
-    reference: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "titleText"
-    },
-    style: SubSelectableDirectEditStyle.HorizontalLeft,
-}
-
-const createBaseFontReference = (objectName: string): IFontReference => {
-    return {
-        fontFamily: {
-            objectName: objectName,
-            propertyName: "fontFamily"
-        },
-        bold: {
-            objectName: objectName,
-            propertyName: "fontBold"
-        },
-        italic: {
-            objectName: objectName,
-            propertyName: "fontItalic"
-        },
-        underline: {
-            objectName: objectName,
-            propertyName: "fontUnderline"
-        },
-        fontSize: {
-            objectName: objectName,
-            propertyName: "fontSize"
-        }
-    }
-}
-
-export const legendReferences: ILegendReference = {
-    ...createBaseFontReference(RadarChartObjectNames.Legend),
-    cardUid: "Visual-legend-card",
-    groupUid: "legendTextGroup-group",
-    show: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "show"
-    },
-    showTitle: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "showTitle"
-    },
-    titleText: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "titleText"
-    },
-    position: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "position"
-    },
-    color: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "labelColor"
-    }
-}
-
-export const labelsReferences: ILabelsReference = {
-    ...createBaseFontReference(RadarChartObjectNames.Labels),
-    cardUid: "Visual-labels-card",
-    groupUid: "labels-group",
-    show: {
-        objectName: RadarChartObjectNames.Labels,
-        propertyName: "show"
-    },
-    color: {
-        objectName: RadarChartObjectNames.Labels,
-        propertyName: "color"
-    }
-}
-
-export const dataPointReferences: IDataPointReference = {
-    cardUid: "Visual-dataPoint-card",
-    groupUid: "dataPoint-group",
-    fill: {
-        objectName: RadarChartObjectNames.DataPoint,
-        propertyName: "fill"
-    }
-}
-
-export const displayReferences: IDisplayReference = {
-    cardUid: "Visual-displaySettings-card",
-    groupUid: "displaySettings-group",
-    axisBeginning: {
-        objectName: RadarChartObjectNames.DisplaySettings,
-        propertyName: "axisBeginning"
-    }
-}
-
-export const linesReferences: ILineReference = {
-    cardUid: "Visual-line-card",
-    groupUid: "line-group",
-    show: {
-        objectName: RadarChartObjectNames.Line,
-        propertyName: "show"
-    }
 }
 
 class BaseFontCardSettings extends FormattingSettingsSimpleCard {
