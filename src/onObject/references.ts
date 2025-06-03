@@ -39,7 +39,11 @@ const createBaseFontReference = (objectName: string, colorName: string, prefix: 
         color: {
             objectName: objectName,
             propertyName: colorName
-        }
+        },
+        show: {
+            objectName: objectName,
+            propertyName: `${prefix}show`
+        },
     }
 }
 
@@ -47,10 +51,6 @@ export const legendReferences: ILegendReference = {
     ...createBaseFontReference(RadarChartObjectNames.Legend, "labelColor"),
     cardUid: "Visual-legend-card",
     groupUid: "legendTextGroup-group",
-    show: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "show"
-    },
     showTitle: {
         objectName: RadarChartObjectNames.Legend,
         propertyName: "showTitle"
@@ -73,14 +73,6 @@ export const labelsReferences: ILabelsReference = {
     ...createBaseFontReference(RadarChartObjectNames.Labels, "color"),
     cardUid: "Visual-labels-card",
     groupUid: `${RadarChartObjectNames.LabelsX}-group`,
-    show: {
-        objectName: RadarChartObjectNames.Labels,
-        propertyName: "show"
-    },
-    color: {
-        objectName: RadarChartObjectNames.Labels,
-        propertyName: "color"
-    }
 }
 
 export const dataPointReferences: IDataPointReference = {
@@ -114,10 +106,6 @@ export const yAxisLabelsReferences: IYAxisLabelsReference = {
     ...createBaseFontReference(RadarChartObjectNames.Labels, "y_color", "y_"),
     cardUid: "Visual-labels-card",
     groupUid: `${RadarChartObjectNames.LabelsY}-group`,
-    show: {
-        objectName: RadarChartObjectNames.Labels,
-        propertyName: "showY"
-    },
     precision: {
         objectName: RadarChartObjectNames.Labels,
         propertyName: "precision"

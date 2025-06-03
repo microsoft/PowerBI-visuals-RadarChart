@@ -312,7 +312,7 @@ export class yAxisLabelsSettings extends BaseFontCardSettings {
     });
 
     show = new formattingSettings.ToggleSwitch({
-        name: "showY",
+        name: "y_show",
         displayName: "Show Y-Axis labels",
         value: true
     });

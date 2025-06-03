@@ -242,7 +242,7 @@
                         "bool": true
                     }
                 },
-                "showY": {
+                "y_show": {
                     "type": {
                         "bool": true
                     }
