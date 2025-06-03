@@ -26,8 +26,6 @@
 import powerbi from "powerbi-visuals-api";
 import ISelectionId = powerbi.visuals.ISelectionId;
 import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
-import GroupFormattingModelReference = powerbi.visuals.GroupFormattingModelReference;
-import FormattingId = powerbi.visuals.FormattingId;
 
 // Chart utils
 import {legendInterfaces} from "powerbi-visuals-utils-chartutils";

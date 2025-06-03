@@ -29,7 +29,7 @@ import powerbi from "powerbi-visuals-api";
 import clone from "lodash.clone";
 
 // d3
-import { ScaleLinear as d3LinearScale, scaleLinear as d3ScaleLinear, scaleLinear} from "d3-scale";
+import { ScaleLinear as d3LinearScale, scaleLinear as d3ScaleLinear} from "d3-scale";
 import { min as d3Min, max as d3Max} from "d3-array";
 import { arc as d3Arc } from "d3-shape";
 import { transition as d3Transition } from "d3-transition";
@@ -82,12 +82,8 @@ import IValueFormatter = FormattingUtils.valueFormatter.IValueFormatter;
 import textMeasurementService = FormattingUtils.textMeasurementService;
 
 // On object
-import { HtmlSubSelectableClass, HtmlSubSelectionHelper, SubSelectableDisplayNameAttribute, SubSelectableObjectNameAttribute, SubSelectableDirectEdit as SubSelectableDirectEditAttr, SubSelectableTypeAttribute } from "powerbi-visuals-utils-onobjectutils";
+import { HtmlSubSelectableClass, SubSelectableDisplayNameAttribute, SubSelectableObjectNameAttribute, SubSelectableDirectEdit as SubSelectableDirectEditAttr, SubSelectableTypeAttribute } from "powerbi-visuals-utils-onobjectutils";
 import CustomVisualSubSelection = powerbi.visuals.CustomVisualSubSelection;
-import SubSelectionStyles = powerbi.visuals.SubSelectionStyles;
-import VisualShortcutType = powerbi.visuals.VisualShortcutType;
-import VisualSubSelectionShortcuts = powerbi.visuals.VisualSubSelectionShortcuts;
-import SubSelectionStylesType = powerbi.visuals.SubSelectionStylesType;
 import SubSelectionRegionOutlineFragment = powerbi.visuals.SubSelectionRegionOutlineFragment;
 import SubSelectionOutlineType = powerbi.visuals.SubSelectionOutlineType;
 
@@ -1028,12 +1024,12 @@ export class RadarChart implements IVisual {
             const labelsWithSameCategory: RadarChartLabel[] = labelPoints.filter((labelPoint: RadarChartLabel) => labelPoint.index === categoryIndex);
 
             const allXEqual = labelsWithSameCategory.every(point => point.x === labelsWithSameCategory[0].x);
-            const allYEqual = labelsWithSameCategory.every(point => point.y === labelsWithSameCategory[0].y);
+            const allYEqual = labelsWithSameCategory.every(point => point.y === labelsWithSameCategory[0].y);
 
             labelsWithSameCategory.sort((a: RadarChartLabel, b: RadarChartLabel) => {
-                if (allXEqual) return a.y - b.y;
+                if (allXEqual) return a.y - b.y;
                 if (allYEqual) return a.x - b.x;
-                return a.x - b.x || a.y - b.y;
+                return a.x - b.x || a.y - b.y;
             });
 
             let currentLabel: RadarChartLabel = labelsWithSameCategory[0];
