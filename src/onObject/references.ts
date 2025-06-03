@@ -2,7 +2,7 @@ import powerbi from "powerbi-visuals-api";
 import SubSelectableDirectEdit = powerbi.visuals.SubSelectableDirectEdit;
 import SubSelectableDirectEditStyle = powerbi.visuals.SubSelectableDirectEditStyle;
 
-import { IFontReference, ILegendReference, ILabelsReference, IDataPointReference, IDisplayReference, ILineReference } from "./interfaces";
+import { IFontReference, ILegendReference, ILabelsReference, IDataPointReference, IDisplayReference, ILineReference, IYAxisLabelsReference } from "./interfaces";
 import { RadarChartObjectNames } from "../settings";
 
 export const TitleEdit: SubSelectableDirectEdit = {
@@ -14,35 +14,32 @@ export const TitleEdit: SubSelectableDirectEdit = {
 }
 export const visualTitleEditSubSelection = JSON.stringify(TitleEdit);
 
-const createBaseFontReference = (objectName: string, colorName: string): IFontReference => {
+const createBaseFontReference = (objectName: string, colorName: string, prefix: string = ""): IFontReference => {
     return {
         fontFamily: {
             objectName: objectName,
-            propertyName: "fontFamily"
+            propertyName: `${prefix}fontFamily`
         },
         bold: {
             objectName: objectName,
-            propertyName: "fontBold"
+            propertyName: `${prefix}fontBold`
         },
         italic: {
             objectName: objectName,
-            propertyName: "fontItalic"
+            propertyName: `${prefix}fontItalic`
         },
         underline: {
             objectName: objectName,
-            propertyName: "fontUnderline"
+            propertyName: `${prefix}fontUnderline`
         },
         fontSize: {
             objectName: objectName,
-            propertyName: "fontSize"
+            propertyName: `${prefix}fontSize`
         },
         color: {
             objectName: objectName,
-            propertyName: "color"
+            propertyName: colorName
         }
-        //labelCOlor legend
-        //color xlabels
-        //y_color ylabels
     }
 }
 
@@ -75,7 +72,7 @@ export const legendReferences: ILegendReference = {
 export const labelsReferences: ILabelsReference = {
     ...createBaseFontReference(RadarChartObjectNames.Labels, "color"),
     cardUid: "Visual-labels-card",
-    groupUid: "labels-group",
+    groupUid: `${RadarChartObjectNames.LabelsX}-group`,
     show: {
         objectName: RadarChartObjectNames.Labels,
         propertyName: "show"
@@ -110,5 +107,31 @@ export const linesReferences: ILineReference = {
     show: {
         objectName: RadarChartObjectNames.Line,
         propertyName: "show"
+    }
+}
+
+export const yAxisLabelsReferences: IYAxisLabelsReference = {
+    ...createBaseFontReference(RadarChartObjectNames.Labels, "y_color", "y_"),
+    cardUid: "Visual-labels-card",
+    groupUid: `${RadarChartObjectNames.LabelsY}-group`,
+    show: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: "showY"
+    },
+    precision: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: "precision"
+    },
+    displayUnits: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: "displayUnits"
+    },
+    showOverlapping: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: "showOverlapping"
+    },
+    showCustomColor: {
+        objectName: RadarChartObjectNames.Labels,
+        propertyName: "showYLabelCustomColor"
     }
 }

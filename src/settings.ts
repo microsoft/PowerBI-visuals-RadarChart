@@ -66,7 +66,9 @@ export const enum RadarChartObjectNames {
     DataPoint = "dataPoint",
     DisplaySettings = "displaySettings",
     Line = "line",
-    Labels = "labels"
+    Labels = "labels",
+    LabelsX = "xAxisLabelsGroup",
+    LabelsY = "yAxisLabelsGroup"
 }
 
 class BaseFontCardSettings extends FormattingSettingsSimpleCard {
@@ -316,7 +318,7 @@ export class yAxisLabelsSettings extends BaseFontCardSettings {
     });
 
     showCustomColor = new formattingSettings.ToggleSwitch({
-        name: "show_y_label_custom_color",
+        name: "showYLabelCustomColor",
         displayNameKey: "Visual_Show_Custom_Color",
         description: "Use custom color for labels",
         descriptionKey: "Visual_Description_Labels_Custom_Color",

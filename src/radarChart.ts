@@ -1149,7 +1149,7 @@ export class RadarChart implements IVisual {
             .style("text-anchor", (label: RadarChartLabel) => label.textAnchor)
             .style("fill", () => labelSettings.color.value.value)
             .classed(HtmlSubSelectableClass, this.formatMode && labelSettings.show.value)
-            .attr(SubSelectableObjectNameAttribute, RadarChartObjectNames.Labels)
+            .attr(SubSelectableObjectNameAttribute, RadarChartObjectNames.LabelsX)
             .attr(SubSelectableDisplayNameAttribute, "Data Labels");
 
         const selectionLongLineLableLink: Selection<RadarChartLabel> = this.mainGroupElement
@@ -1363,7 +1363,10 @@ export class RadarChart implements IVisual {
                 const shouldBeVisible: boolean = dataPoint.label.text != null && showYLabels && (showOverlapping || !dataPoint.label.hide);
                 return shouldBeVisible ? "visible" : "hidden";
             })
-            .text((dataPoint: RadarChartDatapoint)=> dataPoint.label.text);
+            .text((dataPoint: RadarChartDatapoint)=> dataPoint.label.text)
+            .classed(HtmlSubSelectableClass, this.formatMode && labelSettings.yAxisLabels.show.value)
+            .attr(SubSelectableObjectNameAttribute, RadarChartObjectNames.LabelsY)
+            .attr(SubSelectableDisplayNameAttribute, "Data Labels");
 
         this.dotsGroupSelection = dotGroupSelectionMerged;
     

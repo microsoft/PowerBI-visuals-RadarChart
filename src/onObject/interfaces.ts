@@ -34,3 +34,10 @@ export interface IDisplayReference extends GroupFormattingModelReference {
 export interface ILineReference extends GroupFormattingModelReference {
     show: FormattingId;
 }
+
+export interface IYAxisLabelsReference extends ILabelsReference {
+    precision: FormattingId;
+    displayUnits: FormattingId;
+    showOverlapping: FormattingId;
+    showCustomColor: FormattingId;
+}

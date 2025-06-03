@@ -5,14 +5,16 @@ import SubSelectionStyles = powerbi.visuals.SubSelectionStyles;
 import VisualSubSelectionShortcuts = powerbi.visuals.VisualSubSelectionShortcuts;
 import SubSelectionStylesType = powerbi.visuals.SubSelectionStylesType;
 import VisualShortcutType = powerbi.visuals.VisualShortcutType;
+import NumericTextSubSelectionStyles = powerbi.visuals.NumericTextSubSelectionStyles;
+import TextSubSelectionStyles = powerbi.visuals.TextSubSelectionStyles;
 
 import ILocalizationManager = powerbi.extensibility.ILocalizationManager;
 
-import { labelsReferences, legendReferences, dataPointReferences, displayReferences, linesReferences } from "./references";
+import { labelsReferences, legendReferences, dataPointReferences, displayReferences, linesReferences, yAxisLabelsReferences } from "./references";
 import { IFontReference } from "./interfaces";
 
 export class SubSelectionStylesService {
-    private static GetSubselectionStylesForText(objectReference: IFontReference): SubSelectionStyles {
+    private static GetSubselectionStylesForText(objectReference: IFontReference): TextSubSelectionStyles {
         return {
             type: SubSelectionStylesType.Text,
             fontFamily: {
@@ -74,6 +76,27 @@ export class SubSelectionStylesService {
                 label: localizationManager.getDisplayName("Visual_Fill")
             },
         };
+    }
+
+    public static GetYAxisLabelsStyles(): SubSelectionStyles {
+        const textStyles: NumericTextSubSelectionStyles = {
+            ...SubSelectionStylesService.GetSubselectionStylesForText(yAxisLabelsReferences),
+            type: SubSelectionStylesType.NumericText,
+            displayUnits: {
+                reference: {
+                    ...yAxisLabelsReferences.displayUnits
+                },
+                label: yAxisLabelsReferences.displayUnits.propertyName
+            },
+            precision: {
+                reference: {
+                    ...yAxisLabelsReferences.precision
+                },
+                label: yAxisLabelsReferences.precision.propertyName
+            }
+        };
+
+        return textStyles;
     }
 }
 
@@ -166,7 +189,7 @@ export class SubSelectionShortcutsService {
             },
             {
                 type: VisualShortcutType.Navigate,
-                destinationInfo: { cardUid: labelsReferences.cardUid },
+                destinationInfo: { cardUid: labelsReferences.cardUid, groupUid: labelsReferences.groupUid },
                 label: localizationManager.getDisplayName("Visual_OnObject_FormatLabels")
             }
         ];
@@ -190,6 +213,16 @@ export class SubSelectionShortcutsService {
                 enabledLabel: localizationManager.getDisplayName("Visual_DrawLines")
             },
             {
+                type: VisualShortcutType.Toggle,
+                ...labelsReferences.show,
+                enabledLabel: localizationManager.getDisplayName("Visual_Show_XAxisLabels")
+            },
+            {
+                type: VisualShortcutType.Toggle,
+                ...yAxisLabelsReferences.show,
+                enabledLabel: localizationManager.getDisplayName("Visual_Show_YAxisLabels")
+            },
+            {
                 type: VisualShortcutType.Picker,
                 ...displayReferences.axisBeginning,
                 label: localizationManager.getDisplayName("Visual_AxisStartPosition")
@@ -201,6 +234,51 @@ export class SubSelectionShortcutsService {
                 type: VisualShortcutType.Navigate,
                 destinationInfo: { cardUid: dataPointReferences.cardUid },
                 label: localizationManager.getDisplayName("Visual_OnObject_FormatColors")
+            }
+        ];
+    }
+    public static GetYAxisLabelsShortcuts(localizationManager: ILocalizationManager): VisualSubSelectionShortcuts {
+        return [
+            {
+                type: VisualShortcutType.Toggle,
+                ...yAxisLabelsReferences.show,
+                disabledLabel: localizationManager.getDisplayName("Visual_OnObject_Delete")
+            },
+            {
+                type: VisualShortcutType.Toggle,
+                ...yAxisLabelsReferences.showCustomColor,
+                enabledLabel: localizationManager.getDisplayName("Visual_Show_Custom_Color"),
+                disabledLabel: localizationManager.getDisplayName("Visual_Disable_Custom_Color"),
+            },
+                       {
+                type: VisualShortcutType.Toggle,
+                ...yAxisLabelsReferences.showOverlapping,
+                enabledLabel: localizationManager.getDisplayName("Visual_Show_Labels_Overlapping"),
+                disabledLabel: localizationManager.getDisplayName("Visual_Hide_Labels_Overlapping"),
+            },
+            {
+                type: VisualShortcutType.Divider,
+            },
+            {
+                type: VisualShortcutType.Reset,
+                relatedResetFormattingIds: [
+                    yAxisLabelsReferences.bold,
+                    yAxisLabelsReferences.fontFamily,
+                    yAxisLabelsReferences.fontSize,
+                    yAxisLabelsReferences.italic,
+                    yAxisLabelsReferences.underline,
+                    yAxisLabelsReferences.color,
+                    yAxisLabelsReferences.show,
+                    yAxisLabelsReferences.showOverlapping,
+                    yAxisLabelsReferences.displayUnits,
+                    yAxisLabelsReferences.precision,
+                    yAxisLabelsReferences.showCustomColor
+                ]
+            },
+            {
+                type: VisualShortcutType.Navigate,
+                destinationInfo: { cardUid: yAxisLabelsReferences.cardUid, groupUid: yAxisLabelsReferences.groupUid },
+                label: localizationManager.getDisplayName("Visual_OnObject_FormatLabels")
             }
         ];
     }

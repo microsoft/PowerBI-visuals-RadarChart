@@ -55,10 +55,12 @@ export class RadarOnObjectService implements VisualOnObjectFormatting {
             switch (visualObject.objectName) {
                 case RadarChartObjectNames.Legend:
                     return SubSelectionStylesService.GetLegendStyles();
-                case RadarChartObjectNames.Labels:
+                case RadarChartObjectNames.LabelsX:
                     return SubSelectionStylesService.GetLabelsStyles();
                 case RadarChartObjectNames.DataPoint:
                     return SubSelectionStylesService.GetDataPointStyles(subSelections, this.localizationManager);
+                case RadarChartObjectNames.LabelsY:
+                    return SubSelectionStylesService.GetYAxisLabelsStyles();
             }
         }
     }
@@ -71,10 +73,12 @@ export class RadarOnObjectService implements VisualOnObjectFormatting {
                     return SubSelectionShortcutsService.GetLegendShortcuts(this.localizationManager);
                 case RadarChartObjectNames.LegendTitle:
                     return SubSelectionShortcutsService.GetLegendTitleShortcuts(this.localizationManager);
-                case RadarChartObjectNames.Labels:
+                case RadarChartObjectNames.LabelsX:
                     return SubSelectionShortcutsService.GetLabelsShortcuts(this.localizationManager);
                 case RadarChartObjectNames.DataPoint:
                     return SubSelectionShortcutsService.GetDataPointShortcuts(subSelections, this.localizationManager);
+                case RadarChartObjectNames.LabelsY:
+                    return SubSelectionShortcutsService.GetYAxisLabelsShortcuts(this.localizationManager);
             }
         }
     }
