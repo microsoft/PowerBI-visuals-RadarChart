@@ -76,7 +76,7 @@ class BaseFontCardSettings extends FormattingSettingsSimpleCard {
     constructor (font_identifier = "") {
         super();
         this.font = new formattingSettings.FontControl({
-            name: `font`,
+            name: `${font_identifier}font`,
             displayName: "Font",
             displayNameKey: "Visual_Font",
             fontFamily: new formattingSettings.FontPicker({
@@ -425,7 +425,6 @@ export class RadarChartSettingsModel extends FormattingSettingsModel {
         this.labels.xAxisLabels.color.visible = isVisible;
         this.legend.text.labelColor.visible = isVisible;
         this.labels.yAxisLabels.color.visible = isVisible && this.labels.yAxisLabels.showCustomColor.value;
-        this.labels.yAxisLabels.font.visible = this.labels.yAxisLabels.showCustomColor.value;
     }
 
     public setMinMaxValuesForDisplay(minValue: number): void {
