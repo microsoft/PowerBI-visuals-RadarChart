@@ -328,7 +328,7 @@ export class RadarChart implements IVisual {
         }
     }
     private static minimumAxisCount: number = 4;
-    // eslint-disable-next-line max-lines-per-function
+
     public static converter(dataView: DataView,
         colorPalette: IColorPalette,
         colorHelper: ColorHelper,
@@ -1194,7 +1194,6 @@ export class RadarChart implements IVisual {
         this.changeAxesLineColorInHighMode([labelsShortLineLinkSelection, labelsLongLineLinkSelection]);
     }
 
-    // eslint-disable-next-line max-lines-per-function
     private drawChart(series: RadarChartSeries[], duration: number, settings: RadarChartSettingsModel): void {
         const angle: number = this.angle;
         const layers: RadarChartDatapoint[][] = this.getDataPoints(series);
