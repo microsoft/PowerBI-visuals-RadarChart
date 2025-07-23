@@ -370,7 +370,10 @@ export class RadarChart implements IVisual {
             dataPoints: [],
             title: settings.legend.title.titleText.value,
             labelColor: settings.legend.text.labelColor.value.value,
-            fontFamily: settings.legend.text.font.fontFamily.value
+            fontFamily: settings.legend.text.font.fontFamily.value,
+            fontWeight: settings.legend.text.font.bold.value ? "bold" : "normal",
+            fontStyle: settings.legend.text.font.italic.value ? "italic" : "normal",
+            textDecoration: settings.legend.text.font.underline.value ? "underline" : "none",
         };
         for (let i: number = 0, iLen: number = values.length; i < iLen; i++) {
             let dataPointFillColor: string,
@@ -515,8 +518,6 @@ export class RadarChart implements IVisual {
 
         this.legend = createLegend(
             element,
-            false,
-            null,
             true,
             LegendPosition.Top);
 
@@ -1378,8 +1379,7 @@ export class RadarChart implements IVisual {
         const behaviorOptions: RadarChartBehaviorOptions = {
             selection: this.dotsGroupSelection,
             clearCatcher: this.svg,
-            legend: this.legendItems,
-            legendClearCatcher: this.legendElement,
+            legend: this.legendElement,
             formatMode: this.formatMode,
         };
 
@@ -1452,11 +1452,6 @@ export class RadarChart implements IVisual {
             .attr(SubSelectableObjectNameAttribute, RadarChartObjectNames.LegendTitle)
             .attr(SubSelectableDisplayNameAttribute, "Title")
             .attr(SubSelectableDirectEditAttr, visualTitleEditSubSelection);
-        
-        this.legendElement.selectAll("text")
-            .style("font-weight",  () => this.formattingSettings.legend.text.font.bold.value ? "bold" : "normal")
-            .style("font-style",  () => this.formattingSettings.legend.text.font.italic.value ? "italic" : "normal")
-            .style("text-decoration", () => this.formattingSettings.legend.text.font.underline.value ? "underline" : "none");
     }
 
     private getDataPoints(seriesList: RadarChartSeries[]): RadarChartDatapoint[][] {
