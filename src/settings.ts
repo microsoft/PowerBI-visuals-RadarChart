@@ -34,14 +34,11 @@ import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
 import FormattingSettingsGroup = formattingSettings.Group;
 
-import { IDataPointReference, IDisplayReference, IFontReference, ILabelsReference, ILegendReference, ILineReference, RadarChartSeries } from "./radarChartDataInterfaces";
+import { RadarChartSeries } from "./radarChartDataInterfaces";
 import { ColorHelper } from "powerbi-visuals-utils-colorutils";
 
 import IEnumMember = powerbi.IEnumMember;
 import ILocalizationManager = powerbi.extensibility.ILocalizationManager;
-
-import SubSelectableDirectEdit = powerbi.visuals.SubSelectableDirectEdit;
-import SubSelectableDirectEditStyle = powerbi.visuals.SubSelectableDirectEditStyle;
 
 interface IEnumMemberWithDisplayNameKey extends IEnumMember{
     key: string;
@@ -69,147 +66,53 @@ export const enum RadarChartObjectNames {
     DataPoint = "dataPoint",
     DisplaySettings = "displaySettings",
     Line = "line",
-    Labels = "labels"
-}
-
-export const TitleEdit: SubSelectableDirectEdit = {
-    reference: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "titleText"
-    },
-    style: SubSelectableDirectEditStyle.HorizontalLeft,
-}
-
-const createBaseFontReference = (objectName: string): IFontReference => {
-    return {
-        fontFamily: {
-            objectName: objectName,
-            propertyName: "fontFamily"
-        },
-        bold: {
-            objectName: objectName,
-            propertyName: "fontBold"
-        },
-        italic: {
-            objectName: objectName,
-            propertyName: "fontItalic"
-        },
-        underline: {
-            objectName: objectName,
-            propertyName: "fontUnderline"
-        },
-        fontSize: {
-            objectName: objectName,
-            propertyName: "fontSize"
-        }
-    }
-}
-
-export const legendReferences: ILegendReference = {
-    ...createBaseFontReference(RadarChartObjectNames.Legend),
-    cardUid: "Visual-legend-card",
-    groupUid: "legendTextGroup-group",
-    show: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "show"
-    },
-    showTitle: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "showTitle"
-    },
-    titleText: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "titleText"
-    },
-    position: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "position"
-    },
-    color: {
-        objectName: RadarChartObjectNames.Legend,
-        propertyName: "labelColor"
-    }
-}
-
-export const labelsReferences: ILabelsReference = {
-    ...createBaseFontReference(RadarChartObjectNames.Labels),
-    cardUid: "Visual-labels-card",
-    groupUid: "labels-group",
-    show: {
-        objectName: RadarChartObjectNames.Labels,
-        propertyName: "show"
-    },
-    color: {
-        objectName: RadarChartObjectNames.Labels,
-        propertyName: "color"
-    }
-}
-
-export const dataPointReferences: IDataPointReference = {
-    cardUid: "Visual-dataPoint-card",
-    groupUid: "dataPoint-group",
-    fill: {
-        objectName: RadarChartObjectNames.DataPoint,
-        propertyName: "fill"
-    }
-}
-
-export const displayReferences: IDisplayReference = {
-    cardUid: "Visual-displaySettings-card",
-    groupUid: "displaySettings-group",
-    axisBeginning: {
-        objectName: RadarChartObjectNames.DisplaySettings,
-        propertyName: "axisBeginning"
-    }
-}
-
-export const linesReferences: ILineReference = {
-    cardUid: "Visual-line-card",
-    groupUid: "line-group",
-    show: {
-        objectName: RadarChartObjectNames.Line,
-        propertyName: "show"
-    }
+    Labels = "labels",
+    LabelsX = "xAxisLabelsGroup",
+    LabelsY = "yAxisLabelsGroup"
 }
 
 class BaseFontCardSettings extends FormattingSettingsSimpleCard {
-    font = new formattingSettings.FontControl({
-        name: "font",
-        displayName: "Font",
-        displayNameKey: "Visual_Font",
-        fontFamily: new formattingSettings.FontPicker({
-            name: "fontFamily",
-            value: "Arial, sans-serif"
-        }),
-        fontSize: new formattingSettings.NumUpDown({
-            name: "fontSize",
-            displayName: "Text Size",
-            displayNameKey: "Visual_TextSize",
-            value: 8,
-            options: {
-                minValue: {
-                    type: powerbi.visuals.ValidatorType.Min,
-                    value: 8
-                },
-                maxValue: {
-                    type: powerbi.visuals.ValidatorType.Max,
-                    value: 60
+    font: formattingSettings.FontControl;
+    constructor (font_identifier = "") {
+        super();
+        this.font = new formattingSettings.FontControl({
+            name: `${font_identifier}font`,
+            displayName: "Font",
+            displayNameKey: "Visual_Font",
+            fontFamily: new formattingSettings.FontPicker({
+                name: `${font_identifier}fontFamily`,
+                value: "Arial, sans-serif"
+            }),
+            fontSize: new formattingSettings.NumUpDown({
+                name: `${font_identifier}fontSize`,
+                displayName: "Text Size",
+                displayNameKey: "Visual_TextSize",
+                value: 8,
+                options: {
+                    minValue: {
+                        type: powerbi.visuals.ValidatorType.Min,
+                        value: 8
+                    },
+                    maxValue: {
+                        type: powerbi.visuals.ValidatorType.Max,
+                        value: 60
+                    }
                 }
-            }
-        }),
-        bold: new formattingSettings.ToggleSwitch({
-            name: "fontBold",
-            value: false
-        }),
-        italic: new formattingSettings.ToggleSwitch({
-            name: "fontItalic",
-            value: false
-        }),
-        underline: new formattingSettings.ToggleSwitch({
-            name: "fontUnderline",
-            value: false
-        })
-    });
+            }),
+            bold: new formattingSettings.ToggleSwitch({
+                name: `${font_identifier}fontBold`,
+                value: false
+            }),
+            italic: new formattingSettings.ToggleSwitch({
+                name: `${font_identifier}fontItalic`,
+                value: false
+            }),
+            underline: new formattingSettings.ToggleSwitch({
+                name: `${font_identifier}fontUnderline`,
+                value: false
+            })
+        }); 
+    }
 }
 
 export class LegendTitleGroup extends FormattingSettingsSimpleCard {
@@ -355,6 +258,9 @@ export class DisplaySettingsCard extends FormattingSettingsSimpleCard {
 }
 
 export class xAxisLabelsSettings extends BaseFontCardSettings {
+    public static MinLineLength: number = 0;
+    public static MaxLineLength: number = 100;
+
     show = new formattingSettings.ToggleSwitch({
         name: "show",
         displayNameKey: "Visual_Show",
@@ -373,32 +279,97 @@ export class xAxisLabelsSettings extends BaseFontCardSettings {
         value : {value: "#000"}
     });
 
+    lineLength = new formattingSettings.Slider({
+        name: "lineLength",
+        displayNameKey: "Visual_LineLength",
+        value: 100,
+        options: {
+            minValue: {
+                type: powerbi.visuals.ValidatorType.Min,
+                value: xAxisLabelsSettings.MinLineLength
+            },
+            maxValue: {
+                type: powerbi.visuals.ValidatorType.Max,
+                value: xAxisLabelsSettings.MaxLineLength
+            }
+        }
+    })
+
     name: string = "xAxisLabelsGroup";
     displayName?: string = "X-Axis labels";
-    slices: FormattingSettingsSlice[] = [this.color, this.font];
+    displayNameKey?: string = "Visual_XAxisLabels";
+    slices: FormattingSettingsSlice[] = [this.color, this.font, this.lineLength];
 }
 
-export class yAxisLabelsSettings extends FormattingSettingsSimpleCard {
+export class yAxisLabelsSettings extends BaseFontCardSettings {
     showOverlapping = new formattingSettings.ToggleSwitch({
-        name: "showOverlaping",
+        name: "showOverlapping",
         displayName: "Show overlapping labels",
+        displayNameKey: "Visual_Show_Labels_Overlapping",
+        description: "Show labels even if they overlap",
+        descriptionKey: "Visual_Description_Labels_Overlapping",
         value: true
     });
 
     show = new formattingSettings.ToggleSwitch({
-        name: "showY",
+        name: "y_show",
         displayName: "Show Y-Axis labels",
         value: true
     });
+
+    useCustomColor = new formattingSettings.ToggleSwitch({
+        name: "y_useCustomColor",
+        displayNameKey: "Visual_Use_Custom_Color",
+        description: "Use custom color for labels",
+        descriptionKey: "Visual_Description_Labels_Custom_Color",
+        value: false
+    });
+
+    color = new formattingSettings.ColorPicker({
+        name: "y_color",
+        displayName: "Color",
+        displayNameKey: "Visual_Color",
+        description: "Select color for data labels",
+        descriptionKey: "Visual_Description_Color",
+        value : {value: "#000"},
+        visible: true
+    });
+
+    public displayUnits = new formattingSettings.AutoDropdown({
+        name: "displayUnits",
+        displayName: "Display Units",
+        displayNameKey: "Visual_DisplayUnits",
+        value: 0,
+    });
+
+    public precision = new formattingSettings.NumUpDown({
+        name: "precision",
+        displayNameKey: "Visual_Precision",
+        description: "Number of decimal places to display",
+        descriptionKey: "Visual_Description_Precision",
+        value: 2,
+        options: {
+            minValue: {
+                type: powerbi.visuals.ValidatorType.Min,
+                value: 0
+            },
+            maxValue: {
+                type: powerbi.visuals.ValidatorType.Max,
+                value: 10
+            },
+        }
+    });
+
     topLevelSlice = this.show;
     name: string = "yAxisLabelsGroup";
-    displayName: string = "Y-Axis labels";
-    slices: FormattingSettingsSlice[] = [ this.showOverlapping];
+    displayName?: string = "Y-Axis labels";
+    displayNameKey?: string = "Visual_YAxisLabels";
+    slices: FormattingSettingsSlice[] = [this.showOverlapping, this.displayUnits, this.precision, this.useCustomColor, this.color, this.font];
 }
 
 export class LabelsSettingsCard extends FormattingSettingsCompositeCard {
     xAxisLabels = new xAxisLabelsSettings();
-    yAxisLabels = new yAxisLabelsSettings();
+    yAxisLabels = new yAxisLabelsSettings("y_");
 
     name: string = RadarChartObjectNames.Labels;
     displayNameKey: string = "Visual_DataLabels";
@@ -453,6 +424,7 @@ export class RadarChartSettingsModel extends FormattingSettingsModel {
         this.dataPoint.visible = isVisible;
         this.labels.xAxisLabels.color.visible = isVisible;
         this.legend.text.labelColor.visible = isVisible;
+        this.labels.yAxisLabels.color.visible = isVisible && this.labels.yAxisLabels.useCustomColor.value;
     }
 
     public setMinMaxValuesForDisplay(minValue: number): void {

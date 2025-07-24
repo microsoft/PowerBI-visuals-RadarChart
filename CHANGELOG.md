@@ -1,6 +1,12 @@
 ## 3.2.0.0
-* Remove interactivity utils
+
+### Features
 * Add y-axis labels
+* Add formatting options for y-axis labels
+* Add onObject for y-axis labels
+
+### Development
+* Remove interactivity utils
 * API 5.11.0
 
 ## 3.1.3.0

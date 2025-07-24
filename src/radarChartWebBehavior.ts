@@ -45,7 +45,6 @@ export interface RadarChartBehaviorOptions {
     selection: Selection<RadarChartDatapoint>;
     clearCatcher: Selection<any>;
     legend: Selection<any>;
-    legendClearCatcher: Selection<any>;
     formatMode: boolean;
 }
 
@@ -92,10 +91,10 @@ export class RadarChartWebBehavior {
         this.selection = options.selection;
         this.dataPoints = options.selection.data();
         this.clearCatcher = options.clearCatcher;
-        this.legendClearCatcher = options.legendClearCatcher;
-        this.legendItems = options.legend;
+        this.legendClearCatcher = options.legend;
+        this.legendItems = options.legend.selectAll(".legendItem");
         this.legendIcons = options.legend.selectAll(".legendIcon");
-        this.legendDataPoints = options.legend.data();
+        this.legendDataPoints = this.legendItems.data();
 
         if (options.formatMode){
             // remove event listeners which are irrelevant for format mode.
