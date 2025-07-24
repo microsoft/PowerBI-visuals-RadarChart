@@ -118,7 +118,7 @@ export const yAxisLabelsReferences: IYAxisLabelsReference = {
         objectName: RadarChartObjectNames.Labels,
         propertyName: "showOverlapping"
     },
-    showCustomColor: {
+    useCustomColor: {
         objectName: RadarChartObjectNames.Labels,
         propertyName: "showYLabelCustomColor"
     }

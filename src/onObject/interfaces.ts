@@ -40,5 +40,5 @@ export interface IYAxisLabelsReference extends ILabelsReference {
     precision: FormattingId;
     displayUnits: FormattingId;
     showOverlapping: FormattingId;
-    showCustomColor: FormattingId;
+    useCustomColor: FormattingId;
 }

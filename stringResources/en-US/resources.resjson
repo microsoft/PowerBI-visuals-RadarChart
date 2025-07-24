@@ -48,7 +48,7 @@
     "Visual_RightCenter": "Right Center",
     "Visual_Short_Description": "Multiple measures plotted over a categorical axis. Useful to compare attributes",
     "Visual_Show": "Show",
-    "Visual_Show_Custom_Color": "Show custom color",
+    "Visual_Use_Custom_Color": "Use custom color",
     "Visual_Show_Labels_Overlapping": "Show overlapping labels",
     "Visual_Show_XAxisLabels": "Show X-Axis labels",
     "Visual_Show_YAxisLabels": "Show Y-Axis labels",

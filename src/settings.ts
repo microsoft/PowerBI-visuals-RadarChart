@@ -317,9 +317,9 @@ export class yAxisLabelsSettings extends BaseFontCardSettings {
         value: true
     });
 
-    showCustomColor = new formattingSettings.ToggleSwitch({
-        name: "showYLabelCustomColor",
-        displayNameKey: "Visual_Show_Custom_Color",
+    useCustomColor = new formattingSettings.ToggleSwitch({
+        name: "y_useCustomColor",
+        displayNameKey: "Visual_Use_Custom_Color",
         description: "Use custom color for labels",
         descriptionKey: "Visual_Description_Labels_Custom_Color",
         value: false
@@ -364,7 +364,7 @@ export class yAxisLabelsSettings extends BaseFontCardSettings {
     name: string = "yAxisLabelsGroup";
     displayName?: string = "Y-Axis labels";
     displayNameKey?: string = "Visual_YAxisLabels";
-    slices: FormattingSettingsSlice[] = [this.showOverlapping, this.displayUnits, this.precision, this.showCustomColor, this.color, this.font];
+    slices: FormattingSettingsSlice[] = [this.showOverlapping, this.displayUnits, this.precision, this.useCustomColor, this.color, this.font];
 }
 
 export class LabelsSettingsCard extends FormattingSettingsCompositeCard {
@@ -424,7 +424,7 @@ export class RadarChartSettingsModel extends FormattingSettingsModel {
         this.dataPoint.visible = isVisible;
         this.labels.xAxisLabels.color.visible = isVisible;
         this.legend.text.labelColor.visible = isVisible;
-        this.labels.yAxisLabels.color.visible = isVisible && this.labels.yAxisLabels.showCustomColor.value;
+        this.labels.yAxisLabels.color.visible = isVisible && this.labels.yAxisLabels.useCustomColor.value;
     }
 
     public setMinMaxValuesForDisplay(minValue: number): void {

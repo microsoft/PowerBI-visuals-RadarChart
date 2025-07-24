@@ -246,7 +246,7 @@ export class SubSelectionShortcutsService {
             },
             {
                 type: VisualShortcutType.Toggle,
-                ...yAxisLabelsReferences.showCustomColor,
+                ...yAxisLabelsReferences.useCustomColor,
                 enabledLabel: localizationManager.getDisplayName("Visual_Show_Custom_Color"),
                 disabledLabel: localizationManager.getDisplayName("Visual_Disable_Custom_Color"),
             },
@@ -272,7 +272,7 @@ export class SubSelectionShortcutsService {
                     yAxisLabelsReferences.showOverlapping,
                     yAxisLabelsReferences.displayUnits,
                     yAxisLabelsReferences.precision,
-                    yAxisLabelsReferences.showCustomColor
+                    yAxisLabelsReferences.useCustomColor
                 ]
             },
             {
