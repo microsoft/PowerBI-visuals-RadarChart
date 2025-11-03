@@ -286,36 +286,6 @@ export class RadarChart implements IVisual {
         return labelsData;
     }
 
-    private static getYLabelsData(dataView: DataView): RadarChartLabel[] {
-        if (!dataView
-            || !dataView.metadata
-            || !dataView.metadata.columns
-            || !dataView.metadata.columns[0]
-            || !dataView.categorical
-            || !dataView.categorical.values
-            || !dataView.categorical.values[0]
-            || !dataView.categorical.values[0].values) {
-
-            return null;
-        }
-
-        const categoryValues: DataViewValueColumns = dataView.categorical.values;
-
-        const yAxisLabels: RadarChartLabel[] = [];
-
-        for (let i: number = 0, iLen: number = categoryValues.length; i < iLen; i++) {
-            const values: PrimitiveValue[] = categoryValues[i].values;
-            for (let j: number = 0, jLen: number = values.length; j < jLen; j++){
-                const radarChartLabel: RadarChartLabel = d3Arc() as RadarChartLabel;
-                radarChartLabel.text = values[j] as string;
-                radarChartLabel.index = j;
-
-                yAxisLabels.push(radarChartLabel);
-            }
-        }
-        return yAxisLabels;
-    }
-
     private static fakeValue = "fakevalue";
     public static checkAndUpdateAxis(dataView: DataView, values: DataViewValueColumns) {
         if (dataView.categorical.categories[0].values.length <= 2) {// add  2-3 categories to make it looks like a rhomb
