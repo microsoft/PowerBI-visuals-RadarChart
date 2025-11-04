@@ -1,7 +1,8 @@
 {
-  "name": "powerbi-visuals-radarchart",
+  "name": "@microsoft/powerbi-visuals-radarchart",
   "description": "A simple radar chart supporting multiple measures plotted over a categorical axis. Also known as a web chart, spider chart, or star chart. Use to display performance metrics for quality improvement.",
   "version": "3.2.0.0",
+  "private": true,
   "author": {
     "name": "Microsoft",
     "email": "pbicvsupport@microsoft.com"
