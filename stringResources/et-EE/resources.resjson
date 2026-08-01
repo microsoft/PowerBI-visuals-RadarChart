@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "Kuva andmete värvide suvandid",
   "Visual_Description_DataLabels": "Kuva andmesildi suvandid",
   "Visual_Description_Color": "Valige andmesiltide värv",
-  "Visual_OnObject_DeleteTitle": "Kustuta pealkiri",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "Vorminda pealkirja",
   "Visual_OnObject_DeleteLegend": "Kustuta legend",
   "Visual_OnObject_FormatLegend": "Vorminda legendi",

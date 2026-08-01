@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "Показване на опциите за цветове на данните",
   "Visual_Description_DataLabels": "Показване на опциите за етикети на данни",
   "Visual_Description_Color": "Избор на цвят за етикетите за данни",
-  "Visual_OnObject_DeleteTitle": "Изтриване на заглавие",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "Заглавие на формат",
   "Visual_OnObject_DeleteLegend": "Изтриване на легенда",
   "Visual_OnObject_FormatLegend": "Форматиране на легенда",

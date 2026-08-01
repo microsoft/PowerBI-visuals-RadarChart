@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "Rodyti duomenų spalvų parinktis",
   "Visual_Description_DataLabels": "Rodyti duomenų žymų parinktis",
   "Visual_Description_Color": "Pasirinkite duomenų žymų spalvą",
-  "Visual_OnObject_DeleteTitle": "Naikinti pavadinimą",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "Formatuoti pavadinimą",
   "Visual_OnObject_DeleteLegend": "Naikinti legendą",
   "Visual_OnObject_FormatLegend": "Formatuoti legendą",

@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "Mostrar opcións de cores de datos",
   "Visual_Description_DataLabels": "Mostrar opcións de etiqueta de datos",
   "Visual_Description_Color": "Seleccionar a cor para as etiquetas de datos",
-  "Visual_OnObject_DeleteTitle": "Eliminar título",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "Título do formato",
   "Visual_OnObject_DeleteLegend": "Eliminar lenda",
   "Visual_OnObject_FormatLegend": "Formatar lenda",

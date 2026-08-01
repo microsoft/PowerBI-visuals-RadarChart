@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "Prikaži opcije boje podataka",
   "Visual_Description_DataLabels": "Prikaži opcije oznaka boja podataka",
   "Visual_Description_Color": "Izaberite boju za oznake podataka",
-  "Visual_OnObject_DeleteTitle": "Izbriši naslov",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "Oblikuj naslov",
   "Visual_OnObject_DeleteLegend": "Izbriši legendu",
   "Visual_OnObject_FormatLegend": "Oblikuj legendu",

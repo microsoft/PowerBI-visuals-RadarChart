@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "Visa datafärgsalternativ",
   "Visual_Description_DataLabels": "Visa dataetikettsalternativ",
   "Visual_Description_Color": "Välj färg för dataetiketter",
-  "Visual_OnObject_DeleteTitle": "Ta bort rubrik",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "Formatera rubrik",
   "Visual_OnObject_DeleteLegend": "Ta bort förklaring",
   "Visual_OnObject_FormatLegend": "Formatera förklaring",

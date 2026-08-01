@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "HIển thị tùy chọn màu dữ liệu",
   "Visual_Description_DataLabels": "Hiển thị tùy chọn nhãn dữ liệu",
   "Visual_Description_Color": "Chọn màu cho nhãn dữ liệu",
-  "Visual_OnObject_DeleteTitle": "Xóa tiêu đề",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "Định dạng tiêu đề",
   "Visual_OnObject_DeleteLegend": "Xóa chú giải",
   "Visual_OnObject_FormatLegend": "Định dạng chú giải",

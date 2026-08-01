@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "Veri rengi seçeneklerini görüntüle",
   "Visual_Description_DataLabels": "Veri etiketi seçeneklerini görüntüle",
   "Visual_Description_Color": "Veri etiketlerine ilişkin rengi seçin",
-  "Visual_OnObject_DeleteTitle": "Başlığı sil",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "Başlığı biçimlendir",
   "Visual_OnObject_DeleteLegend": "Göstergeyi sil",
   "Visual_OnObject_FormatLegend": "Göstergeyi biçimlendir",

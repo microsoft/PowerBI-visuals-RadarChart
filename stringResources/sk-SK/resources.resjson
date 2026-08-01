@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "Možnosti zobrazenia farieb údajov",
   "Visual_Description_DataLabels": "Možnosti zobrazenia označenia údajov",
   "Visual_Description_Color": "Vyberte farbu pre označenia údajov",
-  "Visual_OnObject_DeleteTitle": "Odstrániť názov",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "Formátovať názov",
   "Visual_OnObject_DeleteLegend": "Odstrániť legendu",
   "Visual_OnObject_FormatLegend": "Formátovať legendu",
