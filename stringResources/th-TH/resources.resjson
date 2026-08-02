@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "แสดงตัวเลือกสีสำหรับข้อมูล",
   "Visual_Description_DataLabels": "แสดงตัวเลือกป้ายสำหรับข้อมูล",
   "Visual_Description_Color": "เลือกสีสำหรับป้ายข้อมูล",
-  "Visual_OnObject_DeleteTitle": "ลบชื่อเรื่อง",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "จัดรูปแบบชื่อเรื่อง",
   "Visual_OnObject_DeleteLegend": "ลบคําอธิบายแผนภูมิ",
   "Visual_OnObject_FormatLegend": "จัดรูปแบบคําอธิบายแผนภูมิ",

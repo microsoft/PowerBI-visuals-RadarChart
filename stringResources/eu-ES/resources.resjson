@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "Bistaratu datuen koloreen aukerak",
   "Visual_Description_DataLabels": "Bistaratu datuen etiketen aukerak",
   "Visual_Description_Color": "Hautatu datu-etiketen kolorea",
-  "Visual_OnObject_DeleteTitle": "Ezabatu izenburua",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "Eman formatua izenburuari",
   "Visual_OnObject_DeleteLegend": "Ezabatu legenda",
   "Visual_OnObject_FormatLegend": "Formatuaren legenda",

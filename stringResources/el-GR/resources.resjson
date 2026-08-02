@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "Εμφάνιση επιλογών χρωμάτων δεδομένων",
   "Visual_Description_DataLabels": "Εμφάνιση επιλογών ετικετών δεδομένων",
   "Visual_Description_Color": "Επιλογή χρώματος για ετικέτες δεδομένων",
-  "Visual_OnObject_DeleteTitle": "Διαγραφή τίτλου",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "Μορφή τίτλου",
   "Visual_OnObject_DeleteLegend": "Διαγραφή υπομνήματος",
   "Visual_OnObject_FormatLegend": "Μορφή υπομνήματος",

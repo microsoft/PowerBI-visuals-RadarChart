@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "Zobrazí možnosti pro barvy dat.",
   "Visual_Description_DataLabels": "Zobrazí možnosti pro popisky dat.",
   "Visual_Description_Color": "Vyberte barvu pro popisky dat.",
-  "Visual_OnObject_DeleteTitle": "Odstranit název",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "Formátovat název",
   "Visual_OnObject_DeleteLegend": "Odstranit legendu",
   "Visual_OnObject_FormatLegend": "Formátovat legendu",

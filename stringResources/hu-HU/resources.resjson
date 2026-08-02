@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "Adatszínek beállításainak megjelentése",
   "Visual_Description_DataLabels": "Adatfeliratok beállításainak megjelentése",
   "Visual_Description_Color": "Szín kiválasztása az adatcímkékhez",
-  "Visual_OnObject_DeleteTitle": "Cím törlése",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "Cím formázása",
   "Visual_OnObject_DeleteLegend": "Jelmagyarázat törlése",
   "Visual_OnObject_FormatLegend": "Jelmagyarázat formázása",

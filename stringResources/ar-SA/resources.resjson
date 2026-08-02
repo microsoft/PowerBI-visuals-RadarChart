@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "عرض خيارات لون البيانات",
   "Visual_Description_DataLabels": "عرض خيارات بطاقة البيانات",
   "Visual_Description_Color": "تحديد لون بطاقات البيانات",
-  "Visual_OnObject_DeleteTitle": "حذف العنوان",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "تنسيق العنوان",
   "Visual_OnObject_DeleteLegend": "حذف وسيلة الإيضاح",
   "Visual_OnObject_FormatLegend": "تنسيق وسيلة الإيضاح",

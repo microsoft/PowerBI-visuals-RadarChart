@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "Näytä tietojen värin vaihtoehdot",
   "Visual_Description_DataLabels": "Näytä arvopisteiden otsikkovaihtoehdot",
   "Visual_Description_Color": "Valitse väri arvopisteiden otsikoille",
-  "Visual_OnObject_DeleteTitle": "Poista otsikko",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "Muotoile otsikkoa",
   "Visual_OnObject_DeleteLegend": "Poista selite",
   "Visual_OnObject_FormatLegend": "Muotoile selite",
