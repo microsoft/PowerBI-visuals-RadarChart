@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "Показывать цветовые параметры данных",
   "Visual_Description_DataLabels": "Показывать параметры меток данных",
   "Visual_Description_Color": "Выбрать цвет для меток данных",
-  "Visual_OnObject_DeleteTitle": "Удалить заголовок",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "Форматировать заголовок",
   "Visual_OnObject_DeleteLegend": "Удалить условные обозначения",
   "Visual_OnObject_FormatLegend": "Форматировать условные обозначения",

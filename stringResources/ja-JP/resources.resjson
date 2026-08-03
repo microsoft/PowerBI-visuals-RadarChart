@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "データの色のオプションを表示する",
   "Visual_Description_DataLabels": "データ ラベルのオプションを表示する",
   "Visual_Description_Color": "データ ラベルの色を選ぶ",
-  "Visual_OnObject_DeleteTitle": "タイトルの削除",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "タイトルの書式設定",
   "Visual_OnObject_DeleteLegend": "凡例の削除",
   "Visual_OnObject_FormatLegend": "凡例の書式設定",
