@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "Vis alternativer for datafarge",
   "Visual_Description_DataLabels": "Vis alternativer for dataetiketter",
   "Visual_Description_Color": "Velg farge for dataetiketter",
-  "Visual_OnObject_DeleteTitle": "Slett tittel",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "Formater tittel",
   "Visual_OnObject_DeleteLegend": "Slett forklaring",
   "Visual_OnObject_FormatLegend": "Formater forklaring",

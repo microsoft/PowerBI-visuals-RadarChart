@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "הצג אפשרויות צבע מידע",
   "Visual_Description_DataLabels": "הצג אפשרויות תוויות מידע",
   "Visual_Description_Color": "בחר צבע לתוויות מידע",
-  "Visual_OnObject_DeleteTitle": "מחק כותרת",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "עיצוב כותרת",
   "Visual_OnObject_DeleteLegend": "מחק מקרא",
   "Visual_OnObject_FormatLegend": "עיצוב מקרא",

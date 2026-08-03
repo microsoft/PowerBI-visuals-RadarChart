@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "데이터 색 표시 옵션",
   "Visual_Description_DataLabels": "데이터 레이블 표시 옵션",
   "Visual_Description_Color": "데이터 레이블의 색 선택",
-  "Visual_OnObject_DeleteTitle": "제목 삭제",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "제목 서식 지정",
   "Visual_OnObject_DeleteLegend": "범례 삭제",
   "Visual_OnObject_FormatLegend": "범례 서식 지정",

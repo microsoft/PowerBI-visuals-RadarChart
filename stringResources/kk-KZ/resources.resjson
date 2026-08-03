@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "Деректер түсі параметрлерін көрсету",
   "Visual_Description_DataLabels": "Деректер белгілері параметрлерін көрсету",
   "Visual_Description_Color": "Деректер белгілері үшін түс таңдау",
-  "Visual_OnObject_DeleteTitle": "Тақырыпты жою",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "Тақырып пішімі",
   "Visual_OnObject_DeleteLegend": "Мәндік белгілерді жою",
   "Visual_OnObject_FormatLegend": "Шартты белгілерді пішімдеу",

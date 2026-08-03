@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "Farboptionen für Daten anzeigen",
   "Visual_Description_DataLabels": "Optionen für Datenbeschriftungen anzeigen",
   "Visual_Description_Color": "Farbe für Datenbeschriftungen auswählen",
-  "Visual_OnObject_DeleteTitle": "Titel löschen",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "Titel formatieren",
   "Visual_OnObject_DeleteLegend": "Legende löschen",
   "Visual_OnObject_FormatLegend": "Legende formatieren",

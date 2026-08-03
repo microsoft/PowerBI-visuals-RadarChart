@@ -34,7 +34,7 @@
   "Visual_Description_DataColors": "Opties voor gegevenskleuren weergeven",
   "Visual_Description_DataLabels": "Opties voor gegevenslabels weergeven",
   "Visual_Description_Color": "Kleur voor gegevenslabels selecteren",
-  "Visual_OnObject_DeleteTitle": "Titel verwijderen",
+  "Visual_OnObject_DeleteTitle": "Delete title",
   "Visual_OnObject_FormatTitle": "Titel opmaken",
   "Visual_OnObject_DeleteLegend": "Legenda verwijderen",
   "Visual_OnObject_FormatLegend": "Legenda opmaken",
