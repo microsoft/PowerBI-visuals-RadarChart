@@ -1514,27 +1514,15 @@ export class RadarChart implements IVisual {
     }
 
     private calculateChartDomain(series: RadarChartSeries[]): d3LinearScale<number, number> {
-        const radius: number = this.radius * RadarChart.SegmentFactor,
-            dataPointsList: RadarChartDatapoint[] = this.getAllDataPointsList(series);
+    const radius: number = this.radius * RadarChart.SegmentFactor;
 
-        let maxValue: number = d3Max(dataPointsList, (dataPoint: RadarChartDatapoint) => {
-            return dataPoint.y;
-        });
+    const minValue: number = 0;
+    const maxValue: number = 5;
 
-        let minValue: number = this.formattingSettings.display.minValue.value;
-
-        if (this.isPercentChart(dataPointsList)) {
-            minValue = minValue >= RadarChart.MinDomainValue
-                ? RadarChart.MinDomainValue
-                : -RadarChart.MaxDomainValue;
-
-            maxValue = maxValue <= RadarChart.MinDomainValue
-                ? RadarChart.MinDomainValue
-                : RadarChart.MaxDomainValue;
-        }
-        return d3ScaleLinear()
-            .domain([minValue, maxValue])
-            .range([RadarChart.MinDomainValue, radius]);
+    return d3ScaleLinear()
+        .domain([minValue, maxValue])
+        .range([RadarChart.MinDomainValue, radius])
+        .clamp(true);
     }
 
     private renderLegend(): void {
